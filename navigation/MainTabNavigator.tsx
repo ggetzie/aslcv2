@@ -19,6 +19,23 @@ import EndOfDigScreen from "../src/screens/end_of_dig/EndOfDigScreen";
 import PhotogrammetryScreen from "../src/screens/photogrammetry/PhotogrammetryScreen";
 
 
+
+function defaultNavOptions({navigation}) {
+    return {
+        headerStyle: {
+            backgroundColor: nativeColors.lightBrown,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+        },
+        headerTitleStyle: {
+            fontWeight: 'bold',
+            color: 'white',
+            fontSize: verticalScale(18)
+        }
+    };
+}
+
 const HomeScreenStack = createStackNavigator({
     HomeScreen: HomeScreen,
     // Other screens go here
@@ -26,29 +43,13 @@ const HomeScreenStack = createStackNavigator({
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.tintedBrown}]} resizeMode={"contain"}
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
                              source={HomeBottomNav}/>
                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
                              source={HomeBottomNav}/>
             ),
     },
-    defaultNavigationOptions: ({navigation}) => {
-        return {
-            headerStyle: {
-                backgroundColor: '#000000',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 0,
-            },
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: verticalScale(18)
-            },
-
-            // headerLeft: () => <BackButtonComponent navigation={navigation} showWhite={true}/>
-        };
-    }
+    defaultNavigationOptions: defaultNavOptions
 });
 
 const ContextScreenStack = createStackNavigator({
@@ -58,29 +59,13 @@ const ContextScreenStack = createStackNavigator({
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.tintedBrown}]} resizeMode={"contain"}
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
                              source={ContextBottomNav}/>
                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
                              source={ContextBottomNav}/>
             ),
     },
-    defaultNavigationOptions: ({navigation}) => {
-        return {
-            headerStyle: {
-                backgroundColor: '#000000',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 0,
-            },
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: verticalScale(18)
-            },
-
-            // headerLeft: () => <BackButtonComponent navigation={navigation} showWhite={true}/>
-        };
-    }
+    defaultNavigationOptions: defaultNavOptions
 });
 
 const EndOfDigScreenStack = createStackNavigator({
@@ -90,29 +75,13 @@ const EndOfDigScreenStack = createStackNavigator({
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.tintedBrown}]} resizeMode={"contain"}
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
                              source={EndOfDigBottomNav}/>
                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
                              source={EndOfDigBottomNav}/>
             ),
     },
-    defaultNavigationOptions: ({navigation}) => {
-        return {
-            headerStyle: {
-                backgroundColor: '#000000',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 0,
-            },
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: verticalScale(18)
-            },
-
-            // headerLeft: () => <BackButtonComponent navigation={navigation} showWhite={true}/>
-        };
-    }
+    defaultNavigationOptions: defaultNavOptions
 });
 
 const PhotogrammetryScreenStack = createStackNavigator({
@@ -122,29 +91,13 @@ const PhotogrammetryScreenStack = createStackNavigator({
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.tintedBrown}]} resizeMode={"contain"}
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
                              source={PhotogrammetryBottomNav}/>
                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
                              source={PhotogrammetryBottomNav}/>
             ),
     },
-    defaultNavigationOptions: ({navigation}) => {
-        return {
-            headerStyle: {
-                backgroundColor: '#000000',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 0,
-            },
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: verticalScale(18)
-            },
-
-            // headerLeft: () => <BackButtonComponent navigation={navigation} showWhite={true}/>
-        };
-    }
+    defaultNavigationOptions:defaultNavOptions
 });
 
 
@@ -154,24 +107,7 @@ export const LoginScreenNavigator = createStackNavigator({
     SignupScreen: SignupScreen,
     DataLoadingComponent: DataLoadingComponent
 }, {
-    defaultNavigationOptions: ({navigation}) => {
-        return {
-            headerStyle: {
-                backgroundColor: '#000000',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 0,
-            },
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                color: 'white',
-                fontSize: verticalScale(18)
-            },
-
-            // TODO: Investigate necessity
-            // headerLeft: () => <BackButtonComponent navigation={navigation} showWhite={true}/>
-        }
-    }
+    headerMode: 'none'
 });
 
 export const MainTabNavigator = createBottomTabNavigator({

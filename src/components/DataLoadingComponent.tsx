@@ -29,6 +29,7 @@ const DataLoadingComponent: NavigationScreenComponent<any> = (props) => {
         const fetchData = async () => {
             try {
                 await dispatch(refreshJwtToken());
+                props.navigation.navigate("HomeScreen");
             } catch (error) {
                 props.navigation.navigate("LoginScreen");
                 return;

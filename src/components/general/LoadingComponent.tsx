@@ -9,7 +9,7 @@ export const LoadingComponent: React.FC<Props> = (props) => {
     return (
         <View
             style={[{
-                backgroundColor: "black",
+                backgroundColor: "white",
                 height: "100%",
                 width: "100%",
                 alignItems: "center",

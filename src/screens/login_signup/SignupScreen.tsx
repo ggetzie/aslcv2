@@ -1,13 +1,15 @@
 import * as React from "react";
 import {useState} from "react";
 import {NavigationScreenComponent} from "react-navigation";
-import {validateEmail, validatePassword} from "../../constants/nativeFunctions";
+import {validateEmail, validatePassword, verticalScale} from "../../constants/nativeFunctions";
 import {LoginDetails} from "../../constants/EnumsAndInterfaces/UserDataInterfaces";
 import {registerUser} from "../../constants/backend_api_action";
 import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
-import {TextInput, View} from "react-native";
+import {StyleSheet, Text, TextInput, View} from "react-native";
 import {useDispatch} from "react-redux";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
+import {nativeColors} from "../../constants/colors";
+import {PaddingComponent} from "../../components/PaddingComponent";
 
 
 const SignupScreen: NavigationScreenComponent<any, any> = (props) => {
@@ -52,26 +54,64 @@ const SignupScreen: NavigationScreenComponent<any, any> = (props) => {
     return (
         <View>
             <LoadingModalComponent showLoading={loading}/>
-            <TextInput value={username}
-                       onChangeText={(text) => setUsername(text)}
-                       placeholder="Username"/>
-            <TextInput value={email}
-                       onChangeText={(text) => setEmail(text)}
-                       placeholder="Email"/>
-            <TextInput value={password}
-                       secureTextEntry={true}
-                       onChangeText={(text) => setPassword(text)}
-                       placeholder="Password"/>
-            <ButtonComponent onPress={validateInputAndRegister} text={"Signup"}/>
-            <ButtonComponent onPress={() => props.navigation.navigate("SignupScreen")}
-                             text={"Login"}/>
+            <View style={styles.container}>
+                <Text style={styles.headerText}>Signup</Text>
+                <TextInput value={username}
+                           style={styles.textInputContainer}
+                           onChangeText={(text) => setUsername(text)}
+                           autoCapitalize={"none"}
+                           autoCorrect={false}
+                           placeholder="Username"/>
+                <PaddingComponent/>
+                <TextInput value={email}
+                           style={styles.textInputContainer}
+                           autoCapitalize={"none"}
+                           autoCorrect={false}
+                           onChangeText={(text) => setEmail(text)}
+                           placeholder="Email"/>
+                <PaddingComponent/>
+                <TextInput value={password}
+                           style={styles.textInputContainer}
+                           secureTextEntry={true}
+                           autoCapitalize={"none"}
+                           autoCorrect={false}
+                           onChangeText={(text) => setPassword(text)}
+                           placeholder="Password"/>
+            </View>
+            <ButtonComponent onPress={validateInputAndRegister} text={"Signup"} rounded={true}
+                             buttonStyle={{width: "50%"}}/>
+            <ButtonComponent onPress={() => props.navigation.navigate("LoginScreen")}
+                             text={"Login"} rounded={true}
+                             buttonStyle={{
+                                 width: "50%",
+                                 backgroundColor: nativeColors.disabledGrey
+                             }}
+                             textStyle={{color: "black"}}/>
         </View>
     );
 };
 
-SignupScreen.navigationOptions = screenProps => ({
-    title: '',
-    headerLeft: () => null
+const styles = StyleSheet.create({
+    headerText: {
+        color: 'black',
+        fontSize: verticalScale(24),
+        fontWeight: "500",
+        padding: "10%"
+    },
+    container: {
+        marginTop: verticalScale(150),
+        width: "80%",
+        alignSelf: "center",
+        padding: "10%",
+        alignItems: "center"
+    },
+    textInputContainer: {
+        borderWidth: 1,
+        borderRadius: 30,
+        borderColor: nativeColors.disabledGrey,
+        width: "100%",
+        padding: "5%"
+    }
 });
 
 export default SignupScreen;

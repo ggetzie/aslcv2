@@ -37,14 +37,15 @@ export const ButtonComponent: React.FC<Props> = (props) => {
 const styles = StyleSheet.create({
     buttonStyle: {
         width: "100%",
-        backgroundColor: nativeColors.tintedBrown,
+        backgroundColor: nativeColors.lightBrown,
         alignSelf: "center",
         height: verticalScale(40),
         alignItems: "center",
         justifyContent: "center",
-        marginVertical: verticalScale(15)
+        marginVertical: verticalScale(5)
     },
     textStyle: {
+        color: 'white',
         fontSize: verticalScale(18),
         fontWeight: "500"
     }

@@ -3,11 +3,14 @@ import {useState} from "react";
 import {NavigationScreenComponent} from "react-navigation";
 import {useDispatch} from "react-redux";
 import {LoginDetails} from "../../constants/EnumsAndInterfaces/UserDataInterfaces";
-import {TextInput, View} from "react-native";
+import {StyleSheet, Text, TextInput, View} from "react-native";
 import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import {loginUser} from "../../constants/backend_api_action";
 import DataLoadingComponent from "../../components/DataLoadingComponent";
+import {nativeColors} from "../../constants/colors";
+import {verticalScale} from "../../constants/nativeFunctions";
+import {PaddingComponent} from "../../components/PaddingComponent";
 
 const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
@@ -45,24 +48,60 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
     return (
         <View>
             <LoadingModalComponent showLoading={loading}/>
-            <TextInput value={usernameOrEmail}
-                       onChangeText={(text) => setUsernameOrEmail(text)}
-                       placeholder="Username/Email"/>
-            <TextInput value={password}
-                       secureTextEntry={true}
-                       onChangeText={(text) => setPassword(text)}
-                       placeholder="Password"/>
-            <ButtonComponent onPress={validateInputAndLogin} text={"Log In"}/>
-            <ButtonComponent onPress={()=> props.navigation.navigate("SignupScreen")} text={"Signup"}/>
+
+            <View style={styles.container}>
+                <Text style={styles.headerText}>Login</Text>
+                <TextInput value={usernameOrEmail}
+                           style={styles.textInputContainer}
+                           onChangeText={(text) => setUsernameOrEmail(text)}
+                           autoCapitalize={"none"}
+                           autoCorrect={false}
+                           placeholder="Username/Email"/>
+                <PaddingComponent/>
+                <TextInput value={password}
+                           style={styles.textInputContainer}
+                           secureTextEntry={true}
+                           autoCapitalize={"none"}
+                           autoCorrect={false}
+                           onChangeText={(text) => setPassword(text)}
+                           placeholder="Password"/>
+            </View>
+            <ButtonComponent onPress={validateInputAndLogin} text={"Log In"} rounded={true}
+                             buttonStyle={{width: "50%"}}/>
+            <ButtonComponent onPress={() => props.navigation.navigate("SignupScreen")}
+                             text={"Signup"} rounded={true}
+                             buttonStyle={{
+                                 width: "50%",
+                                 backgroundColor: nativeColors.disabledGrey
+                             }}
+                             textStyle={{color: "black"}}/>
         </View>
     );
 
 
 };
 
-LoginScreen.navigationOptions = screenProps => ({
-    title: '',
-    headerLeft: () => null
+const styles = StyleSheet.create({
+    headerText: {
+        color: 'black',
+        fontSize: verticalScale(24),
+        fontWeight: "500",
+        padding: "10%"
+    },
+    container: {
+        marginTop: verticalScale(150),
+        width: "80%",
+        alignSelf: "center",
+        padding: "10%",
+        alignItems: "center"
+    },
+    textInputContainer: {
+        borderWidth: 1,
+        borderRadius: 30,
+        borderColor: nativeColors.disabledGrey,
+        width: "100%",
+        padding: "5%"
+    }
 });
 
 export default LoginScreen;
