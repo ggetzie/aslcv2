@@ -20,7 +20,7 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
 
     async function validateInputAndLogin() {
         if (usernameOrEmail.trim().length === 0) {
-            alert("Username/Email cannot be empty");
+            alert("Username cannot be empty");
             return;
         } else if (password.trim().length === 0) {
             alert("Password cannot be empty");
@@ -56,7 +56,7 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
                            onChangeText={(text) => setUsernameOrEmail(text)}
                            autoCapitalize={"none"}
                            autoCorrect={false}
-                           placeholder="Username/Email"/>
+                           placeholder="Username"/>
                 <PaddingComponent/>
                 <TextInput value={password}
                            style={styles.textInputContainer}
@@ -68,13 +68,14 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
             </View>
             <ButtonComponent onPress={validateInputAndLogin} text={"Log In"} rounded={true}
                              buttonStyle={{width: "50%"}}/>
-            <ButtonComponent onPress={() => props.navigation.navigate("SignupScreen")}
-                             text={"Signup"} rounded={true}
-                             buttonStyle={{
-                                 width: "50%",
-                                 backgroundColor: nativeColors.disabledGrey
-                             }}
-                             textStyle={{color: "black"}}/>
+            {/*TODO: Implement signup on backend */}
+            {/*<ButtonComponent onPress={() => props.navigation.navigate("SignupScreen")}*/}
+            {/*                 text={"Signup"} rounded={true}*/}
+            {/*                 buttonStyle={{*/}
+            {/*                     width: "50%",*/}
+            {/*                     backgroundColor: nativeColors.disabledGrey*/}
+            {/*                 }}*/}
+            {/*                 textStyle={{color: "black"}}/>*/}
         </View>
     );
 

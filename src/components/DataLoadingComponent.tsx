@@ -10,6 +10,7 @@ import {LoadingComponent} from "./general/LoadingComponent";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
 import {refreshJwtToken} from "../constants/backend_api_action";
+import {getJwtFromAsyncStorage} from "../constants/utilityFunctions";
 
 if (typeof TextEncoder !== 'function') {
     const TextEncodingPolyfill = require('text-encoding');
@@ -28,8 +29,15 @@ const DataLoadingComponent: NavigationScreenComponent<any> = (props) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await dispatch(refreshJwtToken());
-                props.navigation.navigate("HomeScreen");
+                const token: string = await getJwtFromAsyncStorage();
+                if(token != null && token.trim().length !== 0){
+                    props.navigation.navigate("HomeScreen");
+                } else {
+                    throw new Error("Not Logged in");
+                }
+                //TODO: Implement Logic to verify correctness of existing token
+                //
+                // await dispatch(refreshJwtToken());
             } catch (error) {
                 props.navigation.navigate("LoginScreen");
                 return;

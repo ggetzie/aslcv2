@@ -1,5 +1,10 @@
 import {UserProfileWithCredentials} from "../src/constants/EnumsAndInterfaces/UserDataInterfaces";
-import {RESET_REDUCER_DATA, SET_USER_PROFILE_WITH_CREDENTIALS} from "./reducerAction";
+import {
+    RESET_REDUCER_DATA,
+    SET_SELECTED_SPATIAL_AREA,
+    SET_USER_PROFILE_WITH_CREDENTIALS
+} from "./reducerAction";
+import {SpatialArea} from "../src/constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 
 export interface ReducerAction {
     type: string;
@@ -7,10 +12,12 @@ export interface ReducerAction {
 }
 
 interface ReducerState {
+    selectedSpatialArea: SpatialArea;
     userProfileWithCredentials: UserProfileWithCredentials;
 }
 
 const initialState: ReducerState = {
+    selectedSpatialArea: null,
     userProfileWithCredentials: null
 };
 
@@ -20,6 +27,11 @@ export default function reducer(state = initialState, action: ReducerAction) {
             return {
                 ...state,
                 userProfileWithCredentials: action.payload
+            };
+        case  SET_SELECTED_SPATIAL_AREA:
+            return {
+              ...state,
+              selectedSpatialArea: action.payload
             };
         case RESET_REDUCER_DATA:
             return {

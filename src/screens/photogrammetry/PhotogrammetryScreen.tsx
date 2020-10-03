@@ -13,7 +13,7 @@ const PhotogrammetryScreen: NavigationScreenComponent<any, any> = (props) => {
 };
 
 PhotogrammetryScreen.navigationOptions = screenProps => ({
-    title: 'Context',
+    title: 'Photogrammetry',
     headerLeft: () => null
 });
 

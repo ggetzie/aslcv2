@@ -11,11 +11,13 @@ import {LoginDetails} from "./EnumsAndInterfaces/UserDataInterfaces";
 
 export function loginUser(loginDetails: LoginDetails) {
     return async function (dispatch) {
-        let API = "login";
+        let API = "auth-token/";
         try {
             let response = await axios.post(API, loginDetails);
             await extractAndSaveJwt(response);
-            dispatch(setUserProfileWithCredentials(response.data));
+            console.log("Response Data: ", response.data.token);
+
+            dispatch(setUserProfileWithCredentials({id: null, ...loginDetails}));
             return Promise.resolve();
         } catch (error) {
             console.warn(error);

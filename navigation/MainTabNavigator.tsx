@@ -17,6 +17,7 @@ import {
 import ContextScreen from "../src/screens/context/ContextScreen";
 import EndOfDigScreen from "../src/screens/end_of_dig/EndOfDigScreen";
 import PhotogrammetryScreen from "../src/screens/photogrammetry/PhotogrammetryScreen";
+import SpatialAreaSelectScreen from "../src/screens/context/SpatialAreaSelectScreen";
 
 
 
@@ -24,6 +25,7 @@ function defaultNavOptions({navigation}) {
     return {
         headerStyle: {
             backgroundColor: nativeColors.lightBrown,
+            margin: "auto",
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
@@ -54,6 +56,7 @@ const HomeScreenStack = createStackNavigator({
 
 const ContextScreenStack = createStackNavigator({
     ContextScreen: ContextScreen,
+    SpatialAreaSelectScreen: SpatialAreaSelectScreen
     // Other screens go here
 }, {
     navigationOptions: {
