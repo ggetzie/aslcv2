@@ -13,8 +13,8 @@ export interface SpatialArea extends SpatialAreaQuery{
 
 export const initSpatialArea = (): SpatialAreaQuery => {
     return {
-        utm_hemisphere: null,
-        utm_zone: null,
+        utm_hemisphere: "N",
+        utm_zone: 38,
         area_utm_easting_meters: null,
         area_utm_northing_meters: null
     }

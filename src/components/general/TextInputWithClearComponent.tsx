@@ -10,6 +10,7 @@ interface Props {
     testInputStyle?: any;
     placeHolder?: string;
     numeric?: boolean;
+    multiline?: boolean;
     onChangeText: (text: string) => void;
 }
 
@@ -19,15 +20,18 @@ export const TextInputWithClearComponent: React.FC<Props> = (props) => {
     return (
         <View style={[Styles.containerStyle, props.containerStyle ? props.containerStyle : {}]}>
             <TextInput
+                multiline={!!props.multiline}
                 value={props.value ? props.value.toString() : null}
                 style={[Styles.textInputStyle, props.testInputStyle ? props.testInputStyle : {}]}
                 placeholder={props.placeHolder}
-                keyboardType={numeric? "numeric": "default"}
+                keyboardType={numeric ? "numeric" : "default"}
                 onChangeText={props.onChangeText}
             />
             {props.value ? <TouchableOpacity onPress={() => props.onChangeText(null)}>
-                <Icon style={Styles.iconStyle} name="close" type="font-awesome" color={nativeColors.grey}/>
-            </TouchableOpacity> : (<View></View>)}
+                {/* TODO: Investigate Icon styling issue (gets cut-off)*/}
+                <Icon style={Styles.iconStyle} name="close" type="font-awesome"
+                      color={nativeColors.grey}/>
+            </TouchableOpacity> : null}
         </View>
     );
 };
@@ -36,16 +40,18 @@ const Styles = StyleSheet.create({
     containerStyle: {
         flexDirection: "row",
         display: "flex",
-        width: "80%",
+        alignSelf: "flex-start",
+        width: "100%",
         justifyContent: "space-between",
         alignItems: "center"
     },
     textInputStyle: {
-      width: "80%"
+        width: "80%"
     },
     iconStyle: {
+        padding: "auto",
         alignSelf: "center",
-        width: verticalScale(20),
-        height: verticalScale(20)
+        width: verticalScale(25),
+        height: verticalScale(25)
     }
 });

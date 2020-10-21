@@ -67,4 +67,18 @@ export function isNotEmptyOrNullBatch(...args: string[]) {
     return safe;
 }
 
+export function getFormattedDate(datetime: string): string {
+    if (!isNotEmptyOrNull(datetime)){
+        return datetime;
+    }
+    return (new Date((datetime.substr(0, datetime.length - 4) + "Z")).toLocaleString()).toString();
+}
+
+export function reverseDateFormatting(datetime: string): string {
+    if (!isNotEmptyOrNull(datetime)){
+        return datetime;
+    }
+    return (datetime.substr(0, datetime.length - 1) + "000Z");
+}
+
 

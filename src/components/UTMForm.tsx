@@ -1,17 +1,16 @@
 import * as React from "react";
 import {useState} from "react";
-import {Picker, StyleSheet, TextInput, View, Text} from "react-native";
+import {Picker, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {ButtonComponent} from "./general/ButtonComponent";
-import {
-    initSpatialArea,
-    SpatialAreaQuery
-} from "../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
+import {SpatialArea, SpatialAreaQuery} from "../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import Geolocation, {GeolocationConfiguration} from '@react-native-community/geolocation';
 import {RowView} from "./general/RowView";
 import {verticalScale} from "../constants/nativeFunctions";
 import {TextInputWithClearComponent} from "./general/TextInputWithClearComponent";
 import {nativeColors} from "../constants/colors";
 import {LoadingModalComponent} from "./general/LoadingModalComponent";
+import {Icon} from 'react-native-elements';
+import {getFilteredSpatialAreasList} from "../constants/backend_api";
 
 let utmObj = require('utm-latlng');
 let utm = new utmObj();
@@ -19,6 +18,8 @@ let utm = new utmObj();
 interface Props {
     form: SpatialAreaQuery;
     setForm: (form) => void;
+    availableSpatialAreas: SpatialArea[],
+    navigation: any;
 }
 
 export const UTMForm: React.FC<Props> = (props) => {
@@ -44,7 +45,6 @@ export const UTMForm: React.FC<Props> = (props) => {
             };
             setForm(newForm);
             setLoading(false);
-            console.log("LocInfo: ", UTM);
         } catch (e) {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ export const UTMForm: React.FC<Props> = (props) => {
     async function getPositionAndSetUTC() {
         setLoading(true);
         await Geolocation.getCurrentPosition(info => setUTCFromPosition(info), (error) => {
-            setLoading(false);
+                setLoading(false);
                 console.warn(error);
             },
             {
@@ -63,10 +63,28 @@ export const UTMForm: React.FC<Props> = (props) => {
             });
     }
 
+    async function getMetersList(isNorthing: boolean) {
+        try {
+            const newSpatialAreas = await getFilteredSpatialAreasList({
+                ...form,
+                area_utm_easting_meters: isNorthing ? form.area_utm_easting_meters : null,
+                area_utm_northing_meters: isNorthing ? null : form.area_utm_northing_meters
+            });
+            if (isNorthing) {
+                return Promise.resolve(newSpatialAreas.map((area) => area.area_utm_northing_meters));
+            } else {
+                return Promise.resolve(newSpatialAreas.map((area) => area.area_utm_easting_meters));
+            }
+        } catch (e) {
+            console.log(e);
+            Promise.reject();
+        }
+    }
+
     return (
         <View>
             <LoadingModalComponent showLoading={loading}/>
-            <RowView style={{padding: "4%"}} >
+            <RowView style={{padding: "4%"}}>
                 <Text style={{fontSize: verticalScale(18)}}>
                     Fill below OR
                 </Text>
@@ -78,44 +96,89 @@ export const UTMForm: React.FC<Props> = (props) => {
                     rounded={true}
                 />
             </RowView>
-            <View style={{paddingHorizontal: "5%", marginTop: verticalScale(20)}}>
-                <TextInputWithClearComponent value={form.utm_zone}
-                                             onChangeText={(text) =>
-                                                 setForm({
-                                                     ...form,
-                                                     utm_zone: Number(text)
-                                                 })}
-                                             numeric={true}
-                                             placeHolder="UTM Zone Number"/>
-                <TextInputWithClearComponent value={form.area_utm_northing_meters}
-                                             onChangeText={(text) =>
-                                                 setForm({
-                                                     ...form,
-                                                     area_utm_northing_meters: Number(text)
-                                                 })}
-                                             numeric={true}
-                                             placeHolder="Northing (meters)"/>
-                <TextInputWithClearComponent value={form.area_utm_easting_meters}
-                                             onChangeText={(text) =>
-                                                 setForm({
-                                                     ...form,
-                                                     area_utm_easting_meters: Number(text)
-                                                 })}
-                                             numeric={true}
-                                             placeHolder="Easting (meters)"/>
+            <View style={{paddingHorizontal: "5%", marginTop: verticalScale(0)}}>
                 <RowView style={{paddingVertical: "0%"}}>
                     <Picker
-                        style={Styles.selectInputStyle}
+                        style={Styles.inputStyle}
                         selectedValue={form.utm_hemisphere}
                         onValueChange={(value: string, pos) =>
                             setForm({...form, utm_hemisphere: value})}>
                         <Picker.Item label="N - North" value="N"/>
                         <Picker.Item label="S - South" value="S"/>
                     </Picker>
-                    <Text style={Styles.selectLabelStyle}>
+                    <Text style={Styles.labelStyle}>
                         Hemisphere
                     </Text>
                 </RowView>
+                <RowView style={{paddingVertical: "0%"}}>
+                    <TextInputWithClearComponent value={form.utm_zone}
+                                                 containerStyle={Styles.inputStyle}
+                                                 onChangeText={(text) =>
+                                                     setForm({
+                                                         ...form,
+                                                         utm_zone: Number(text)
+                                                     })}
+                                                 numeric={true}
+                                                 placeHolder="UTM Zone Number"/>
+                    <Text style={Styles.labelStyle}>
+                        UTM Zone
+                    </Text>
+                </RowView>
+
+                {/* Northing Select*/}
+                <TouchableOpacity style={{width: "100%"}}
+                                  onPress={async () => {
+                                      const availableNorthings = await getMetersList(true);
+                                      const selectedNorthingIndex = availableNorthings.findIndex((area) => area === props.form.area_utm_northing_meters);
+
+                                      props.navigation.navigate("SelectFromListScreen", {
+                                          list: availableNorthings,
+                                          selectedIndex: selectedNorthingIndex,
+                                          onPress: (area) => setForm({
+                                              ...form,
+                                              area_utm_northing_meters: area
+                                          })
+                                      });
+                                  }}>
+                    <RowView style={{paddingVertical: "5%"}}>
+                        <Text>
+                            Select Northing (meters)
+                        </Text>
+                        <Text>
+                            {form.area_utm_northing_meters}
+                        </Text>
+                        <Icon style={Styles.iconStyle} name="chevron-right" type="font-awesome"
+                              color={nativeColors.grey}/>
+                    </RowView>
+                </TouchableOpacity>
+
+                {/* Easting Select*/}
+                <TouchableOpacity style={{width: "100%"}}
+                                  onPress={async () => {
+                                      const availableEastings = await getMetersList(false);
+                                      const selectedEastingIndex = availableEastings.findIndex((area) => area === props.form.area_utm_easting_meters);
+
+                                      props.navigation.navigate("SelectFromListScreen", {
+                                          list: availableEastings,
+                                          selectedIndex: selectedEastingIndex,
+                                          onPress: (area) => setForm({
+                                              ...form,
+                                              area_utm_easting_meters: area
+                                          })
+                                      });
+                                  }
+                                  }>
+                    <RowView style={{paddingVertical: "5%"}}>
+                        <Text>
+                            Select Easting (meters)
+                        </Text>
+                        <Text>
+                            {form.area_utm_easting_meters}
+                        </Text>
+                        <Icon style={Styles.iconStyle} name="chevron-right" type="font-awesome"
+                              color={nativeColors.grey}/>
+                    </RowView>
+                </TouchableOpacity>
             </View>
 
         </View>
@@ -123,12 +186,18 @@ export const UTMForm: React.FC<Props> = (props) => {
 };
 
 const Styles = StyleSheet.create({
-    selectLabelStyle: {
+    labelStyle: {
         fontSize: verticalScale(16),
-        color: nativeColors.grey,
-        width: "50%"
+        color: 'black',
+        width: "30%"
     },
-    selectInputStyle: {
-        width: "50%"
+    inputStyle: {
+        width: "70%",
+        paddingHorizontal: "5%"
+    },
+    iconStyle: {
+        alignSelf: "center",
+        width: verticalScale(25),
+        height: verticalScale(25)
     }
 });

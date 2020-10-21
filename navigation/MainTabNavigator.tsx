@@ -17,8 +17,9 @@ import {
 import ContextScreen from "../src/screens/context/ContextScreen";
 import EndOfDigScreen from "../src/screens/end_of_dig/EndOfDigScreen";
 import PhotogrammetryScreen from "../src/screens/photogrammetry/PhotogrammetryScreen";
-import SpatialAreaSelectScreen from "../src/screens/context/SpatialAreaSelectScreen";
-
+import SelectFromListScreen from "../src/screens/context/SelectFromListScreen";
+import ContextListScreen from "../src/screens/context/ContextListScreen";
+import ContextDetailScreen from "../src/screens/context/ContextDetailScreen";
 
 
 function defaultNavOptions({navigation}) {
@@ -56,7 +57,9 @@ const HomeScreenStack = createStackNavigator({
 
 const ContextScreenStack = createStackNavigator({
     ContextScreen: ContextScreen,
-    SpatialAreaSelectScreen: SpatialAreaSelectScreen
+    SelectFromListScreen: SelectFromListScreen,
+    ContextListScreen: ContextListScreen,
+    ContextDetailScreen: ContextDetailScreen
     // Other screens go here
 }, {
     navigationOptions: {
