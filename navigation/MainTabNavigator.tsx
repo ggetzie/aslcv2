@@ -6,17 +6,11 @@ import {verticalScale} from "../src/constants/nativeFunctions";
 import SignupScreen from "../src/screens/login_signup/SignupScreen";
 import DataLoadingComponent from "../src/components/DataLoadingComponent";
 import LoginScreen from "../src/screens/login_signup/LoginScreen";
-import HomeScreen from "../src/screens/home/HomeScreen";
+import SettingsScreen from "../src/screens/settings/SettingsScreen";
 import {nativeColors} from "../src/constants/colors";
-import {
-    ContextBottomNav,
-    EndOfDigBottomNav,
-    HomeBottomNav,
-    PhotogrammetryBottomNav
-} from "../src/constants/imageAssets";
+import {ContextBottomNav, EndOfDigBottomNav, SettingsBottomNav} from "../src/constants/imageAssets";
 import ContextScreen from "../src/screens/context/ContextScreen";
-import EndOfDigScreen from "../src/screens/end_of_dig/EndOfDigScreen";
-import PhotogrammetryScreen from "../src/screens/photogrammetry/PhotogrammetryScreen";
+import FindsBagPhotosScreen from "../src/screens/finds_bag_photos/FindsBagPhotosScreen";
 import SelectFromListScreen from "../src/screens/context/SelectFromListScreen";
 import ContextListScreen from "../src/screens/context/ContextListScreen";
 import ContextDetailScreen from "../src/screens/context/ContextDetailScreen";
@@ -39,17 +33,17 @@ function defaultNavOptions({navigation}) {
     };
 }
 
-const HomeScreenStack = createStackNavigator({
-    HomeScreen: HomeScreen,
+const SettingsScreenStack = createStackNavigator({
+    SettingsScreen: SettingsScreen,
     // Other screens go here
 }, {
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
                     ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-                             source={HomeBottomNav}/>
+                             source={SettingsBottomNav}/>
                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-                             source={HomeBottomNav}/>
+                             source={SettingsBottomNav}/>
             ),
     },
     defaultNavigationOptions: defaultNavOptions
@@ -74,8 +68,8 @@ const ContextScreenStack = createStackNavigator({
     defaultNavigationOptions: defaultNavOptions
 });
 
-const EndOfDigScreenStack = createStackNavigator({
-    EndOfDigScreen: EndOfDigScreen,
+const FindsBagPhotosScreenStack = createStackNavigator({
+    FindsBagPhotosScreen: FindsBagPhotosScreen,
     // Other screens go here
 }, {
     navigationOptions: {
@@ -90,21 +84,21 @@ const EndOfDigScreenStack = createStackNavigator({
     defaultNavigationOptions: defaultNavOptions
 });
 
-const PhotogrammetryScreenStack = createStackNavigator({
-    PhotogrammetryScreen: PhotogrammetryScreen,
-    // Other screens go here
-}, {
-    navigationOptions: {
-        tabBarIcon: ({focused}) =>
-            (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-                             source={PhotogrammetryBottomNav}/>
-                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-                             source={PhotogrammetryBottomNav}/>
-            ),
-    },
-    defaultNavigationOptions:defaultNavOptions
-});
+// const PhotogrammetryScreenStack = createStackNavigator({
+//     PhotogrammetryScreen: PhotogrammetryScreen,
+//     // Other screens go here
+// }, {
+//     navigationOptions: {
+//         tabBarIcon: ({focused}) =>
+//             (focused
+//                     ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
+//                              source={PhotogrammetryBottomNav}/>
+//                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
+//                              source={PhotogrammetryBottomNav}/>
+//             ),
+//     },
+//     defaultNavigationOptions:defaultNavOptions
+// });
 
 
 
@@ -117,12 +111,12 @@ export const LoginScreenNavigator = createStackNavigator({
 });
 
 export const MainTabNavigator = createBottomTabNavigator({
-    HomeScreenStack: HomeScreenStack,
     ContextScreenStack: ContextScreenStack,
-    EndOfDigScreenStack: EndOfDigScreenStack,
-    PhotogrammetryScreenStack: PhotogrammetryScreenStack
+    FindsBagPhotosScreen: FindsBagPhotosScreenStack,
+    SettingsScreenStack: SettingsScreenStack
+    // PhotogrammetryScreenStack: PhotogrammetryScreenStack
 }, {
-    initialRouteName: "HomeScreenStack",
+    initialRouteName: "ContextScreenStack",
     tabBarOptions: {
         showLabel: false,
         style: {

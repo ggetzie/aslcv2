@@ -1,15 +1,8 @@
 import * as React from "react";
-import {
-    NavigationParams,
-    NavigationScreenComponent,
-    NavigationScreenProp,
-    NavigationState
-} from "react-navigation";
-import {UserProfileWithCredentials} from "../constants/EnumsAndInterfaces/UserDataInterfaces";
-import {LoadingComponent} from "./general/LoadingComponent";
-import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
-import {refreshJwtToken} from "../constants/backend_api_action";
+import {NavigationScreenComponent} from "react-navigation";
+import {LoadingComponent} from "./general/LoadingComponent";
+import {useDispatch} from "react-redux";
 import {getJwtFromAsyncStorage} from "../constants/utilityFunctions";
 
 if (typeof TextEncoder !== 'function') {
@@ -31,7 +24,7 @@ const DataLoadingComponent: NavigationScreenComponent<any> = (props) => {
             try {
                 const token: string = await getJwtFromAsyncStorage();
                 if(token != null && token.trim().length !== 0){
-                    props.navigation.navigate("HomeScreen");
+                    props.navigation.navigate("ContextScreenStack");
                 } else {
                     throw new Error("Not Logged in");
                 }

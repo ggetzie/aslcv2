@@ -3,11 +3,17 @@
 import axios from "axios";
 
 
-import {setUserProfileWithCredentials} from "../../redux/reducerAction";
+import {
+    insertInContextIdToContextMap,
+    insertInSpatialAreaIdToSpatialAreaMap,
+    setUserProfileWithCredentials
+} from "../../redux/reducerAction";
 import {StoredItems} from "./StoredItem";
 import AsyncStorage from "@react-native-community/async-storage";
-import {extractAndSaveJwt, getHeaders} from "./utilityFunctions";
+import {extractAndSaveJwt, getFilteredSpatialAreasQuery, getHeaders} from "./utilityFunctions";
 import {LoginDetails} from "./EnumsAndInterfaces/UserDataInterfaces";
+import {SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
+import {Context} from "./EnumsAndInterfaces/ContextInterfaces";
 
 export function loginUser(loginDetails: LoginDetails) {
     return async function (dispatch) {
@@ -57,6 +63,104 @@ export function refreshJwtToken() {
             return Promise.resolve();
         } catch (error) {
             return Promise.reject("Invalid Credentials!");
+        }
+    }
+}
+
+
+export function getFilteredSpatialAreaIdsList(spacialAreaQuery: SpatialAreaQuery) {
+    return async function (dispatch) {
+        const API = "api/area/" + getFilteredSpatialAreasQuery(spacialAreaQuery);
+        try {
+            const headers = await getHeaders();
+            const result = await axios.get(API, {
+                headers: {
+                    ...headers
+                }
+            });
+            for (let area of result.data) {
+                dispatch(insertInSpatialAreaIdToSpatialAreaMap(area));
+            }
+            return Promise.resolve(result.data.map((area) => area.id));
+        } catch (e) {
+            console.log(e);
+            return Promise.reject();
+        }
+    }
+}
+
+
+export function createContext(spatial_area: string) {
+    return async function (dispatch): Promise<string> {
+        const API = "api/context/";
+        try {
+            const headers = await getHeaders();
+            const result = await axios.post(API, {spatial_area: spatial_area}, {
+                headers: {
+                    ...headers
+                }
+            });
+            dispatch(insertInContextIdToContextMap(result.data));
+            return Promise.resolve(result.data.id);
+        } catch (e) {
+            console.log(e);
+            return Promise.reject();
+        }
+    }
+}
+
+export function getContext(id: string) {
+    return async function (dispatch): Promise<string> {
+        const API = `api/context/${id}/`;
+        try {
+            const headers = await getHeaders();
+            const result = await axios.get(API, {
+                headers: {
+                    ...headers
+                }
+            });
+            dispatch(insertInContextIdToContextMap(result.data));
+            return Promise.resolve(result.data.id);
+        } catch (e) {
+            console.log(e);
+            return Promise.reject();
+        }
+    }
+}
+
+export function getContexts(ids: string[]) {
+    return async function (dispatch): Promise<any> {
+        try {
+            for (let i of ids) {
+                getContext(i)(dispatch);
+            }
+            return Promise.resolve();
+        } catch (e) {
+            console.log(e);
+            return Promise.reject();
+        }
+    }
+}
+
+
+export async function updateContext(context: Context) {
+    return async function (dispatch): Promise<any> {
+        const API = `api/context/${context.id}/`;
+        try {
+            const headers = await getHeaders();
+            if (context.spatial_area != null) {
+                delete context.spatial_area;
+            }
+            const result = await axios.put(API, context, {
+                headers: {
+                    ...headers
+                }
+            });
+            dispatch(insertInContextIdToContextMap(result.data));
+            return Promise.resolve();
+        } catch (e) {
+            console.log(e);
+            return Promise.reject();
         }
     }
 }

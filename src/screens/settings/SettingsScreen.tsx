@@ -2,14 +2,13 @@ import * as React from "react";
 import {NavigationScreenComponent} from "react-navigation";
 import {Text, View} from "react-native";
 import {LogoutButton} from "../../components/LogoutButton";
-import {SpatialArea} from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import {useSelector} from "react-redux";
 import {UserProfileWithCredentials} from "../../constants/EnumsAndInterfaces/UserDataInterfaces";
 import {RowView} from "../../components/general/RowView";
 import {verticalScale} from "../../constants/nativeFunctions";
 
-const HomeScreen: NavigationScreenComponent<any, any> = (props) => {
-    const userProfile: UserProfileWithCredentials =  useSelector(({reducer}) => reducer.userProfileWithCredentials);
+const SettingsScreen: NavigationScreenComponent<any, any> = (props) => {
+    const userProfile: UserProfileWithCredentials =  useSelector(({reducer}: any) => reducer.userProfileWithCredentials);
 
     return (
       <View>
@@ -28,9 +27,9 @@ const HomeScreen: NavigationScreenComponent<any, any> = (props) => {
   )
 };
 
-HomeScreen.navigationOptions = screenProps => ({
-    title: 'Home',
+SettingsScreen.navigationOptions = screenProps => ({
+    title: 'Settings',
     headerLeft: () => null
 });
 
-export default HomeScreen;
+export default SettingsScreen;

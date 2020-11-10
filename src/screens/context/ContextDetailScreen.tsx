@@ -5,17 +5,19 @@ import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Context} from "../../constants/EnumsAndInterfaces/ContextInterfaces";
 import {verticalScale} from "../../constants/nativeFunctions";
 import {RowView} from "../../components/general/RowView";
-import {TextInputWithClearComponent} from "../../components/general/TextInputWithClearComponent";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {getFormattedDate, reverseDateFormatting} from "../../constants/utilityFunctions";
 import {PaddingComponent} from "../../components/PaddingComponent";
 import {Divider} from "react-native-elements";
-import {getContext, updateContext} from "../../constants/backend_api";
+import {updateContext, uploadContextImage} from "../../constants/backend_api";
 import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
-import ImagePicker, {ImagePickerOptions} from "react-native-image-picker";
+import ImagePicker, {ImagePickerOptions, ImagePickerResponse} from "react-native-image-picker";
 import Modal from "react-native-modal";
 import {isEqual} from "lodash";
+import {useDispatch, useSelector} from "react-redux";
+import {getContext} from "../../constants/backend_api_action";
+import {TextInputComponent} from "../../components/general/TextInputComponent";
 
 enum DatePickState {
     OPENING_DATE = "OPENING_DATE",
@@ -36,25 +38,25 @@ const imagePickerOptions: ImagePickerOptions = {
 };
 
 const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
+    const dispatch = useDispatch();
 
-    const context: Context = props.navigation.getParam("context");
+    const contextId: string = props.navigation.getParam("contextId");
+
+    const contextIdToContextMap: Map<string, Context> = useSelector(({reducer}: any) => reducer.contextIdToContextMap);
 
     const [datePickState, setDatePickState] = useState<DatePickState>(DatePickState.CLOSED);
     const [imagePickStage, setImagePickStage] = useState<boolean>(false);
 
     const [form, setForm] = useState<Context>(null);
-    const [dbContext, setDBContext] = useState<Context>(context);
+    const [loading, setLoading] = useState<boolean>(false);
     const [canBeSubmitted, setCanBeSubmitted] = useState<boolean>(false);
 
-    async function fetchData() {
-        setForm(await getContext(context.id));
-    }
-
     useEffect(() => {
-        fetchData();
+        getContext(contextId)(dispatch);
     }, []);
 
     useEffect(() => {
+        const dbContext = contextIdToContextMap.get(contextId);
         if (form && form.spatial_area != null) {
             delete form.spatial_area;
         }
@@ -68,31 +70,69 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }, [form]);
 
+    useEffect(() => {
+        setForm(contextIdToContextMap.get(contextId));
+    }, [contextIdToContextMap])
+
     async function updateForm() {
         const updatedContext: Context = await updateContext(form);
-        setDBContext(updatedContext);
         setForm(updatedContext);
     }
 
+    async function uploadImage(response) {
+        setLoading(true);
+        const form: FormData = new FormData();
+        try {
+            form.append("photo", {
+                uri: response.uri,
+                type: response.type,
+                name: response.fileName
+            } as any);
+            await uploadContextImage(form, contextId);
+            getContext(contextId)(dispatch);
+        } catch (e) {
+            alert("Failed to upload Image");
+        }
+        setLoading(false);
+    }
+
+    const initialContext = contextIdToContextMap.get(contextId);
+
     return (
-        form == null ? <LoadingModalComponent showLoading={true}/> :
+        (form == null || initialContext == null) ? <LoadingModalComponent showLoading={true}/> :
             <ScrollView>
+                <LoadingModalComponent showLoading={loading}/>
                 <Modal style={{justifyContent: "flex-end"}}
-                       isVisible={imagePickStage}
-                >
+                       isVisible={imagePickStage}>
                     <ButtonComponent buttonStyle={Styles.modalButtonStyle}
                                      textStyle={{fontWeight: "bold"}}
-                                     onPress={() => {
-                                         ImagePicker.launchImageLibrary(imagePickerOptions, (response) => console.log("Response: ", response));
-                                         setImagePickStage(false);
-                                     }} text="Select Photo"
+                                     onPress={async () => {
+                                         ImagePicker.launchImageLibrary(imagePickerOptions, async (response: ImagePickerResponse) => {
+                                             setImagePickStage(false);
+                                             if (response.didCancel) {
+                                             } else if (response.error) {
+                                                 alert("Error selecting Image");
+                                             } else {
+                                                 await uploadImage(response);
+                                             }
+                                         });
+                                     }}
+                                     text="Select Photo"
                                      rounded={true}/>
                     <ButtonComponent buttonStyle={Styles.modalButtonStyle}
                                      textStyle={{fontWeight: "bold"}}
                                      onPress={() => {
-                                         ImagePicker.launchCamera(imagePickerOptions, (response) => console.log("Response: ", response));
-                                         setImagePickStage(false);
-                                     }} text="Take Photo"
+                                         ImagePicker.launchCamera(imagePickerOptions, async (response: ImagePickerResponse) => {
+                                             if (response.didCancel) {
+                                                 setImagePickStage(false);
+                                             } else if (response.error) {
+                                                 alert("Error selecting Image");
+                                             } else {
+                                                 await uploadImage(response);
+                                             }
+                                         });
+                                     }}
+                                     text="Take Photo"
                                      rounded={true}/>
                     <ButtonComponent buttonStyle={Styles.cancelButtonStyle}
                                      textStyle={{color: "black"}}
@@ -117,8 +157,8 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     }}
                     onCancel={() => setDatePickState(DatePickState.CLOSED)}
                     date={(datePickState === DatePickState.OPENING_DATE ?
-                        (context.opening_date == null ? (new Date) : (new Date(context.opening_date))) :
-                        (context.closing_date == null ? (new Date()) : (new Date(context.closing_date))))}
+                        (initialContext.opening_date == null ? (new Date) : (new Date(initialContext.opening_date))) :
+                        (initialContext.closing_date == null ? (new Date()) : (new Date(initialContext.closing_date))))}
                     mode="datetime"
                 />
                 <RowView>
@@ -152,7 +192,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         <Text style={Styles.labelStyle}>
                             Type
                         </Text>
-                        <TextInputWithClearComponent value={form.type}
+                        <TextInputComponent value={form.type}
                                                      containerStyle={Styles.inputStyle}
                                                      onChangeText={(text) =>
                                                          setForm({
@@ -188,7 +228,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     <Text style={Styles.labelStyle}>
                         Description
                     </Text>
-                    <TextInputWithClearComponent value={form.description}
+                    <TextInputComponent value={form.description}
                                                  containerStyle={{width: "100%"}}
                                                  onChangeText={(text) =>
                                                      setForm({
@@ -199,20 +239,20 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                                  multiline={true}
                                                  placeHolder="Brief Description of Context"/>
                     <Divider/>
-                    <PaddingComponent vertical="2%"/>
-                    <Text style={Styles.labelStyle}>
-                        Director Notes
-                    </Text>
-                    <TextInputWithClearComponent value={form.director_notes}
-                                                 containerStyle={{width: "100%"}}
-                                                 onChangeText={(text) =>
-                                                     setForm({
-                                                         ...form,
-                                                         director_notes: text
-                                                     })}
-                                                 numeric={false}
-                                                 multiline={true}
-                                                 placeHolder="Notes"/>
+                    {/*<PaddingComponent vertical="2%"/>*/}
+                    {/*<Text style={Styles.labelStyle}>*/}
+                    {/*    Director Notes*/}
+                    {/*</Text>*/}
+                    {/*<TextInputWithClearComponent value={form.director_notes}*/}
+                    {/*                             containerStyle={{width: "100%"}}*/}
+                    {/*                             onChangeText={(text) =>*/}
+                    {/*                                 setForm({*/}
+                    {/*                                     ...form,*/}
+                    {/*                                     director_notes: text*/}
+                    {/*                                 })}*/}
+                    {/*                             numeric={false}*/}
+                    {/*                             multiline={true}*/}
+                    {/*                             placeHolder="Notes"/>*/}
                     <Divider/>
                     <PaddingComponent vertical="2%"/>
                     <TouchableOpacity onPress={() => null}>

@@ -11,6 +11,7 @@ import {nativeColors} from "../constants/colors";
 import {LoadingModalComponent} from "./general/LoadingModalComponent";
 import {Icon} from 'react-native-elements';
 import {getFilteredSpatialAreasList} from "../constants/backend_api";
+import {useSelector} from "react-redux";
 
 let utmObj = require('utm-latlng');
 let utm = new utmObj();
@@ -18,13 +19,15 @@ let utm = new utmObj();
 interface Props {
     form: SpatialAreaQuery;
     setForm: (form) => void;
-    availableSpatialAreas: SpatialArea[],
+    availableSpatialAreaIds: string[],
     navigation: any;
 }
 
 export const UTMForm: React.FC<Props> = (props) => {
     const {form, setForm} = props;
     const [loading, setLoading] = useState<boolean>(false);
+
+    const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(({reducer}: any) => reducer.spatialAreaIdToSpatialAreaMap);
 
     const config: GeolocationConfiguration = {
         skipPermissionRequests: false,

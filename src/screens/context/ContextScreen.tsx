@@ -11,25 +11,24 @@ import {
     SpatialAreaQuery
 } from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import {useDispatch, useSelector} from "react-redux";
-import {createContext, getFilteredSpatialAreasList} from "../../constants/backend_api";
-import {setSelectedSpatialArea} from "../../../redux/reducerAction";
+import {setSelectedSpatialAreaId} from "../../../redux/reducerAction";
 import {UTMForm} from "../../components/UTMForm";
 import {LoadingComponent} from "../../components/general/LoadingComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
-import {nativeColors} from "../../constants/colors";
+import {getFilteredSpatialAreaIdsList} from "../../constants/backend_api_action";
 
 const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
 
-    // @ts-ignore
-    const selectedArea: SpatialArea = useSelector(({reducer}) => reducer.selectedSpatialArea);
+    const selectedAreaId: string = useSelector(({reducer}: any) => reducer.selectedSpatialAreaId);
+    const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(({reducer}: any) => reducer.spatialAreaIdToSpatialAreaMap);
 
     const [form, setForm] = useState<SpatialAreaQuery>(initSpatialArea());
-    const [spatialAreas, setSpacialAreas] = useState<SpatialArea[]>([]);
+    const [spatialAreaIds, setSpacialAreaIds] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        dispatch(setSelectedSpatialArea(null));
+        dispatch(setSelectedSpatialAreaId(null));
     }, []);
 
     useEffect(() => {
@@ -38,13 +37,10 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
 
     async function fetchSpatialAreaList() {
         try {
-            dispatch(setSelectedSpatialArea(null));
+            dispatch(setSelectedSpatialAreaId(null));
             setLoading(true);
-            const newSpatialAreas = await getFilteredSpatialAreasList(form);
-            setSpacialAreas(newSpatialAreas);
-            if (newSpatialAreas && newSpatialAreas.length === 1) {
-                dispatch(setSelectedSpatialArea(newSpatialAreas[0]));
-            }
+            const newSpatialAreaIds = await getFilteredSpatialAreaIdsList(form)(dispatch);
+            setSpacialAreaIds(newSpatialAreaIds);
             setLoading(false);
         } catch (e) {
             setLoading(false);
@@ -52,14 +48,26 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }
 
-    function renderAreaItem(item, index) {
+    useEffect(()=> {
+        if (spatialAreaIds && spatialAreaIds.length === 1 && spatialAreaIdToSpatialAreaMap.has(spatialAreaIds[0])) {
+            dispatch(setSelectedSpatialAreaId(spatialAreaIds[0]));
+        }
+    }, [spatialAreaIdToSpatialAreaMap, spatialAreaIds]);
+
+    function renderAreaItem(id, index) {
+        const area: SpatialArea = spatialAreaIdToSpatialAreaMap.get(id);
+
+        if (area == null) {
+            return <LoadingComponent/>;
+        }
+
         return (
             <View style={{padding: "5%"}}>
                 <TouchableOpacity onPress={() => {
-                    if (selectedArea && selectedArea.id === item.id) {
-                        dispatch(setSelectedSpatialArea(null));
+                    if (selectedAreaId && selectedAreaId === area.id) {
+                        dispatch(setSelectedSpatialAreaId(null));
                     } else {
-                        dispatch(setSelectedSpatialArea(item as SpatialArea));
+                        dispatch(setSelectedSpatialAreaId(area.id));
                     }
                 }}>
                     <RowView>
@@ -67,11 +75,11 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
                             {`Area ${index + 1}:`}
                         </Text>
                         <Text style={{width: "60%"}}>
-                            {`${item.utm_hemisphere}, Zone: ${item.utm_zone}, Northing: ${item.area_utm_northing_meters}, Easting: ${item.area_utm_easting_meters}`}
+                            {`${area.utm_hemisphere}, Zone: ${area.utm_zone}, Northing: ${area.area_utm_northing_meters}, Easting: ${area.area_utm_easting_meters}`}
                         </Text>
                         {/* TODO: Investigate Icon styling issue (gets cut-off)*/}
                         <Icon style={Styles.iconStyle} name="check" type="font-awesome"
-                              color={(selectedArea && selectedArea.id === item.id) ? "black" : "transparent"}/>
+                              color={(selectedAreaId && selectedAreaId === area.id) ? "black" : "transparent"}/>
                     </RowView>
                     <Divider/>
                 </TouchableOpacity>
@@ -88,62 +96,57 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
                 paddingTop: "5%"
             }}>Select a spatial Area</Text>
             <UTMForm form={form} setForm={setForm} navigation={props.navigation}
-                     availableSpatialAreas={spatialAreas}/>
+                     availableSpatialAreaIds={spatialAreaIds}/>
             {loading ?
                 <View style={{width: "100%", height: verticalScale(50)}}>
                     <LoadingComponent containerStyle={{margin: "auto"}}/>
-                </View> : spatialAreas.length === 0 ?
+                </View> : spatialAreaIds.length === 0 ?
                     <Text style={{padding: "5%"}}>
                         No Area available for current selection
-                    </Text> : spatialAreas.length > 1 ?
+                    </Text> : spatialAreaIds.length > 1 ?
                         <FlatList
                             style={{
                                 marginTop: verticalScale(5)
                             }}
-                            data={spatialAreas}
-                            extraData={spatialAreas}
+                            data={spatialAreaIds}
+                            extraData={spatialAreaIdToSpatialAreaMap}
                             renderItem={({item, index}) =>
                                 renderAreaItem(item, index)}/> : null
             }
-            {selectedArea &&
-            <View style={{padding: "5%"}}>
-                <Text style={{
-                    marginRight: verticalScale(20),
-                    width: "100%",
-                    fontSize: verticalScale(20),
-                    fontWeight: "bold",
-                }}>
-                    {`Selected Area`}
-                </Text>
-                <Text style={{
-                    width: "100%", paddingVertical: verticalScale(5)
-                }}>
-                    {`${selectedArea.utm_hemisphere}, Zone: ${selectedArea.utm_zone}, Northing: ${selectedArea.area_utm_northing_meters}, Easting: ${selectedArea.area_utm_easting_meters}`}
-                </Text>
-                <ButtonComponent
-                    buttonStyle={{width: "60%", height: "auto", alignSelf: "center"}}
-                    onPress={async () => props.navigation.navigate("ContextDetailScreen", {
-                        context: await createContext(selectedArea.id)
-                    })}
-                    textStyle={{padding: "4%"}}
-                    text={"Create Context"}
-                    rounded={true}
-                />
-                <ButtonComponent
-                    buttonStyle={{
-                        width: "60%",
-                        height: "auto",
-                        alignSelf: "center",
-                        backgroundColor: nativeColors.disabledGrey
-                    }}
-                    onPress={() => props.navigation.navigate("ContextListScreen", {
-                        contextIds: selectedArea.spatialcontext_set.map((item) => item[0])
-                    })}
-                    textStyle={{padding: "4%", color: "black"}}
-                    text={"View All Contexts"}
-                    rounded={true}
-                />
-            </View>
+            {selectedAreaId && (spatialAreaIdToSpatialAreaMap.has(selectedAreaId) ? (
+                <View style={{padding: "5%"}}>
+                    <Text style={{
+                        marginRight: verticalScale(20),
+                        width: "100%",
+                        fontSize: verticalScale(20),
+                        fontWeight: "bold",
+                    }}>
+                        {`Selected Area`}
+                    </Text>
+                    <Text style={{
+                        width: "100%", paddingVertical: verticalScale(5)
+                    }}>
+                        {`${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).utm_hemisphere}, Zone: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).utm_zone}, Northing: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).area_utm_northing_meters}, Easting: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).area_utm_easting_meters}`}
+                    </Text>
+
+                    <ButtonComponent
+                        buttonStyle={{
+                            width: "60%",
+                            height: "auto",
+                            alignSelf: "center",
+                        }}
+                        onPress={() => props.navigation.navigate("ContextListScreen", {
+                            contextIds: spatialAreaIdToSpatialAreaMap.get(selectedAreaId).spatialcontext_set.map((item) => item[0])
+                        })}
+                        textStyle={{padding: "4%"}}
+                        text={"View All Contexts"}
+                        rounded={true}
+                    />
+                </View>
+            ) : (
+                <LoadingComponent/>
+            ))
+
             }
         </ScrollView>
     )

@@ -67,11 +67,11 @@ export async function getContexts(ids: string[]): Promise<Context[]> {
     }
 }
 
-export async function updateContext(context): Promise<Context> {
+export async function updateContext(context: Context): Promise<Context> {
     const API = `api/context/${context.id}/`;
     try {
         const headers = await getHeaders();
-        if(context.spatial_area != null){
+        if (context.spatial_area != null) {
             delete context.spatial_area;
         }
         const result = await axios.put(API, context, {
@@ -80,6 +80,18 @@ export async function updateContext(context): Promise<Context> {
             }
         });
         return Promise.resolve(result.data);
+    } catch (e) {
+        console.log(e);
+        return Promise.reject();
+    }
+}
+
+export async function uploadContextImage(contextImage: any, contextId: string): Promise<boolean> {
+    const API = `api/context/${contextId}/photo/`;
+    try {
+        const headers = await getHeaders();
+         await axios.put(API, contextImage, {headers: {...headers, 'Content-Type': 'multipart/form-data'}});
+        return Promise.resolve(true);
     } catch (e) {
         console.log(e);
         return Promise.reject();
