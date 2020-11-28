@@ -68,17 +68,31 @@ export function isNotEmptyOrNullBatch(...args: string[]) {
 }
 
 export function getFormattedDate(datetime: string): string {
-    if (!isNotEmptyOrNull(datetime)){
+    if (!isNotEmptyOrNull(datetime)) {
         return datetime;
     }
     return (new Date((datetime.substr(0, datetime.length - 4) + "Z")).toLocaleString()).toString();
 }
 
 export function reverseDateFormatting(datetime: string): string {
-    if (!isNotEmptyOrNull(datetime)){
+    if (!isNotEmptyOrNull(datetime)) {
         return datetime;
     }
     return (datetime.substr(0, datetime.length - 1) + "000Z");
+}
+
+export function renderDate(date: string): string {
+    if (!isNotEmptyOrNull(date)) {
+        return "Unset";
+    }
+    return date;
+}
+
+export function getDateFromISO(datetime: string): string {
+    if (!isNotEmptyOrNull(datetime)) {
+        return datetime;
+    }
+    return datetime.slice(0,10);
 }
 
 

@@ -38,8 +38,8 @@ export async function createContext(spatial_area: string): Promise<Context> {
     }
 }
 
-export async function getContext(id: string): Promise<Context> {
-    const API = `api/context/${id}/`;
+export async function getContextTypes(): Promise<string[]> {
+    const API = `api/context/types/`;
     try {
         const headers = await getHeaders();
         const result = await axios.get(API, {
@@ -47,20 +47,7 @@ export async function getContext(id: string): Promise<Context> {
                 ...headers
             }
         });
-        return Promise.resolve(result.data);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
-}
-
-export async function getContexts(ids: string[]): Promise<Context[]> {
-    try {
-        const contexts: Context[] = [];
-        for (let i of ids) {
-            contexts.push(await getContext(i));
-        }
-        return Promise.resolve(contexts);
+        return Promise.resolve(result.data.map((obj)=> obj.type));
     } catch (e) {
         console.log(e);
         return Promise.reject();

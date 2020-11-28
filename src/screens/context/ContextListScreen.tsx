@@ -8,7 +8,7 @@ import {Divider} from "react-native-elements";
 import {PaddingComponent} from "../../components/PaddingComponent";
 import {LoadingComponent} from "../../components/general/LoadingComponent";
 import {verticalScale} from "../../constants/nativeFunctions";
-import {getFormattedDate} from "../../constants/utilityFunctions";
+import {renderDate} from "../../constants/utilityFunctions";
 import {useDispatch, useSelector} from "react-redux";
 import {createContext, getContexts} from "../../constants/backend_api_action";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
@@ -142,16 +142,22 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                                           <Text style={{fontWeight: "bold"}}>
                                               Opening Date
                                           </Text>
+                                          {/*<Text>*/}
+                                          {/*    {context.opening_date == null ? "Unset" : getFormattedDate(context.opening_date)}*/}
+                                          {/*</Text>*/}
                                           <Text>
-                                              {context.opening_date == null ? "Unset" : getFormattedDate(context.opening_date)}
+                                              {renderDate(context.opening_date)}
                                           </Text>
                                       </RowView>
                                       <RowView>
                                           <Text style={{fontWeight: "bold"}}>
                                               Closing Date
                                           </Text>
+                                          {/*<Text>*/}
+                                          {/*    {context.closing_date == null ? "Unset" : getFormattedDate(context.closing_date)}*/}
+                                          {/*</Text>*/}
                                           <Text>
-                                              {context.closing_date == null ? "Unset" : getFormattedDate(context.closing_date)}
+                                              {renderDate(context.closing_date)}
                                           </Text>
                                       </RowView>
                                       <PaddingComponent vertical="2%"/>

@@ -1,15 +1,20 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {NavigationScreenComponent, ScrollView} from "react-navigation";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Context} from "../../constants/EnumsAndInterfaces/ContextInterfaces";
 import {verticalScale} from "../../constants/nativeFunctions";
 import {RowView} from "../../components/general/RowView";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import {getFormattedDate, reverseDateFormatting} from "../../constants/utilityFunctions";
+import {
+    getDateFromISO,
+    isNotEmptyOrNull,
+    isNotEmptyOrNullBatch,
+    renderDate
+} from "../../constants/utilityFunctions";
 import {PaddingComponent} from "../../components/PaddingComponent";
 import {Divider} from "react-native-elements";
-import {updateContext, uploadContextImage} from "../../constants/backend_api";
+import {getContextTypes, updateContext, uploadContextImage} from "../../constants/backend_api";
 import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import ImagePicker, {ImagePickerOptions, ImagePickerResponse} from "react-native-image-picker";
@@ -18,6 +23,7 @@ import {isEqual} from "lodash";
 import {useDispatch, useSelector} from "react-redux";
 import {getContext} from "../../constants/backend_api_action";
 import {TextInputComponent} from "../../components/general/TextInputComponent";
+import moment from "moment";
 
 enum DatePickState {
     OPENING_DATE = "OPENING_DATE",
@@ -51,11 +57,44 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [canBeSubmitted, setCanBeSubmitted] = useState<boolean>(false);
 
+    const [types, setTypes] = useState<string[]>(null);
+
+    const initialContext = contextIdToContextMap.get(contextId);
+
+
+    async function fetchData() {
+        setLoading(true);
+        await getContext(contextId)(dispatch);
+        setTypes((await getContextTypes()));
+        setLoading(false);
+    }
+
     useEffect(() => {
-        getContext(contextId)(dispatch);
+        fetchData();
     }, []);
 
     useEffect(() => {
+        setForm(initialContext);
+    }, [initialContext]);
+
+    useEffect(() => {
+        if (form == null) {
+            return;
+        }
+        if (isNotEmptyOrNullBatch(form.closing_date, form.opening_date)) {
+            const openingDate = moment(form.opening_date, 'YYYY-MM-DD');
+            const closingDate = moment(form.closing_date, 'YYYY-MM-DD');
+            const currentDate = moment(new Date, 'YYYY-MM-DD');
+            const diff1 = openingDate.diff(closingDate, 'days');
+            const diff2 = openingDate.diff(currentDate, 'days');
+            if (diff1 > 0) {
+                alert("Closing Date should be greater than opening date");
+                setForm({...form, opening_date: null, closing_date: null});
+            }
+            if (diff2 >= 7) {
+                alert("Warning: Opening date is more than a week in the future!")
+            }
+        }
         const dbContext = contextIdToContextMap.get(contextId);
         if (form && form.spatial_area != null) {
             delete form.spatial_area;
@@ -64,39 +103,65 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
             delete dbContext.spatial_area;
         }
         if (!isEqual(form, dbContext)) {
-            setCanBeSubmitted(true);
+            if (isNotEmptyOrNull(form.closing_date) && !(isNotEmptyOrNull(form.opening_date))) {
+                setCanBeSubmitted(false);
+            } else {
+                setCanBeSubmitted(true);
+            }
         } else {
             setCanBeSubmitted(false);
         }
     }, [form]);
 
+
     useEffect(() => {
         setForm(contextIdToContextMap.get(contextId));
-    }, [contextIdToContextMap])
+    }, [contextIdToContextMap]);
 
-    async function updateForm() {
-        const updatedContext: Context = await updateContext(form);
-        setForm(updatedContext);
-    }
-
-    async function uploadImage(response) {
+    async function updateData() {
         setLoading(true);
-        const form: FormData = new FormData();
-        try {
-            form.append("photo", {
-                uri: response.uri,
-                type: response.type,
-                name: response.fileName
-            } as any);
-            await uploadContextImage(form, contextId);
-            getContext(contextId)(dispatch);
-        } catch (e) {
-            alert("Failed to upload Image");
-        }
+        await updateContext(form);
+        await getContext(contextId)(dispatch);
         setLoading(false);
     }
 
-    const initialContext = contextIdToContextMap.get(contextId);
+
+    async function uploadImage(response) {
+        setLoading(true);
+
+        Alert.alert(
+            "Image Upload",
+            "Confirm Image Selection",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => setLoading(false),
+                    style: "cancel"
+                },
+                {
+                    text: "OK", onPress: async () => {
+                        const form: FormData = new FormData();
+                        try {
+                            form.append("photo", {
+                                uri: response.uri,
+                                type: response.type,
+                                name: response.fileName
+                            } as any);
+                            await uploadContextImage(form, contextId);
+                            getContext(contextId)(dispatch);
+                            setLoading(false);
+                        } catch (e) {
+                            alert("Failed to upload Image");
+                            setLoading(false);
+                        }
+                    }
+                }
+            ],
+            {cancelable: false}
+        );
+
+    }
+
 
     return (
         (form == null || initialContext == null) ? <LoadingModalComponent showLoading={true}/> :
@@ -142,24 +207,25 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                 <DateTimePickerModal
                     isVisible={datePickState !== DatePickState.CLOSED}
                     onConfirm={(date) => {
+                        setDatePickState(DatePickState.CLOSED);
                         if (datePickState === DatePickState.OPENING_DATE) {
                             setForm({
                                 ...form,
-                                opening_date: reverseDateFormatting(date.toISOString())
+                                opening_date: getDateFromISO(date.toISOString())
                             });
                         } else if (datePickState === DatePickState.CLOSING_DATE) {
+                            console.log("Data Received: ", date);
                             setForm({
                                 ...form,
-                                closing_date: reverseDateFormatting(date.toISOString())
+                                closing_date: getDateFromISO(date.toISOString())
                             });
                         }
-                        setDatePickState(DatePickState.CLOSED);
                     }}
                     onCancel={() => setDatePickState(DatePickState.CLOSED)}
                     date={(datePickState === DatePickState.OPENING_DATE ?
                         (initialContext.opening_date == null ? (new Date) : (new Date(initialContext.opening_date))) :
-                        (initialContext.closing_date == null ? (new Date()) : (new Date(initialContext.closing_date))))}
-                    mode="datetime"
+                        (initialContext.closing_date == null ? (new Date) : (new Date(initialContext.closing_date))))}
+                    mode="date"
                 />
                 <RowView>
                     <Text style={{
@@ -178,7 +244,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                             alignSelf: "flex-end",
                             marginHorizontal: "5%"
                         }}
-                        onPress={() => updateForm()}
+                        onPress={() => updateData()}
                         textStyle={{padding: "4%"}}
                         text={"Update"}
                         rounded={true}
@@ -192,15 +258,25 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         <Text style={Styles.labelStyle}>
                             Type
                         </Text>
-                        <TextInputComponent value={form.type}
-                                                     containerStyle={Styles.inputStyle}
-                                                     onChangeText={(text) =>
-                                                         setForm({
-                                                             ...form,
-                                                             type: text
-                                                         })}
-                                                     numeric={false}
-                                                     placeHolder="Context Type"/>
+
+                        <Picker
+                            style={Styles.inputStyle}
+                            selectedValue={form.type}
+                            onValueChange={(value: string, pos) =>
+                                setForm({...form, type: value})}>
+                            {types && types.map((type => <Picker.Item label={type} value={type}/>))}
+                        </Picker>
+
+
+                        {/*<TextInputComponent value={form.type}*/}
+                        {/*                    containerStyle={Styles.inputStyle}*/}
+                        {/*                    onChangeText={(text) =>*/}
+                        {/*                        setForm({*/}
+                        {/*                            ...form,*/}
+                        {/*                            type: text*/}
+                        {/*                        })}*/}
+                        {/*                    numeric={false}*/}
+                        {/*                    placeHolder="Context Type"/>*/}
                     </RowView>
                     <PaddingComponent vertical="2%"/>
                     <TouchableOpacity onPress={() => setDatePickState(DatePickState.OPENING_DATE)}>
@@ -209,7 +285,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 Opening Date
                             </Text>
                             <Text>
-                                {getFormattedDate(form.opening_date)}
+                                {renderDate(form.opening_date)}
                             </Text>
                         </RowView>
                     </TouchableOpacity>
@@ -220,7 +296,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 Closing Date
                             </Text>
                             <Text>
-                                {getFormattedDate(form.closing_date)}
+                                {renderDate(form.closing_date)}
                             </Text>
                         </RowView>
                     </TouchableOpacity>
@@ -229,15 +305,15 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         Description
                     </Text>
                     <TextInputComponent value={form.description}
-                                                 containerStyle={{width: "100%"}}
-                                                 onChangeText={(text) =>
-                                                     setForm({
-                                                         ...form,
-                                                         description: text
-                                                     })}
-                                                 numeric={false}
-                                                 multiline={true}
-                                                 placeHolder="Brief Description of Context"/>
+                                        containerStyle={{width: "100%"}}
+                                        onChangeText={(text) =>
+                                            setForm({
+                                                ...form,
+                                                description: text
+                                            })}
+                                        numeric={false}
+                                        multiline={true}
+                                        placeHolder="Brief Description of Context"/>
                     <Divider/>
                     {/*<PaddingComponent vertical="2%"/>*/}
                     {/*<Text style={Styles.labelStyle}>*/}
@@ -255,16 +331,16 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     {/*                             placeHolder="Notes"/>*/}
                     <Divider/>
                     <PaddingComponent vertical="2%"/>
-                    <TouchableOpacity onPress={() => null}>
-                        <RowView>
-                            <Text style={Styles.labelStyle}>
-                                Total Photos
-                            </Text>
-                            <Text>
-                                {form.objectphoto_set == null ? 0 : form.objectphoto_set.length}
-                            </Text>
-                        </RowView>
-                    </TouchableOpacity>
+                    {/*<TouchableOpacity onPress={() => null}>*/}
+                    {/*    <RowView>*/}
+                    {/*        <Text style={Styles.labelStyle}>*/}
+                    {/*            Total Photos*/}
+                    {/*        </Text>*/}
+                    {/*        <Text>*/}
+                    {/*            {form.objectphoto_set == null ? 0 : form.objectphoto_set.length}*/}
+                    {/*        </Text>*/}
+                    {/*    </RowView>*/}
+                    {/*</TouchableOpacity>*/}
                     <ButtonComponent
                         buttonStyle={{width: "35%", height: "auto", alignSelf: "center"}}
                         onPress={() => setImagePickStage(true)}
