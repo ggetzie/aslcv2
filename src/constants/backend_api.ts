@@ -1,13 +1,29 @@
 // For functions that make backend calls
 
 import axios from "axios";
-import {SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
+import {SpatialArea, SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
 import {getFilteredSpatialAreasQuery, getHeaders} from "./utilityFunctions";
 import {Context} from "./EnumsAndInterfaces/ContextInterfaces";
 
 
 export async function getFilteredSpatialAreasList(spacialAreaQuery: SpatialAreaQuery) {
     const API = "api/area/" + getFilteredSpatialAreasQuery(spacialAreaQuery);
+    try {
+        const headers = await getHeaders();
+        const result = await axios.get(API, {
+            headers: {
+                ...headers
+            }
+        });
+        return Promise.resolve(result.data);
+    } catch (e) {
+        console.log(e);
+        return Promise.reject();
+    }
+}
+
+export async function getSpatialArea(spacialAreaId: string): Promise<SpatialArea> {
+    const API = `api/area/${spacialAreaId}/`;
     try {
         const headers = await getHeaders();
         const result = await axios.get(API, {

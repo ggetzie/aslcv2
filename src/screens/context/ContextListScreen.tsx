@@ -12,6 +12,8 @@ import {renderDate} from "../../constants/utilityFunctions";
 import {useDispatch, useSelector} from "react-redux";
 import {createContext, getContexts} from "../../constants/backend_api_action";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
+import {SpatialArea} from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
+import {getSpatialArea} from "../../constants/backend_api";
 
 enum ContextChoice {
     OPEN = "OPEN",
@@ -23,15 +25,27 @@ enum ContextChoice {
 const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
 
-    const contextIds: string[] = props.navigation.getParam("contextIds");
+    const [contextIds, setContextIds] = useState<string[]>(props.navigation.getParam("contextIds"));
 
     const selectedAreaId: string = useSelector(({reducer}: any) => reducer.selectedSpatialAreaId);
     const contextIdToContextMap: Map<string, Context> = useSelector(({reducer}: any) => reducer.contextIdToContextMap);
+    const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(({reducer}: any) => reducer.spatialAreaIdToSpatialAreaMap);
 
     const [filteredContextIds, setFilteredContextIds] = useState<string[]>(contextIds);
     const [contextChoice, setContextChoice] = useState<ContextChoice>(ContextChoice.ALL);
     const [allLoaded, setAllLoaded] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+
+    async function updateIds() {
+        setLoading(true);
+        const area: SpatialArea = await getSpatialArea(selectedAreaId);
+        setContextIds(area.spatialcontext_set.map((item) => item[0]));
+        setLoading(false);
+    }
+
+    useEffect(() => {
+        updateIds();
+    }, []);
 
     useEffect(() => {
         setLoading(true);
@@ -77,9 +91,16 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
         <ScrollView style={{padding: "5%"}}>
             <ButtonComponent
                 buttonStyle={{width: "60%", height: "auto", alignSelf: "center"}}
-                onPress={async () => props.navigation.navigate("ContextDetailScreen", {
-                    contextId: await createContext(selectedAreaId)(dispatch)
-                })}
+                onPress={async () => {
+                    const selectedArea: SpatialArea = spatialAreaIdToSpatialAreaMap.get(selectedAreaId);
+                    if (selectedArea == null) {
+                        return
+                    }
+                    props.navigation.navigate("ContextDetailScreen", {
+                        contextId: await createContext(selectedArea)(dispatch)
+                    });
+                }
+                }
                 textStyle={{padding: "4%"}}
                 text={"Create Context"}
                 rounded={true}

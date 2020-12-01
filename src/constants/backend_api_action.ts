@@ -12,7 +12,7 @@ import {StoredItems} from "./StoredItem";
 import AsyncStorage from "@react-native-community/async-storage";
 import {extractAndSaveJwt, getFilteredSpatialAreasQuery, getHeaders} from "./utilityFunctions";
 import {LoginDetails} from "./EnumsAndInterfaces/UserDataInterfaces";
-import {SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
+import {SpatialArea, SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
 import {Context} from "./EnumsAndInterfaces/ContextInterfaces";
 
 export function loginUser(loginDetails: LoginDetails) {
@@ -90,12 +90,12 @@ export function getFilteredSpatialAreaIdsList(spacialAreaQuery: SpatialAreaQuery
 }
 
 
-export function createContext(spatial_area: string) {
+export function createContext(spatialArea: SpatialArea) {
     return async function (dispatch): Promise<string> {
         const API = "api/context/";
         try {
             const headers = await getHeaders();
-            const result = await axios.post(API, {spatial_area: spatial_area}, {
+            const result = await axios.post(API, spatialArea, {
                 headers: {
                     ...headers
                 }
