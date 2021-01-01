@@ -16,6 +16,7 @@ import {UTMForm} from "../../components/UTMForm";
 import {LoadingComponent} from "../../components/general/LoadingComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import {getFilteredSpatialAreaIdsList} from "../../constants/backend_api_action";
+import {getAreaString} from "../../constants/utilityFunctions";
 
 const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
@@ -136,7 +137,8 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
                             alignSelf: "center",
                         }}
                         onPress={() => props.navigation.navigate("ContextListScreen", {
-                            contextIds: spatialAreaIdToSpatialAreaMap.get(selectedAreaId).spatialcontext_set.map((item) => item[0])
+                            contextIds: spatialAreaIdToSpatialAreaMap.get(selectedAreaId).spatialcontext_set.map((item) => item[0]),
+                            areaString: getAreaString(spatialAreaIdToSpatialAreaMap.get(selectedAreaId))
                         })}
                         textStyle={{padding: "4%"}}
                         text={"View All Contexts"}

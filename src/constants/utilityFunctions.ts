@@ -2,7 +2,7 @@ import moment from "moment-timezone";
 import AsyncStorage from "@react-native-community/async-storage";
 import {StoredItems} from "./StoredItem";
 import {AxiosResponse} from "axios";
-import {SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
+import {SpatialArea, SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
 
 
 export async function getJwtFromAsyncStorage(): Promise<string> {
@@ -65,6 +65,14 @@ export function isNotEmptyOrNullBatch(...args: string[]) {
         }
     });
     return safe;
+}
+
+export function batchJoinOperator(separator: string, ...args: string[]): string {
+    return args.join(separator);
+}
+
+export function getAreaString(area: SpatialArea): string{
+    return batchJoinOperator(".", area.utm_hemisphere, area.utm_zone.toString(), area.area_utm_easting_meters.toString(), area.area_utm_northing_meters.toString())
 }
 
 export function getFormattedDate(datetime: string): string {

@@ -378,7 +378,7 @@ const Styles = StyleSheet.create({
 });
 
 ContextDetailScreen.navigationOptions = screenProps => ({
-    title: 'Context Details'
+    title: "Context: " + (screenProps.navigation.getParam("contextString"))
 });
 
 export default ContextDetailScreen;

@@ -96,8 +96,10 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                     if (selectedArea == null) {
                         return
                     }
+                    let contextId: string = await createContext(selectedArea)(dispatch);
                     props.navigation.navigate("ContextDetailScreen", {
-                        contextId: await createContext(selectedArea)(dispatch)
+                        contextId: contextId,
+                        contextString: props.navigation.getParam("areaString") + "." + contextId
                     });
                 }
                 }
@@ -139,7 +141,8 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                               }
                               return (<TouchableOpacity
                                   onPress={() => props.navigation.navigate("ContextDetailScreen", {
-                                      contextId: item
+                                      contextId: item,
+                                      contextString: props.navigation.getParam("areaString") + "." + context.context_number
                                   })}>
                                   <View>
                                       <RowView>
@@ -193,7 +196,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
 }
 
 ContextListScreen.navigationOptions = screenProps => ({
-    title: 'Context List'
+    title: "Context List: " + (screenProps.navigation.getParam("areaString"))
 });
 
 export default ContextListScreen;
