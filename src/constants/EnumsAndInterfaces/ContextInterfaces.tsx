@@ -9,6 +9,12 @@ export interface Context {
     closing_date: string;
     description: string;
     director_notes: string;
-    objectphoto_set: any[];
+    contextphoto_set: PhotoDetails[];
+    bagphoto_set: PhotoDetails[];
+}
+
+export interface PhotoDetails {
+    thumbnail_url: string;
+    photo_url: string;
 }
 

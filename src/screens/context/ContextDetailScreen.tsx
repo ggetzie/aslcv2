@@ -1,9 +1,9 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
-import {NavigationScreenComponent, ScrollView} from "react-navigation";
-import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, NavigationScreenComponent, ScrollView} from "react-navigation";
+import {Alert, Image, Picker, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Context} from "../../constants/EnumsAndInterfaces/ContextInterfaces";
-import {verticalScale} from "../../constants/nativeFunctions";
+import {horizontalScale, verticalScale} from "../../constants/nativeFunctions";
 import {RowView} from "../../components/general/RowView";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
@@ -24,6 +24,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {getContext} from "../../constants/backend_api_action";
 import {TextInputComponent} from "../../components/general/TextInputComponent";
 import moment from "moment";
+import {baseURL} from "../../constants/Axios";
 
 enum DatePickState {
     OPENING_DATE = "OPENING_DATE",
@@ -79,6 +80,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     useEffect(() => {
         if (form == null) {
+            setCanBeSubmitted(false);
             return;
         }
         if (isNotEmptyOrNullBatch(form.closing_date, form.opening_date)) {
@@ -128,7 +130,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     async function uploadImage(response) {
         setLoading(true);
-
         Alert.alert(
             "Image Upload",
             "Confirm Image Selection",
@@ -159,7 +160,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
             ],
             {cancelable: false}
         );
-
     }
 
 
@@ -330,17 +330,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     {/*                             multiline={true}*/}
                     {/*                             placeHolder="Notes"/>*/}
                     <Divider/>
-                    <PaddingComponent vertical="2%"/>
-                    {/*<TouchableOpacity onPress={() => null}>*/}
-                    {/*    <RowView>*/}
-                    {/*        <Text style={Styles.labelStyle}>*/}
-                    {/*            Total Photos*/}
-                    {/*        </Text>*/}
-                    {/*        <Text>*/}
-                    {/*            {form.objectphoto_set == null ? 0 : form.objectphoto_set.length}*/}
-                    {/*        </Text>*/}
-                    {/*    </RowView>*/}
-                    {/*</TouchableOpacity>*/}
                     <ButtonComponent
                         buttonStyle={{width: "35%", height: "auto", alignSelf: "center"}}
                         onPress={() => setImagePickStage(true)}
@@ -348,7 +337,27 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         text={"Add Photo"}
                         rounded={true}
                     />
-
+                    <PaddingComponent vertical="2%"/>
+                    <RowView>
+                        <Text style={Styles.labelStyle}>
+                            Total Context Photos
+                        </Text>
+                        <Text>
+                            {form.contextphoto_set == null ? 0 : form.contextphoto_set.length}
+                        </Text>
+                    </RowView>
+                    <PaddingComponent vertical="2%"/>
+                    {
+                        form.contextphoto_set && <FlatList
+                            keyExtractor={(item)=> item.thumbnail_url}
+                            data={form.contextphoto_set}
+                            renderItem={({item}) =>
+                                <Image
+                                    style={Styles.imageStyle}
+                                    resizeMode="cover"
+                                    source={{uri: (baseURL+ item.thumbnail_url)}}/>}
+                            numColumns={3}
+                        />}
                 </View>
             </ScrollView>
     );
@@ -367,6 +376,12 @@ const Styles = StyleSheet.create({
         alignSelf: "center",
         width: verticalScale(25),
         height: verticalScale(25)
+    },
+    imageStyle:{
+        alignSelf: "center",
+        width: horizontalScale(100),
+        height: horizontalScale(100),
+        marginHorizontal: horizontalScale(5)
     },
     modalButtonStyle: {
         width: "60%",
