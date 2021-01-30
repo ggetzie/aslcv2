@@ -25,6 +25,8 @@ import {getContext} from "../../constants/backend_api_action";
 import {TextInputComponent} from "../../components/general/TextInputComponent";
 import moment from "moment";
 import {baseURL} from "../../constants/Axios";
+import {HeaderBackButton} from "react-navigation-stack";
+import {setSelectedContextId} from "../../../redux/reducerAction";
 
 enum DatePickState {
     OPENING_DATE = "OPENING_DATE",
@@ -349,13 +351,13 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     <PaddingComponent vertical="2%"/>
                     {
                         form.contextphoto_set && <FlatList
-                            keyExtractor={(item)=> item.thumbnail_url}
+                            keyExtractor={(item) => item.thumbnail_url}
                             data={form.contextphoto_set}
                             renderItem={({item}) =>
                                 <Image
                                     style={Styles.imageStyle}
                                     resizeMode="cover"
-                                    source={{uri: (baseURL+ item.thumbnail_url)}}/>}
+                                    source={{uri: (baseURL + item.thumbnail_url)}}/>}
                             numColumns={3}
                         />}
                 </View>
@@ -377,7 +379,7 @@ const Styles = StyleSheet.create({
         width: verticalScale(25),
         height: verticalScale(25)
     },
-    imageStyle:{
+    imageStyle: {
         alignSelf: "center",
         width: horizontalScale(100),
         height: horizontalScale(100),
@@ -393,7 +395,15 @@ const Styles = StyleSheet.create({
 });
 
 ContextDetailScreen.navigationOptions = screenProps => ({
-    title: "Context: " + (screenProps.navigation.getParam("contextString"))
+    title: "Context: " + (screenProps.navigation.getParam("contextString")),
+    headerLeft: () => {
+        const dispatch = useDispatch();
+        return (
+            <HeaderBackButton onPress={() => {
+                dispatch(setSelectedContextId(null))
+                screenProps.navigation.goBack();
+            }}/>);
+    }
 });
 
 export default ContextDetailScreen;

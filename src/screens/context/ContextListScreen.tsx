@@ -14,6 +14,7 @@ import {createContext, getContexts} from "../../constants/backend_api_action";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import {SpatialArea} from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import {getSpatialArea} from "../../constants/backend_api";
+import {setSelectedContextId} from "../../../redux/reducerAction";
 
 enum ContextChoice {
     OPEN = "OPEN",
@@ -140,10 +141,13 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                                   return <LoadingComponent/>;
                               }
                               return (<TouchableOpacity
-                                  onPress={() => props.navigation.navigate("ContextDetailScreen", {
-                                      contextId: item,
-                                      contextString: props.navigation.getParam("areaString") + "." + context.context_number
-                                  })}>
+                                  onPress={() => {
+                                      dispatch(setSelectedContextId(item));
+                                      props.navigation.navigate("ContextDetailScreen", {
+                                          contextId: item,
+                                          contextString: props.navigation.getParam("areaString") + "." + context.context_number
+                                      });
+                                  }}>
                                   <View>
                                       <RowView>
                                           <Text style={{fontWeight: "bold"}}>

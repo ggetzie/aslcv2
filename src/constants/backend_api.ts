@@ -101,6 +101,18 @@ export async function uploadContextImage(contextImage: any, contextId: string): 
     }
 }
 
+export async function uploadContextBagPhotoImage(contextBagPhoto: any, contextId: string): Promise<boolean> {
+    const API = `api/context/${contextId}/bagphoto/`;
+    try {
+        const headers = await getHeaders();
+         await axios.put(API, contextBagPhoto, {headers: {...headers, 'Content-Type': 'multipart/form-data'}});
+        return Promise.resolve(true);
+    } catch (e) {
+        console.log(e);
+        return Promise.reject();
+    }
+}
+
 export async function uploadBagPhoto(contextImage: any, contextId: string, ): Promise<boolean> {
     const API = `api/context/${contextId}/bagphoto/`;
     try {

@@ -18,3 +18,16 @@ export interface PhotoDetails {
     photo_url: string;
 }
 
+export enum Source {
+    F = "F",
+    D = "D"
+}
+
+export function renderSource(source: Source): string {
+    switch (source) {
+        case Source.D:
+            return "Drying";
+        case Source.F:
+            return "In Field";
+    }
+}

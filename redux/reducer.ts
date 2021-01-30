@@ -3,6 +3,7 @@ import {
     INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP,
     INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP,
     RESET_REDUCER_DATA,
+    SET_SELECTED_CONTEXT_ID,
     SET_SELECTED_SPATIAL_AREA_ID,
     SET_USER_PROFILE_WITH_CREDENTIALS
 } from "./reducerAction";
@@ -16,6 +17,7 @@ export interface ReducerAction<T> {
 
 interface ReducerState {
     selectedSpatialAreaId: string;
+    selectedContextId: string;
     spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea>;
     contextIdToContextMap: Map<string, Context>;
     userProfileWithCredentials: UserProfileWithCredentials;
@@ -23,6 +25,7 @@ interface ReducerState {
 
 const initialState: ReducerState = {
     selectedSpatialAreaId: null,
+    selectedContextId: null,
     spatialAreaIdToSpatialAreaMap: new Map(),
     contextIdToContextMap: new Map(),
     userProfileWithCredentials: null
@@ -39,6 +42,11 @@ export default function reducer(state = initialState, action: ReducerAction<any>
             return {
                 ...state,
                 selectedSpatialAreaId: action.payload
+            };
+        case SET_SELECTED_CONTEXT_ID:
+            return {
+                ...state,
+                selectedContextId: action.payload
             };
         case INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP:
             const spatialArea: SpatialArea = action.payload;
