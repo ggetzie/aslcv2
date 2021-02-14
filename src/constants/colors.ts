@@ -3,5 +3,5 @@ export const nativeColors = {
     disabledGrey: "#c8c8c8",
     iconBrown: "#B97117",
     lightBrown: "#ddb676",
-    transparent: "transparent"
+    transparent: "transparent",
 };

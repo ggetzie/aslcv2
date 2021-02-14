@@ -128,33 +128,6 @@ export const UTMForm: React.FC<Props> = (props) => {
                     </Text>
                 </RowView>
 
-                {/* Northing Select*/}
-                <TouchableOpacity style={{width: "100%"}}
-                                  onPress={async () => {
-                                      const availableNorthings = await getMetersList(true);
-                                      const selectedNorthingIndex = availableNorthings.findIndex((area) => area === props.form.area_utm_northing_meters);
-
-                                      props.navigation.navigate("SelectFromListScreen", {
-                                          list: availableNorthings,
-                                          selectedIndex: selectedNorthingIndex,
-                                          onPress: (area) => setForm({
-                                              ...form,
-                                              area_utm_northing_meters: area
-                                          })
-                                      });
-                                  }}>
-                    <RowView style={{paddingVertical: "5%"}}>
-                        <Text>
-                            Select Northing (meters)
-                        </Text>
-                        <Text>
-                            {form.area_utm_northing_meters}
-                        </Text>
-                        <Icon style={Styles.iconStyle} name="chevron-right" type="font-awesome"
-                              color={nativeColors.grey}/>
-                    </RowView>
-                </TouchableOpacity>
-
                 {/* Easting Select*/}
                 <TouchableOpacity style={{width: "100%"}}
                                   onPress={async () => {
@@ -177,6 +150,33 @@ export const UTMForm: React.FC<Props> = (props) => {
                         </Text>
                         <Text>
                             {form.area_utm_easting_meters}
+                        </Text>
+                        <Icon style={Styles.iconStyle} name="chevron-right" type="font-awesome"
+                              color={nativeColors.grey}/>
+                    </RowView>
+                </TouchableOpacity>
+
+                {/* Northing Select*/}
+                <TouchableOpacity style={{width: "100%"}}
+                                  onPress={async () => {
+                                      const availableNorthings = await getMetersList(true);
+                                      const selectedNorthingIndex = availableNorthings.findIndex((area) => area === props.form.area_utm_northing_meters);
+
+                                      props.navigation.navigate("SelectFromListScreen", {
+                                          list: availableNorthings,
+                                          selectedIndex: selectedNorthingIndex,
+                                          onPress: (area) => setForm({
+                                              ...form,
+                                              area_utm_northing_meters: area
+                                          })
+                                      });
+                                  }}>
+                    <RowView style={{paddingVertical: "5%"}}>
+                        <Text>
+                            Select Northing (meters)
+                        </Text>
+                        <Text>
+                            {form.area_utm_northing_meters}
                         </Text>
                         <Icon style={Styles.iconStyle} name="chevron-right" type="font-awesome"
                               color={nativeColors.grey}/>

@@ -13,9 +13,10 @@ import Modal from "react-native-modal";
 import {horizontalScale, verticalScale} from "../../constants/nativeFunctions";
 import {baseURL} from "../../constants/Axios";
 import {PaddingComponent} from "../../components/PaddingComponent";
-import {enumToArray, getContextString} from "../../constants/utilityFunctions";
+import {enumToArray, getContextStringFromContext} from "../../constants/utilityFunctions";
 import {RowView} from "../../components/general/RowView";
 import {Divider} from "react-native-elements";
+import {HeaderBackButton} from "react-navigation-stack";
 
 
 const imagePickerOptions: ImagePickerOptions = {
@@ -49,8 +50,11 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
     }
 
     useEffect(() => {
+        if (selectedContextId == null) {
+            return;
+        }
         fetchData();
-    }, []);
+    }, [selectedContextId]);
 
     useEffect(() => {
         if (contextIdToContextMap.has(selectedContextId)) {
@@ -105,7 +109,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
 
     return (
         <ScrollView>
-            <LoadingModalComponent showLoading={loading || (context == null)}/>
+            <LoadingModalComponent showLoading={loading}/>
             {context && <View>
                 <Modal style={{justifyContent: "flex-end"}}
                        isVisible={imagePickStage}>
@@ -150,7 +154,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                     paddingHorizontal: "5%",
                     paddingTop: "5%"
                 }}>
-                    {"Context: " + getContextString(context)}
+                    {"Context: " + getContextStringFromContext(context)}
                 </Text>
                 <PaddingComponent vertical="2%"/>
                 <View style={{paddingHorizontal: "5%", paddingVertical: "0%"}}>
@@ -235,7 +239,9 @@ const Styles = StyleSheet.create({
 
 FindsBagPhotosScreen.navigationOptions = screenProps => ({
     title: 'Finds Bag Photos',
-    headerLeft: () => null
+    headerLeft: () => <HeaderBackButton onPress={() => {
+        screenProps.navigation.navigate("ContextScreenStack");
+    }}/>
 });
 
 export default FindsBagPhotosScreen;

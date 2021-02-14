@@ -8,13 +8,15 @@ import {Divider} from "react-native-elements";
 import {PaddingComponent} from "../../components/PaddingComponent";
 import {LoadingComponent} from "../../components/general/LoadingComponent";
 import {verticalScale} from "../../constants/nativeFunctions";
-import {renderDate} from "../../constants/utilityFunctions";
+import {getAreaStringForSelectedArea, renderDate} from "../../constants/utilityFunctions";
 import {useDispatch, useSelector} from "react-redux";
 import {createContext, getContexts} from "../../constants/backend_api_action";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import {SpatialArea} from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import {getSpatialArea} from "../../constants/backend_api";
 import {setSelectedContextId} from "../../../redux/reducerAction";
+import {HeaderBackButton} from "react-navigation-stack";
+import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
 
 enum ContextChoice {
     OPEN = "OPEN",
@@ -26,7 +28,7 @@ enum ContextChoice {
 const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
 
-    const [contextIds, setContextIds] = useState<string[]>(props.navigation.getParam("contextIds"));
+    const [contextIds, setContextIds] = useState<string[]>([]);
 
     const selectedAreaId: string = useSelector(({reducer}: any) => reducer.selectedSpatialAreaId);
     const contextIdToContextMap: Map<string, Context> = useSelector(({reducer}: any) => reducer.contextIdToContextMap);
@@ -45,8 +47,11 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
     }
 
     useEffect(() => {
+        if (selectedAreaId == null) {
+            return;
+        }
         updateIds();
-    }, []);
+    }, [selectedAreaId]);
 
     useEffect(() => {
         setLoading(true);
@@ -88,6 +93,10 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }, [contextChoice, contextIds, contextIdToContextMap]);
 
+    if (selectedAreaId == null) {
+        return <ScrollView style={{padding: "5%"}}/>;
+    }
+
     return (
         <ScrollView style={{padding: "5%"}}>
             <ButtonComponent
@@ -98,10 +107,8 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                         return
                     }
                     let contextId: string = await createContext(selectedArea)(dispatch);
-                    props.navigation.navigate("ContextDetailScreen", {
-                        contextId: contextId,
-                        contextString: props.navigation.getParam("areaString") + "." + contextId
-                    });
+                    dispatch(setSelectedContextId(contextId));
+                    props.navigation.navigate("ContextDetailScreen");
                 }
                 }
                 textStyle={{padding: "4%"}}
@@ -128,7 +135,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                     <Picker.Item label="Closed" value={ContextChoice.CLOSED}/>
                 </Picker>
             </RowView>}
-            {loading && <LoadingComponent containerStyle={{margin: "auto"}}/>}
+            <LoadingModalComponent showLoading={selectedAreaId && (loading || allLoaded == false)}/>
             <PaddingComponent/>
             {filteredContextIds.length === 0 ?
                 <Text style={{padding: "5%", alignSelf: "center"}}>
@@ -143,10 +150,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                               return (<TouchableOpacity
                                   onPress={() => {
                                       dispatch(setSelectedContextId(item));
-                                      props.navigation.navigate("ContextDetailScreen", {
-                                          contextId: item,
-                                          contextString: props.navigation.getParam("areaString") + "." + context.context_number
-                                      });
+                                      props.navigation.navigate("ContextDetailScreen");
                                   }}>
                                   <View>
                                       <RowView>
@@ -200,7 +204,10 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
 }
 
 ContextListScreen.navigationOptions = screenProps => ({
-    title: "Context List: " + (screenProps.navigation.getParam("areaString"))
+    title: "Context: " + getAreaStringForSelectedArea(),
+    headerLeft: () => <HeaderBackButton onPress={() => {
+        screenProps.navigation.navigate("AreaScreenStack");
+    }}/>
 });
 
 export default ContextListScreen;

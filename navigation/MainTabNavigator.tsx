@@ -8,18 +8,25 @@ import DataLoadingComponent from "../src/components/DataLoadingComponent";
 import LoginScreen from "../src/screens/login_signup/LoginScreen";
 import SettingsScreen from "../src/screens/settings/SettingsScreen";
 import {nativeColors} from "../src/constants/colors";
-import {ContextBottomNav, EndOfDigBottomNav, SettingsBottomNav} from "../src/constants/imageAssets";
-import ContextScreen from "../src/screens/context/ContextScreen";
+import {
+    ContextBottomNav,
+    EndOfDigBottomNav,
+    HomeBottomNav,
+    SettingsBottomNav
+} from "../src/constants/imageAssets";
+import SpatialAreaSelectScreen from "../src/screens/area/SpatialAreaSelectScreen";
 import FindsBagPhotosScreen from "../src/screens/finds_bag_photos/FindsBagPhotosScreen";
-import SelectFromListScreen from "../src/screens/context/SelectFromListScreen";
+import SelectFromListScreen from "../src/screens/area/SelectFromListScreen";
 import ContextListScreen from "../src/screens/context/ContextListScreen";
 import ContextDetailScreen from "../src/screens/context/ContextDetailScreen";
+import {StateDependentTabIcon} from "../src/components/StateDependentTabIcon";
+import {AppState, getAppState} from "../src/constants/EnumsAndInterfaces/AppState";
 
 
 function defaultNavOptions({navigation}) {
     return {
         headerStyle: {
-            backgroundColor: nativeColors.lightBrown,
+            backgroundColor: getAppState(),
             margin: "auto",
             elevation: 0,
             shadowOpacity: 0,
@@ -40,30 +47,53 @@ const SettingsScreenStack = createStackNavigator({
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
+                             resizeMode={"contain"}
                              source={SettingsBottomNav}/>
-                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
+                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
+                             resizeMode={"contain"}
                              source={SettingsBottomNav}/>
             ),
     },
     defaultNavigationOptions: defaultNavOptions
 });
 
-const ContextScreenStack = createStackNavigator({
-    ContextScreen: ContextScreen,
+const AreaScreenStack = createStackNavigator({
+    SpatialAreaSelectScreen: SpatialAreaSelectScreen,
     SelectFromListScreen: SelectFromListScreen,
-    ContextListScreen: ContextListScreen,
-    ContextDetailScreen: ContextDetailScreen
     // Other screens go here
 }, {
     navigationOptions: {
         tabBarIcon: ({focused}) =>
             (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-                             source={ContextBottomNav}/>
-                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-                             source={ContextBottomNav}/>
+                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
+                             resizeMode={"contain"}
+                             source={HomeBottomNav}/>
+                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
+                             resizeMode={"contain"}
+                             source={HomeBottomNav}/>
             ),
+    },
+    defaultNavigationOptions: defaultNavOptions
+});
+
+
+const ContextScreenStack = createStackNavigator({
+    ContextListScreen: ContextListScreen,
+    ContextDetailScreen: ContextDetailScreen
+    // Other screens go here
+}, {
+    navigationOptions: {
+        tabBarIcon: ({focused}) => {
+            return <StateDependentTabIcon focused={focused} icon={ContextBottomNav}
+                                          showState={[AppState.STATE_2, AppState.STATE_3]}/>
+        },
+        tabBarOnPress: ({defaultHandler}) => {
+            if ([AppState.STATE_2, AppState.STATE_3].includes(getAppState())) {
+                return defaultHandler();
+            }
+            return null
+        }
     },
     defaultNavigationOptions: defaultNavOptions
 });
@@ -73,13 +103,14 @@ const FindsBagPhotosScreenStack = createStackNavigator({
     // Other screens go here
 }, {
     navigationOptions: {
-        tabBarIcon: ({focused}) =>
-            (focused
-                    ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-                             source={EndOfDigBottomNav}/>
-                    : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-                             source={EndOfDigBottomNav}/>
-            ),
+        tabBarIcon: ({focused}) => <StateDependentTabIcon focused={focused} icon={EndOfDigBottomNav}
+                                                          showState={[AppState.STATE_3]}/>,
+        tabBarOnPress: ({defaultHandler}) => {
+            if (getAppState() == AppState.STATE_3) {
+                return defaultHandler();
+            }
+            return null
+        }
     },
     defaultNavigationOptions: defaultNavOptions
 });
@@ -101,7 +132,6 @@ const FindsBagPhotosScreenStack = createStackNavigator({
 // });
 
 
-
 export const LoginScreenNavigator = createStackNavigator({
     LoginScreen: LoginScreen,
     SignupScreen: SignupScreen,
@@ -111,12 +141,13 @@ export const LoginScreenNavigator = createStackNavigator({
 });
 
 export const MainTabNavigator = createBottomTabNavigator({
+    AreaScreenStack: AreaScreenStack,
     ContextScreenStack: ContextScreenStack,
     FindsBagPhotosScreen: FindsBagPhotosScreenStack,
     SettingsScreenStack: SettingsScreenStack
     // PhotogrammetryScreenStack: PhotogrammetryScreenStack
 }, {
-    initialRouteName: "ContextScreenStack",
+    initialRouteName: "AreaScreenStack",
     tabBarOptions: {
         showLabel: false,
         style: {

@@ -7,6 +7,7 @@ import {horizontalScale, verticalScale} from "../../constants/nativeFunctions";
 import {RowView} from "../../components/general/RowView";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {
+    getContextAreaStringForSelectedContext,
     getDateFromISO,
     isNotEmptyOrNull,
     isNotEmptyOrNullBatch,
@@ -49,8 +50,7 @@ const imagePickerOptions: ImagePickerOptions = {
 const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
 
-    const contextId: string = props.navigation.getParam("contextId");
-
+    const selectedContextId: string = useSelector(({reducer}: any) => reducer.selectedContextId);
     const contextIdToContextMap: Map<string, Context> = useSelector(({reducer}: any) => reducer.contextIdToContextMap);
 
     const [datePickState, setDatePickState] = useState<DatePickState>(DatePickState.CLOSED);
@@ -62,23 +62,24 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     const [types, setTypes] = useState<string[]>(null);
 
-    const initialContext = contextIdToContextMap.get(contextId);
-
 
     async function fetchData() {
         setLoading(true);
-        await getContext(contextId)(dispatch);
+        await getContext(selectedContextId)(dispatch);
         setTypes((await getContextTypes()));
         setLoading(false);
     }
 
     useEffect(() => {
+        if (selectedContextId == null) {
+            return;
+        }
         fetchData();
-    }, []);
+    }, [selectedContextId]);
 
     useEffect(() => {
-        setForm(initialContext);
-    }, [initialContext]);
+        setForm(contextIdToContextMap.get(selectedContextId));
+    }, [selectedContextId, contextIdToContextMap]);
 
     useEffect(() => {
         if (form == null) {
@@ -99,7 +100,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                 alert("Warning: Opening date is more than a week in the future!")
             }
         }
-        const dbContext = contextIdToContextMap.get(contextId);
+        const dbContext = contextIdToContextMap.get(selectedContextId);
         if (form && form.spatial_area != null) {
             delete form.spatial_area;
         }
@@ -117,15 +118,10 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }, [form]);
 
-
-    useEffect(() => {
-        setForm(contextIdToContextMap.get(contextId));
-    }, [contextIdToContextMap]);
-
     async function updateData() {
         setLoading(true);
         await updateContext(form);
-        await getContext(contextId)(dispatch);
+        await getContext(selectedContextId)(dispatch);
         setLoading(false);
     }
 
@@ -150,8 +146,8 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 type: response.type,
                                 name: response.fileName
                             } as any);
-                            await uploadContextImage(form, contextId);
-                            getContext(contextId)(dispatch);
+                            await uploadContextImage(form, selectedContextId);
+                            getContext(selectedContextId)(dispatch);
                             setLoading(false);
                         } catch (e) {
                             alert("Failed to upload Image");
@@ -166,7 +162,8 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
 
     return (
-        (form == null || initialContext == null) ? <LoadingModalComponent showLoading={true}/> :
+        (form == null || selectedContextId == null || contextIdToContextMap.get(selectedContextId) == null) ?
+            <ScrollView/> :
             <ScrollView>
                 <LoadingModalComponent showLoading={loading}/>
                 <Modal style={{justifyContent: "flex-end"}}
@@ -225,8 +222,8 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                     }}
                     onCancel={() => setDatePickState(DatePickState.CLOSED)}
                     date={(datePickState === DatePickState.OPENING_DATE ?
-                        (initialContext.opening_date == null ? (new Date) : (new Date(initialContext.opening_date))) :
-                        (initialContext.closing_date == null ? (new Date) : (new Date(initialContext.closing_date))))}
+                        (contextIdToContextMap.get(selectedContextId).opening_date == null ? (new Date) : (new Date(contextIdToContextMap.get(selectedContextId).opening_date))) :
+                        (contextIdToContextMap.get(selectedContextId).closing_date == null ? (new Date) : (new Date(contextIdToContextMap.get(selectedContextId).closing_date))))}
                     mode="date"
                 />
                 <RowView>
@@ -281,27 +278,28 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         {/*                    placeHolder="Context Type"/>*/}
                     </RowView>
                     <PaddingComponent vertical="2%"/>
-                    <TouchableOpacity onPress={() => setDatePickState(DatePickState.OPENING_DATE)}>
-                        <RowView>
+                    <RowView>
+                        <TouchableOpacity
+                            onPress={() => setDatePickState(DatePickState.OPENING_DATE)}>
                             <Text style={Styles.labelStyle}>
                                 Opening Date
                             </Text>
                             <Text>
                                 {renderDate(form.opening_date)}
                             </Text>
-                        </RowView>
-                    </TouchableOpacity>
-                    <PaddingComponent vertical="2%"/>
-                    <TouchableOpacity onPress={() => setDatePickState(DatePickState.CLOSING_DATE)}>
-                        <RowView>
+
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => setDatePickState(DatePickState.CLOSING_DATE)}>
                             <Text style={Styles.labelStyle}>
                                 Closing Date
                             </Text>
                             <Text>
                                 {renderDate(form.closing_date)}
                             </Text>
-                        </RowView>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+                    </RowView>
+
                     <PaddingComponent vertical="2%"/>
                     <Text style={Styles.labelStyle}>
                         Description
@@ -369,7 +367,7 @@ const Styles = StyleSheet.create({
     labelStyle: {
         fontSize: verticalScale(16),
         color: "black",
-        width: "50%"
+        width: "auto",
     },
     inputStyle: {
         width: "50%"
@@ -395,7 +393,7 @@ const Styles = StyleSheet.create({
 });
 
 ContextDetailScreen.navigationOptions = screenProps => ({
-    title: "Context: " + (screenProps.navigation.getParam("contextString")),
+    title: "Context: " + getContextAreaStringForSelectedContext(),
     headerLeft: () => {
         const dispatch = useDispatch();
         return (

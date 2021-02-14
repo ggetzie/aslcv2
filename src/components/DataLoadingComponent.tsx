@@ -24,7 +24,7 @@ const DataLoadingComponent: NavigationScreenComponent<any> = (props) => {
             try {
                 const token: string = await getJwtFromAsyncStorage();
                 if(token != null && token.trim().length !== 0){
-                    props.navigation.navigate("ContextScreenStack");
+                    props.navigation.navigate("AreaScreenStack");
                 } else {
                     throw new Error("Not Logged in");
                 }

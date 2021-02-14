@@ -11,14 +11,12 @@ import {
     SpatialAreaQuery
 } from "../../constants/EnumsAndInterfaces/SpatialAreaInterfaces";
 import {useDispatch, useSelector} from "react-redux";
-import {setSelectedSpatialAreaId} from "../../../redux/reducerAction";
+import {setSelectedContextId, setSelectedSpatialAreaId} from "../../../redux/reducerAction";
 import {UTMForm} from "../../components/UTMForm";
 import {LoadingComponent} from "../../components/general/LoadingComponent";
-import {ButtonComponent} from "../../components/general/ButtonComponent";
 import {getFilteredSpatialAreaIdsList} from "../../constants/backend_api_action";
-import {getAreaString} from "../../constants/utilityFunctions";
 
-const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
+const SpatialAreaSelectScreen: NavigationScreenComponent<any, any> = (props) => {
     const dispatch = useDispatch();
 
     const selectedAreaId: string = useSelector(({reducer}: any) => reducer.selectedSpatialAreaId);
@@ -29,7 +27,7 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        dispatch(setSelectedSpatialAreaId(null));
+        selectArea(null);
     }, []);
 
     useEffect(() => {
@@ -38,7 +36,7 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
 
     async function fetchSpatialAreaList() {
         try {
-            dispatch(setSelectedSpatialAreaId(null));
+            selectArea(null);
             setLoading(true);
             const newSpatialAreaIds = await getFilteredSpatialAreaIdsList(form)(dispatch);
             setSpacialAreaIds(newSpatialAreaIds);
@@ -49,9 +47,14 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }
 
-    useEffect(()=> {
+    function selectArea(id: string) {
+        dispatch(setSelectedContextId(null))
+        dispatch(setSelectedSpatialAreaId(id));
+    }
+
+    useEffect(() => {
         if (spatialAreaIds && spatialAreaIds.length === 1 && spatialAreaIdToSpatialAreaMap.has(spatialAreaIds[0])) {
-            dispatch(setSelectedSpatialAreaId(spatialAreaIds[0]));
+            selectArea(spatialAreaIds[0]);
         }
     }, [spatialAreaIdToSpatialAreaMap, spatialAreaIds]);
 
@@ -66,9 +69,9 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
             <View style={{padding: "5%"}}>
                 <TouchableOpacity onPress={() => {
                     if (selectedAreaId && selectedAreaId === area.id) {
-                        dispatch(setSelectedSpatialAreaId(null));
+                        selectArea(null);
                     } else {
-                        dispatch(setSelectedSpatialAreaId(area.id));
+                        selectArea(area.id);
                     }
                 }}>
                     <RowView>
@@ -130,20 +133,20 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
                         {`${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).utm_hemisphere}, Zone: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).utm_zone}, Northing: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).area_utm_northing_meters}, Easting: ${spatialAreaIdToSpatialAreaMap.get(selectedAreaId).area_utm_easting_meters}`}
                     </Text>
 
-                    <ButtonComponent
-                        buttonStyle={{
-                            width: "60%",
-                            height: "auto",
-                            alignSelf: "center",
-                        }}
-                        onPress={() => props.navigation.navigate("ContextListScreen", {
-                            contextIds: spatialAreaIdToSpatialAreaMap.get(selectedAreaId).spatialcontext_set.map((item) => item[0]),
-                            areaString: getAreaString(spatialAreaIdToSpatialAreaMap.get(selectedAreaId))
-                        })}
-                        textStyle={{padding: "4%"}}
-                        text={"View All Contexts"}
-                        rounded={true}
-                    />
+                    {/*<ButtonComponent*/}
+                    {/*    buttonStyle={{*/}
+                    {/*        width: "60%",*/}
+                    {/*        height: "auto",*/}
+                    {/*        alignSelf: "center",*/}
+                    {/*    }}*/}
+                    {/*    onPress={() => props.navigation.navigate("ContextListScreen", {*/}
+                    {/*        contextIds: spatialAreaIdToSpatialAreaMap.get(selectedAreaId).spatialcontext_set.map((item) => item[0]),*/}
+                    {/*        areaString: getAreaString(spatialAreaIdToSpatialAreaMap.get(selectedAreaId))*/}
+                    {/*    })}*/}
+                    {/*    textStyle={{padding: "4%"}}*/}
+                    {/*    text={"View All Contexts"}*/}
+                    {/*    rounded={true}*/}
+                    {/*/>*/}
                 </View>
             ) : (
                 <LoadingComponent/>
@@ -154,8 +157,8 @@ const ContextScreen: NavigationScreenComponent<any, any> = (props) => {
     )
 };
 
-ContextScreen.navigationOptions = screenProps => ({
-    title: 'Context',
+SpatialAreaSelectScreen.navigationOptions = screenProps => ({
+    title: 'Spatial Area',
     headerLeft: () => null
 });
 
@@ -177,4 +180,4 @@ const Styles = StyleSheet.create({
     }
 });
 
-export default ContextScreen;
+export default SpatialAreaSelectScreen;
