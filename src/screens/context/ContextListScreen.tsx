@@ -205,9 +205,14 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
 
 ContextListScreen.navigationOptions = screenProps => ({
     title: "Context: " + getAreaStringForSelectedArea(),
-    headerLeft: () => <HeaderBackButton onPress={() => {
-        screenProps.navigation.navigate("AreaScreenStack");
-    }}/>
+    headerLeft: () => {
+        const dispatch = useDispatch();
+
+        return <HeaderBackButton onPress={() => {
+            dispatch(setSelectedContextId(null));
+            screenProps.navigation.navigate("AreaScreenStack");
+        }}/>;
+    }
 });
 
 export default ContextListScreen;

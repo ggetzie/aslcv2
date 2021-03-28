@@ -39,7 +39,7 @@ export const StateDependentTabIcon: React.FC<Props> = (props) => {
 
 const styles = StyleSheet.create({
     bottomImage: {
-        height: verticalScale(20),
-        width: verticalScale(20),
+        height: verticalScale(40),
+        width: verticalScale(40),
     }
 });

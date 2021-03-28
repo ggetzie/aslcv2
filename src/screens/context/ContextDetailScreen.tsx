@@ -27,7 +27,7 @@ import {TextInputComponent} from "../../components/general/TextInputComponent";
 import moment from "moment";
 import {baseURL} from "../../constants/Axios";
 import {HeaderBackButton} from "react-navigation-stack";
-import {setSelectedContextId} from "../../../redux/reducerAction";
+import {setCanContestBeSubmitted, setSelectedContextId} from "../../../redux/reducerAction";
 
 enum DatePickState {
     OPENING_DATE = "OPENING_DATE",
@@ -52,13 +52,13 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     const selectedContextId: string = useSelector(({reducer}: any) => reducer.selectedContextId);
     const contextIdToContextMap: Map<string, Context> = useSelector(({reducer}: any) => reducer.contextIdToContextMap);
+    const canBeSubmitted: boolean = useSelector(({reducer}: any) => reducer.canContextBeSubmitted);
 
     const [datePickState, setDatePickState] = useState<DatePickState>(DatePickState.CLOSED);
     const [imagePickStage, setImagePickStage] = useState<boolean>(false);
 
     const [form, setForm] = useState<Context>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [canBeSubmitted, setCanBeSubmitted] = useState<boolean>(false);
 
     const [types, setTypes] = useState<string[]>(null);
 
@@ -72,9 +72,10 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     useEffect(() => {
         if (selectedContextId == null) {
-            return;
+            props.navigation.navigate("ContextListScreen");
+        } else {
+            fetchData();
         }
-        fetchData();
     }, [selectedContextId]);
 
     useEffect(() => {
@@ -83,7 +84,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
     useEffect(() => {
         if (form == null) {
-            setCanBeSubmitted(false);
+            dispatch(setCanContestBeSubmitted(false));
             return;
         }
         if (isNotEmptyOrNullBatch(form.closing_date, form.opening_date)) {
@@ -109,12 +110,12 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         }
         if (!isEqual(form, dbContext)) {
             if (isNotEmptyOrNull(form.closing_date) && !(isNotEmptyOrNull(form.opening_date))) {
-                setCanBeSubmitted(false);
+                dispatch(setCanContestBeSubmitted(false));
             } else {
-                setCanBeSubmitted(true);
+                dispatch(setCanContestBeSubmitted(true));
             }
         } else {
-            setCanBeSubmitted(false);
+            dispatch(setCanContestBeSubmitted(true));
         }
     }, [form]);
 
@@ -147,7 +148,9 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 name: response.fileName
                             } as any);
                             await uploadContextImage(form, selectedContextId);
-                            getContext(selectedContextId)(dispatch);
+                            setTimeout(() => {
+                                fetchData();
+                            }, 4000)
                             setLoading(false);
                         } catch (e) {
                             alert("Failed to upload Image");
@@ -159,7 +162,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
             {cancelable: false}
         );
     }
-
 
     return (
         (form == null || selectedContextId == null || contextIdToContextMap.get(selectedContextId) == null) ?
@@ -396,10 +398,29 @@ ContextDetailScreen.navigationOptions = screenProps => ({
     title: "Context: " + getContextAreaStringForSelectedContext(),
     headerLeft: () => {
         const dispatch = useDispatch();
+        const canBeSubmitted: boolean = useSelector(({reducer}: any) => reducer.canContextBeSubmitted);
         return (
             <HeaderBackButton onPress={() => {
-                dispatch(setSelectedContextId(null))
-                screenProps.navigation.goBack();
+                if (canBeSubmitted) {
+                    Alert.alert(
+                        "Save Edits",
+                        "Are you sure you want to continue without saving?",
+                        [
+                            {
+                                text: "Cancel",
+                                onPress: () => null,
+                                style: "cancel"
+                            },
+                            {
+                                text: "Yes", onPress: async () => {
+                                    dispatch(setSelectedContextId(null))
+                                    screenProps.navigation.goBack();
+                                }
+                            }
+                        ],
+                        {cancelable: false}
+                    );
+                }
             }}/>);
     }
 });

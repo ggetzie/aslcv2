@@ -48,7 +48,7 @@ const SpatialAreaSelectScreen: NavigationScreenComponent<any, any> = (props) => 
     }
 
     function selectArea(id: string) {
-        dispatch(setSelectedContextId(null))
+        dispatch(setSelectedContextId(null));
         dispatch(setSelectedSpatialAreaId(id));
     }
 

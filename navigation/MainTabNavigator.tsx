@@ -10,7 +10,7 @@ import SettingsScreen from "../src/screens/settings/SettingsScreen";
 import {nativeColors} from "../src/constants/colors";
 import {
     ContextBottomNav,
-    EndOfDigBottomNav,
+    FindBagPhotosBottomNav,
     HomeBottomNav,
     SettingsBottomNav
 } from "../src/constants/imageAssets";
@@ -39,6 +39,7 @@ function defaultNavOptions({navigation}) {
         }
     };
 }
+
 
 const SettingsScreenStack = createStackNavigator({
     SettingsScreen: SettingsScreen,
@@ -103,7 +104,8 @@ const FindsBagPhotosScreenStack = createStackNavigator({
     // Other screens go here
 }, {
     navigationOptions: {
-        tabBarIcon: ({focused}) => <StateDependentTabIcon focused={focused} icon={EndOfDigBottomNav}
+        tabBarIcon: ({focused}) => <StateDependentTabIcon focused={focused}
+                                                          icon={FindBagPhotosBottomNav}
                                                           showState={[AppState.STATE_3]}/>,
         tabBarOnPress: ({defaultHandler}) => {
             if (getAppState() == AppState.STATE_3) {
@@ -161,7 +163,7 @@ export const MainTabNavigator = createBottomTabNavigator({
 
 const styles = StyleSheet.create({
     bottomImage: {
-        height: verticalScale(20),
-        width: verticalScale(20),
+        height: verticalScale(40),
+        width: verticalScale(40),
     }
 });
