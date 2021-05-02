@@ -43,6 +43,16 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
 
     const [loading, setLoading] = useState<boolean>(false);
 
+    // console.log(context);
+
+    // const field_photos = context.bagphoto_set.filter((photo) => {
+    //     return photo.thumbnail_url.includes("bag_field")
+    // });
+
+    // const drying_photos = context.bagphoto_set.filter((photo) => {
+    //     return photo.thumbnail_url.includes("bag_drying")
+    // });
+
     async function fetchData() {
         setLoading(true);
         await getContext(selectedContextId)(dispatch);
@@ -192,9 +202,31 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                         </Text>
                     </RowView>
                     <PaddingComponent vertical="2%"/>
+                    <Text>
+                        Field Photos
+                    </Text>
                     {context.bagphoto_set && <FlatList
                         keyExtractor={(item) => item.thumbnail_url}
-                        data={context.bagphoto_set}
+                        data={context.bagphoto_set.filter((photo) => {
+                            return photo.thumbnail_url.includes("bag_field")
+                        })}
+                        renderItem={({item}) =>
+                            <Image
+                                style={Styles.imageStyle}
+                                resizeMode="cover"
+                                source={{uri: (baseURL + item.thumbnail_url)}}/>}
+                        numColumns={3}
+                    />}
+
+                    <PaddingComponent vertical="2%"/>
+                    <Text>
+                        Drying Photos
+                    </Text>
+                    {context.bagphoto_set && <FlatList
+                        keyExtractor={(item) => item.thumbnail_url}
+                        data={context.bagphoto_set.filter((photo) => {
+                            return photo.thumbnail_url.includes("bag_dry")
+                        })}
                         renderItem={({item}) =>
                             <Image
                                 style={Styles.imageStyle}
