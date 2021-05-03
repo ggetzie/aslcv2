@@ -1,11 +1,16 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {FlatList, NavigationScreenComponent, ScrollView} from "react-navigation";
-import {Alert, Image, Picker, StyleSheet, Text, View} from "react-native";
+import {Alert, Image, Picker, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useDispatch, useSelector} from "react-redux";
 import {uploadContextBagPhotoImage} from "../../constants/backend_api";
 import {getContext} from "../../constants/backend_api_action";
-import {Context, renderSource, Source} from "../../constants/EnumsAndInterfaces/ContextInterfaces";
+import {
+    Context,
+    PhotoDetails,
+    renderSource,
+    Source
+} from "../../constants/EnumsAndInterfaces/ContextInterfaces";
 import {LoadingModalComponent} from "../../components/general/LoadingModalComponent";
 import {ButtonComponent} from "../../components/general/ButtonComponent";
 import ImagePicker, {ImagePickerOptions, ImagePickerResponse} from "react-native-image-picker";
@@ -17,6 +22,7 @@ import {enumToArray, getContextStringFromContext} from "../../constants/utilityF
 import {RowView} from "../../components/general/RowView";
 import {Divider} from "react-native-elements";
 import {HeaderBackButton} from "react-navigation-stack";
+import {nativeColors} from "../../constants/colors";
 
 
 const imagePickerOptions: ImagePickerOptions = {
@@ -192,9 +198,31 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                         </Text>
                     </RowView>
                     <PaddingComponent vertical="2%"/>
+                    <RowView style={{justifyContent: "space-evenly"}}>
+                        <TouchableOpacity onPress={() => setSource(Source.D)}>
+                            <View
+                                style={source === Source.D ? Styles.tabItemSelected : Styles.tabNotSelected}>
+                                <Text style={{alignSelf: "center"}}>
+                                    {renderSource(Source.D)}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setSource(Source.F)}>
+                            <View
+                                style={source === Source.F ? Styles.tabItemSelected : Styles.tabNotSelected}>
+                                <Text style={{alignSelf: "center"}}>
+                                    {renderSource(Source.F)}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </RowView>
+                    <PaddingComponent vertical="2%"/>
                     {context.bagphoto_set && <FlatList
                         keyExtractor={(item) => item.thumbnail_url}
-                        data={context.bagphoto_set}
+                        data={context.bagphoto_set.filter((item: PhotoDetails) =>
+                            source === Source.D ?
+                                (item.photo_url.split('/').slice(-2, -1)[0] === "bag_dry")
+                                : (item.photo_url.split('/').slice(-2, -1)[0] === "bag_field"))}
                         renderItem={({item}) =>
                             <Image
                                 style={Styles.imageStyle}
@@ -234,6 +262,21 @@ const Styles = StyleSheet.create({
     cancelButtonStyle: {
         width: "60%",
         backgroundColor: "white"
+    },
+    tabItemSelected: {
+        borderBottomWidth: 2,
+        borderStyle: "solid",
+        borderBottomColor: nativeColors.lightBrown,
+        color: nativeColors.lightBrown,
+        fontSize: verticalScale(16),
+        height: verticalScale(40),
+        width: horizontalScale(100),
+    },
+    tabNotSelected: {
+        color: "white",
+        fontSize: verticalScale(16),
+        height: verticalScale(40),
+        width: horizontalScale(100),
     }
 });
 

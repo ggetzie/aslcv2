@@ -115,7 +115,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                 dispatch(setCanContestBeSubmitted(true));
             }
         } else {
-            dispatch(setCanContestBeSubmitted(true));
+            dispatch(setCanContestBeSubmitted(false));
         }
     }, [form]);
 
@@ -401,7 +401,7 @@ ContextDetailScreen.navigationOptions = screenProps => ({
         const canBeSubmitted: boolean = useSelector(({reducer}: any) => reducer.canContextBeSubmitted);
         return (
             <HeaderBackButton onPress={() => {
-                if (canBeSubmitted) {
+                if (canBeSubmitted === true) {
                     Alert.alert(
                         "Save Edits",
                         "Are you sure you want to continue without saving?",
@@ -420,6 +420,9 @@ ContextDetailScreen.navigationOptions = screenProps => ({
                         ],
                         {cancelable: false}
                     );
+                } else {
+                    dispatch(setSelectedContextId(null));
+                    screenProps.navigation.goBack();
                 }
             }}/>);
     }
