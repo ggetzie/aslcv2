@@ -17,6 +17,7 @@ import {enumToArray, getContextStringFromContext} from "../../constants/utilityF
 import {RowView} from "../../components/general/RowView";
 import {Divider} from "react-native-elements";
 import {HeaderBackButton} from "react-navigation-stack";
+import ContextListScreen from "../context/ContextListScreen";
 
 
 const imagePickerOptions: ImagePickerOptions = {
@@ -43,15 +44,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    // console.log(context);
-
-    // const field_photos = context.bagphoto_set.filter((photo) => {
-    //     return photo.thumbnail_url.includes("bag_field")
-    // });
-
-    // const drying_photos = context.bagphoto_set.filter((photo) => {
-    //     return photo.thumbnail_url.includes("bag_drying")
-    // });
+    
 
     async function fetchData() {
         setLoading(true);
@@ -71,6 +64,16 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
             setContext(contextIdToContextMap.get(selectedContextId));
         }
     }, [contextIdToContextMap, selectedContextId]);
+
+    console.log(context);
+
+    const field_photos = context.bagphoto_set.filter((photo) => {
+        return photo.thumbnail_url.includes("bag_field")
+    });
+
+    const drying_photos = context.bagphoto_set.filter((photo) => {
+        return photo.thumbnail_url.includes("bag_dry")
+    });    
 
     if (selectedContextId == null) {
         return (<ScrollView>
@@ -202,38 +205,51 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                         </Text>
                     </RowView>
                     <PaddingComponent vertical="2%"/>
-                    <Text>
-                        Field Photos
-                    </Text>
-                    {context.bagphoto_set && <FlatList
-                        keyExtractor={(item) => item.thumbnail_url}
-                        data={context.bagphoto_set.filter((photo) => {
-                            return photo.thumbnail_url.includes("bag_field")
-                        })}
-                        renderItem={({item}) =>
-                            <Image
-                                style={Styles.imageStyle}
-                                resizeMode="cover"
-                                source={{uri: (baseURL + item.thumbnail_url)}}/>}
-                        numColumns={3}
-                    />}
+                    
+                    {field_photos.length > 0 && 
+                    <React.Fragment>
+                        <Text style={{
+                            fontSize: verticalScale(20),
+                            fontWeight: "bold",
+                            paddingTop: "5%"
+                        }}>
+                            Field Photos
+                        </Text>
+                        <FlatList
+                            keyExtractor={(item) => item.thumbnail_url}
+                            data={field_photos}
+                            renderItem={({item}) =>
+                                <Image
+                                    style={Styles.imageStyle}
+                                    resizeMode="cover"
+                                    source={{uri: (baseURL + item.thumbnail_url)}}/>}
+                            numColumns={3}
+                        />
+                        <PaddingComponent vertical="2%"/>
+                    </React.Fragment>}
 
-                    <PaddingComponent vertical="2%"/>
-                    <Text>
-                        Drying Photos
-                    </Text>
-                    {context.bagphoto_set && <FlatList
-                        keyExtractor={(item) => item.thumbnail_url}
-                        data={context.bagphoto_set.filter((photo) => {
-                            return photo.thumbnail_url.includes("bag_dry")
-                        })}
-                        renderItem={({item}) =>
-                            <Image
-                                style={Styles.imageStyle}
-                                resizeMode="cover"
-                                source={{uri: (baseURL + item.thumbnail_url)}}/>}
-                        numColumns={3}
-                    />}
+                    
+                    
+                    {drying_photos.length > 0 && 
+                    <React.Fragment>
+                        <Text style={{
+                            fontSize: verticalScale(20),
+                            fontWeight: "bold",
+                            paddingTop: "5%"
+                        }}>
+                            Drying Photos
+                        </Text>
+                        <FlatList
+                            keyExtractor={(item) => item.thumbnail_url}
+                            data={drying_photos}
+                            renderItem={({item}) =>
+                                <Image
+                                    style={Styles.imageStyle}
+                                    resizeMode="cover"
+                                    source={{uri: (baseURL + item.thumbnail_url)}}/>}
+                            numColumns={3}
+                        />
+                    </React.Fragment>}
                 </View>
             </View>}
         </ScrollView>
