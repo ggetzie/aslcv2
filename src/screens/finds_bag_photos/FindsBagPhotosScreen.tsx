@@ -199,19 +199,20 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                     </RowView>
                     <PaddingComponent vertical="2%"/>
                     <RowView style={{justifyContent: "space-evenly"}}>
-                        <TouchableOpacity onPress={() => setSource(Source.D)}>
-                            <View
-                                style={source === Source.D ? Styles.tabItemSelected : Styles.tabNotSelected}>
-                                <Text style={{alignSelf: "center"}}>
-                                    {renderSource(Source.D)}
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => setSource(Source.F)}>
                             <View
                                 style={source === Source.F ? Styles.tabItemSelected : Styles.tabNotSelected}>
                                 <Text style={{alignSelf: "center"}}>
                                     {renderSource(Source.F)}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => setSource(Source.D)}>
+                            <View
+                                style={source === Source.D ? Styles.tabItemSelected : Styles.tabNotSelected}>
+                                <Text style={{alignSelf: "center"}}>
+                                    {renderSource(Source.D)}
                                 </Text>
                             </View>
                         </TouchableOpacity>
