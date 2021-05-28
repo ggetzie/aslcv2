@@ -160,7 +160,7 @@ export async function updateContext(context: Context) {
             return Promise.resolve();
         } catch (e) {
             console.log(e);
-            return Promise.reject();
+            return Promise.reject(e);
         }
     }
 }

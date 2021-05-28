@@ -117,12 +117,17 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         } else {
             dispatch(setCanContestBeSubmitted(false));
         }
-    }, [form]);
+    }, [form, contextIdToContextMap]);
 
     async function updateData() {
         setLoading(true);
-        await updateContext(form);
-        await getContext(selectedContextId)(dispatch);
+        try {
+            await updateContext(form);
+            await getContext(selectedContextId)(dispatch);
+        } catch (e) {
+            console.log(e);
+            alert("Error Updating Context");
+        }
         setLoading(false);
     }
 
@@ -215,7 +220,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 opening_date: getDateFromISO(date.toISOString())
                             });
                         } else if (datePickState === DatePickState.CLOSING_DATE) {
-                            console.log("Data Received: ", date);
                             setForm({
                                 ...form,
                                 closing_date: getDateFromISO(date.toISOString())
@@ -263,9 +267,10 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         <Picker
                             style={Styles.inputStyle}
                             selectedValue={form.type}
-                            onValueChange={(value: string, pos) =>
-                                setForm({...form, type: value})}>
-                            {types && types.map((type => <Picker.Item label={type} value={type}/>))}
+                            onValueChange={(value: string, pos) => setForm({...form, type: value})}>
+                            {types && types.map((type => <Picker.Item label={type}
+                                                                      value={type}/>)).concat(
+                                <Picker.Item label={"Select"} value={null}/>)}
                         </Picker>
 
 
@@ -413,7 +418,7 @@ ContextDetailScreen.navigationOptions = screenProps => ({
                             },
                             {
                                 text: "Yes", onPress: async () => {
-                                    dispatch(setSelectedContextId(null))
+                                    dispatch(setSelectedContextId(null));
                                     screenProps.navigation.goBack();
                                 }
                             }
