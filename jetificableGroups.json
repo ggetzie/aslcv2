@@ -215,20 +215,20 @@
       "path": "node_modules/astral-regex"
     }
   },
-  "atob:2.1.2": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "atob",
-      "version": "2.1.2",
-      "path": "node_modules/atob"
-    }
-  },
   "async:2.6.3": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "async",
       "version": "2.6.3",
       "path": "node_modules/async"
+    }
+  },
+  "atob:2.1.2": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "atob",
+      "version": "2.1.2",
+      "path": "node_modules/atob"
     }
   },
   "axios:0.19.2": {
@@ -1103,14 +1103,6 @@
       "path": "node_modules/exec-sh"
     }
   },
-  "expand-brackets:2.1.4": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "expand-brackets",
-      "version": "2.1.4",
-      "path": "node_modules/expand-brackets"
-    }
-  },
   "execa:1.0.0": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -1119,12 +1111,12 @@
       "path": "node_modules/execa"
     }
   },
-  "external-editor:2.2.0": {
+  "expand-brackets:2.1.4": {
     "jetificablePaths": [],
     "packageInfo": {
-      "name": "external-editor",
-      "version": "2.2.0",
-      "path": "node_modules/external-editor"
+      "name": "expand-brackets",
+      "version": "2.1.4",
+      "path": "node_modules/expand-brackets"
     }
   },
   "extend-shallow:2.0.1": {
@@ -1133,6 +1125,14 @@
       "name": "extend-shallow",
       "version": "2.0.1",
       "path": "node_modules/extend-shallow"
+    }
+  },
+  "external-editor:2.2.0": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "external-editor",
+      "version": "2.2.0",
+      "path": "node_modules/external-editor"
     }
   },
   "extglob:2.0.4": {
@@ -1271,20 +1271,20 @@
       "path": "node_modules/for-in"
     }
   },
-  "fragment-cache:0.2.1": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "fragment-cache",
-      "version": "0.2.1",
-      "path": "node_modules/fragment-cache"
-    }
-  },
   "fresh:0.5.2": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "fresh",
       "version": "0.5.2",
       "path": "node_modules/fresh"
+    }
+  },
+  "fragment-cache:0.2.1": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "fragment-cache",
+      "version": "0.2.1",
+      "path": "node_modules/fragment-cache"
     }
   },
   "fs-extra:8.1.0": {
@@ -1359,20 +1359,20 @@
       "path": "node_modules/get-value"
     }
   },
-  "glob-parent:5.1.1": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "glob-parent",
-      "version": "5.1.1",
-      "path": "node_modules/glob-parent"
-    }
-  },
   "glob:7.1.6": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "glob",
       "version": "7.1.6",
       "path": "node_modules/glob"
+    }
+  },
+  "glob-parent:5.1.1": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "glob-parent",
+      "version": "5.1.1",
+      "path": "node_modules/glob-parent"
     }
   },
   "globals:11.12.0": {
@@ -1999,6 +1999,14 @@
       "path": "node_modules/log-symbols"
     }
   },
+  "lodash:4.17.20": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "lodash",
+      "version": "4.17.20",
+      "path": "node_modules/lodash"
+    }
+  },
   "logkitty:0.7.1": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -2023,14 +2031,6 @@
       "path": "node_modules/lru-cache"
     }
   },
-  "lodash:4.17.20": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "lodash",
-      "version": "4.17.20",
-      "path": "node_modules/lodash"
-    }
-  },
   "make-dir:2.1.0": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -2039,20 +2039,20 @@
       "path": "node_modules/make-dir"
     }
   },
-  "makeerror:1.0.11": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "makeerror",
-      "version": "1.0.11",
-      "path": "node_modules/makeerror"
-    }
-  },
   "map-age-cleaner:0.1.3": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "map-age-cleaner",
       "version": "0.1.3",
       "path": "node_modules/map-age-cleaner"
+    }
+  },
+  "makeerror:1.0.11": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "makeerror",
+      "version": "1.0.11",
+      "path": "node_modules/makeerror"
     }
   },
   "map-cache:0.2.2": {
@@ -2151,20 +2151,20 @@
       "path": "node_modules/metro-core"
     }
   },
-  "metro-minify-uglify:0.58.0": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "metro-minify-uglify",
-      "version": "0.58.0",
-      "path": "node_modules/metro-minify-uglify"
-    }
-  },
   "metro-inspector-proxy:0.58.0": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "metro-inspector-proxy",
       "version": "0.58.0",
       "path": "node_modules/metro-inspector-proxy"
+    }
+  },
+  "metro-minify-uglify:0.58.0": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "metro-minify-uglify",
+      "version": "0.58.0",
+      "path": "node_modules/metro-minify-uglify"
     }
   },
   "metro-react-native-babel-preset:0.56.4": {
@@ -2263,20 +2263,20 @@
       "path": "node_modules/minimist"
     }
   },
-  "mkdirp:0.5.5": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "mkdirp",
-      "version": "0.5.5",
-      "path": "node_modules/mkdirp"
-    }
-  },
   "mixin-deep:1.3.2": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "mixin-deep",
       "version": "1.3.2",
       "path": "node_modules/mixin-deep"
+    }
+  },
+  "mkdirp:0.5.5": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "mkdirp",
+      "version": "0.5.5",
+      "path": "node_modules/mkdirp"
     }
   },
   "moment:2.29.1": {
@@ -2927,20 +2927,20 @@
       "path": "node_modules/react-native-haptic-feedback"
     }
   },
-  "react-native-iap:4.6.3": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "react-native-iap",
-      "version": "4.6.3",
-      "path": "node_modules/react-native-iap"
-    }
-  },
   "react-native-image-crop-picker:0.28.0": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "react-native-image-crop-picker",
       "version": "0.28.0",
       "path": "node_modules/react-native-image-crop-picker"
+    }
+  },
+  "react-native-iap:4.6.3": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "react-native-iap",
+      "version": "4.6.3",
+      "path": "node_modules/react-native-iap"
     }
   },
   "react-native-image-picker:2.3.4": {
@@ -3103,6 +3103,14 @@
       "path": "node_modules/react-native-svg"
     }
   },
+  "react-native-svg-uri:1.2.3": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "react-native-svg-uri",
+      "version": "1.2.3",
+      "path": "node_modules/react-native-svg-uri"
+    }
+  },
   "react-native-swipe-gestures:1.0.5": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -3133,14 +3141,6 @@
       "name": "react-native-windows",
       "version": "0.62.16",
       "path": "node_modules/react-native-windows"
-    }
-  },
-  "react-navigation:4.4.3": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "react-navigation",
-      "version": "4.4.3",
-      "path": "node_modules/react-navigation"
     }
   },
   "react-navigation-stack:2.10.1": {
@@ -4519,14 +4519,6 @@
       "path": "node_modules/@callstack/react-theme-provider"
     }
   },
-  "@cnakazawa/watch:1.0.4": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "@cnakazawa/watch",
-      "version": "1.0.4",
-      "path": "node_modules/@cnakazawa/watch"
-    }
-  },
   "@babel/code-frame:7.10.4": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -4663,20 +4655,20 @@
       "path": "node_modules/@babel/helper-optimise-call-expression"
     }
   },
-  "@babel/helper-plugin-utils:7.10.4": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "@babel/helper-plugin-utils",
-      "version": "7.10.4",
-      "path": "node_modules/@babel/helper-plugin-utils"
-    }
-  },
   "@babel/helper-regex:7.10.5": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "@babel/helper-regex",
       "version": "7.10.5",
       "path": "node_modules/@babel/helper-regex"
+    }
+  },
+  "@babel/helper-plugin-utils:7.10.4": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "@babel/helper-plugin-utils",
+      "version": "7.10.4",
+      "path": "node_modules/@babel/helper-plugin-utils"
     }
   },
   "@babel/helper-remap-async-to-generator:7.12.1": {
@@ -5173,6 +5165,14 @@
       "name": "@babel/types",
       "version": "7.12.6",
       "path": "node_modules/@babel/types"
+    }
+  },
+  "@cnakazawa/watch:1.0.4": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "@cnakazawa/watch",
+      "version": "1.0.4",
+      "path": "node_modules/@cnakazawa/watch"
     }
   },
   "@egjs/hammerjs:2.0.17": {
@@ -5815,14 +5815,6 @@
       "path": "node_modules/string-width/node_modules/ansi-regex"
     }
   },
-  "string-width:2.1.1": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "string-width",
-      "version": "2.1.1",
-      "path": "node_modules/string-width"
-    }
-  },
   "strip-ansi:4.0.0": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -5839,20 +5831,20 @@
       "path": "node_modules/nanomatch/node_modules/kind-of"
     }
   },
+  "string-width:2.1.1": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "string-width",
+      "version": "2.1.1",
+      "path": "node_modules/string-width"
+    }
+  },
   "node-fetch:1.7.3": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "node-fetch",
       "version": "1.7.3",
       "path": "node_modules/isomorphic-fetch/node_modules/node-fetch"
-    }
-  },
-  "ansi-styles:4.3.0": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "ansi-styles",
-      "version": "4.3.0",
-      "path": "node_modules/@react-native-community/cli-tools/node_modules/ansi-styles"
     }
   },
   "chalk:3.0.0": {
@@ -5869,6 +5861,14 @@
       "name": "color-convert",
       "version": "2.0.1",
       "path": "node_modules/@types/jest/node_modules/color-convert"
+    }
+  },
+  "ansi-styles:4.3.0": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "ansi-styles",
+      "version": "4.3.0",
+      "path": "node_modules/@react-native-community/cli-tools/node_modules/ansi-styles"
     }
   },
   "has-flag:4.0.0": {
@@ -6063,20 +6063,20 @@
       "path": "node_modules/metro-react-native-babel-transformer/node_modules/metro-babel-transformer"
     }
   },
-  "metro-source-map:0.59.0": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "metro-source-map",
-      "version": "0.59.0",
-      "path": "node_modules/react-native/node_modules/metro-source-map"
-    }
-  },
   "metro-react-native-babel-preset:0.59.0": {
     "jetificablePaths": [],
     "packageInfo": {
       "name": "metro-react-native-babel-preset",
       "version": "0.59.0",
       "path": "node_modules/metro-react-native-babel-transformer/node_modules/metro-react-native-babel-preset"
+    }
+  },
+  "metro-source-map:0.59.0": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "metro-source-map",
+      "version": "0.59.0",
+      "path": "node_modules/react-native/node_modules/metro-source-map"
     }
   },
   "metro-symbolicate:0.59.0": {
@@ -6415,14 +6415,6 @@
       "path": "node_modules/pretty-format/node_modules/@types/yargs"
     }
   },
-  "@react-navigation/native:3.8.3": {
-    "jetificablePaths": [],
-    "packageInfo": {
-      "name": "@react-navigation/native",
-      "version": "3.8.3",
-      "path": "node_modules/react-navigation/node_modules/@react-navigation/native"
-    }
-  },
   "@react-navigation/core:5.14.3": {
     "jetificablePaths": [],
     "packageInfo": {
@@ -6447,12 +6439,20 @@
       "path": "node_modules/unset-value/node_modules/has-value/node_modules/isobject"
     }
   },
-  "react-native-svg-uri:1.2.3": {
+  "react-navigation:4.4.4": {
     "jetificablePaths": [],
     "packageInfo": {
-      "name": "react-native-svg-uri",
-      "version": "1.2.3",
-      "path": "node_modules/react-native-svg-uri"
+      "name": "react-navigation",
+      "version": "4.4.4",
+      "path": "node_modules/react-navigation"
+    }
+  },
+  "@react-navigation/native:3.8.4": {
+    "jetificablePaths": [],
+    "packageInfo": {
+      "name": "@react-navigation/native",
+      "version": "3.8.4",
+      "path": "node_modules/react-navigation/node_modules/@react-navigation/native"
     }
   }
 }

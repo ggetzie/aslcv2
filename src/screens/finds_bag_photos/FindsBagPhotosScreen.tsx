@@ -162,6 +162,21 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                 }}>
                     {"Context: " + getContextStringFromContext(context)}
                 </Text>
+                <RowView style={{paddingTop: "2%", justifyContent: "center"}}>
+                    <ButtonComponent
+                        buttonStyle={{
+                            width: "30%",
+                            height: "auto",
+                            alignSelf: "flex-end",
+                            margin: "auto",
+                            marginHorizontal: "5%",
+                        }}
+                        onPress={() => fetchData()}
+                        textStyle={{padding: "4%"}}
+                        text={"Refresh"}
+                        rounded={true}
+                    />
+                </RowView>
                 <PaddingComponent vertical="2%"/>
                 <View style={{paddingHorizontal: "5%", paddingVertical: "0%"}}>
                     <Divider/>

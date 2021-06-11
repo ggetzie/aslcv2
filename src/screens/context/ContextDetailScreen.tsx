@@ -119,6 +119,33 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         }
     }, [form, contextIdToContextMap]);
 
+    useEffect(() => {
+        props.navigation.addListener('beforeRemove', (e) => {
+            if (!canBeSubmitted) {
+                return;
+            }
+            e.preventDefault();
+            Alert.alert(
+                "Save Edits",
+                "Are you sure you want to continue without saving?",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => null,
+                        style: "cancel"
+                    },
+                    {
+                        text: "Yes", onPress: async () => {
+                            dispatch(setSelectedContextId(null));
+                            props.navigation.goBack();
+                        }
+                    }
+                ],
+                {cancelable: false}
+            );
+        });
+    }, [props.navigation, canBeSubmitted]);
+
     async function updateData() {
         setLoading(true);
         try {
@@ -153,9 +180,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                                 name: response.fileName
                             } as any);
                             await uploadContextImage(form, selectedContextId);
-                            setTimeout(() => {
-                                fetchData();
-                            }, 4000)
                             setLoading(false);
                         } catch (e) {
                             alert("Failed to upload Image");
@@ -232,12 +256,27 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                         (contextIdToContextMap.get(selectedContextId).closing_date == null ? (new Date) : (new Date(contextIdToContextMap.get(selectedContextId).closing_date))))}
                     mode="date"
                 />
+                <RowView style={{paddingTop: "2%", justifyContent: "center"}}>
+                    <ButtonComponent
+                        buttonStyle={{
+                            width: "30%",
+                            height: "auto",
+                            alignSelf: "flex-end",
+                            margin: "auto",
+                            marginHorizontal: "5%",
+                        }}
+                        onPress={() => fetchData()}
+                        textStyle={{padding: "4%"}}
+                        text={"Refresh"}
+                        rounded={true}
+                    />
+                </RowView>
                 <RowView>
                     <Text style={{
                         fontSize: verticalScale(20),
                         fontWeight: "bold",
                         paddingHorizontal: "5%",
-                        paddingTop: "5%"
+                        paddingTop: "2%"
                     }}>
                         Context Details
                     </Text>
