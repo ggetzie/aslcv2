@@ -237,8 +237,8 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                         keyExtractor={(item) => item.thumbnail_url}
                         data={context.bagphoto_set.filter((item: PhotoDetails) =>
                             source === Source.D ?
-                                (item.photo_url.split('/').slice(-2, -1)[0] === "bag_dry")
-                                : (item.photo_url.split('/').slice(-2, -1)[0] === "bag_field"))}
+                                (["bag_dry", "drying"].includes(item.photo_url.split('/').slice(-2, -1)[0]))
+                                : (["bag_field", "field"].includes(item.photo_url.split('/').slice(-2, -1)[0])))}
                         renderItem={({item}) =>
                             <Image
                                 style={Styles.imageStyle}
