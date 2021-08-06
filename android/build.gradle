@@ -34,4 +34,13 @@ allprojects {
         jcenter()
         maven { url 'https://www.jitpack.io' }
     }
+
+// signingConfigs {
+//       release {
+//         storeFile file('aslcv2.keystore')
+//         storePassword System.console().readLine("\nKeystore password:")
+//         keyAlias System.console().readLine("\nAlias: ")
+//         keyPassword System.console().readLine("\Alias password: ")
+//        }
+//     }
 }
