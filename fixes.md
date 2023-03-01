@@ -7,3 +7,4 @@
   Set environment variable `$Env:NODE_OPTIONS="--openssl-legacy-provider"
 
 - Execution failed for task ':app:checkDebugDuplicateClasses'.
+  Add `implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.0'` to dependencies in android/app/build.gradle

@@ -190,6 +190,8 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
 
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.0'
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
