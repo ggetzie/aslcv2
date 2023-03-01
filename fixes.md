@@ -8,3 +8,6 @@
 
 - Execution failed for task ':app:checkDebugDuplicateClasses'.
   Add `implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.0'` to dependencies in android/app/build.gradle
+
+- minSdkVersion 16 -> 21
+  Override in manifest file
