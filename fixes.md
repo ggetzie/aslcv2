@@ -11,3 +11,7 @@
 
 - minSdkVersion 16 -> 21
   Override in manifest file
+
+- AsyncStorageModule.java uses or overrides a deprecated API.
+
+- AAPT: error: resource android:attr/lStar not found.
