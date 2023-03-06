@@ -15,3 +15,4 @@
 - AsyncStorageModule.java uses or overrides a deprecated API.
 
 - AAPT: error: resource android:attr/lStar not found.
+  Upgraded react native to 0.63.5 per [this issue](https://github.com/facebook/react-native/issues/35210)
