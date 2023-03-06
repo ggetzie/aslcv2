@@ -2,14 +2,13 @@ import * as React from 'react';
 import {Component} from 'react';
 import {Platform, StatusBar} from 'react-native';
 import {createAppContainer} from 'react-navigation';
-import {rootNavigator} from "./navigation/AppNavigator";
+import {rootNavigator} from './navigation/AppNavigator';
 import {Provider} from 'react-redux';
 import createStore from './redux/store';
-import {getJwtFromAsyncStorage} from "./src/constants/utilityFunctions";
-import {LoadingComponent} from "./src/components/general/LoadingComponent";
+import {getJwtFromAsyncStorage} from './src/constants/utilityFunctions';
+import {LoadingComponent} from './src/components/general/LoadingComponent';
 
-interface Props {
-}
+interface Props {}
 
 interface State {
   loading: boolean;
@@ -17,15 +16,13 @@ interface State {
 }
 
 export default class App extends Component<Props, State> {
-
   constructor(props: Readonly<Props>) {
     super(props);
 
     this.state = {
       loading: true,
-      isSignedIn: false
+      isSignedIn: false,
     };
-
   }
 
   async componentDidMount(): Promise<void> {
@@ -34,28 +31,28 @@ export default class App extends Component<Props, State> {
     if (token != null && token.trim().length !== 0) {
       try {
         this.setState({
-          isSignedIn: true
+          isSignedIn: true,
         });
       } catch (error) {
         console.warn(error);
       }
     }
     this.setState({
-      loading: false
+      loading: false,
     });
   }
 
   render() {
     if (this.state.loading) {
-      return <LoadingComponent/>;
+      return <LoadingComponent />;
     }
 
     const Layout = createAppContainer(rootNavigator(this.state.isSignedIn));
     return (
-        <Provider store={createStore}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="light-content"/>}
-          <Layout/>
-        </Provider>
+      <Provider store={createStore}>
+        {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
+        <Layout />
+      </Provider>
     );
   }
 }
