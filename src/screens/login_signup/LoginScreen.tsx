@@ -75,7 +75,6 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
         rounded={true}
         buttonStyle={{width: '50%'}}
       />
-      <Text>Hello</Text>
     </View>
   );
 };
