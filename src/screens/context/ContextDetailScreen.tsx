@@ -51,6 +51,8 @@ import {
   setSelectedContextId,
 } from '../../../redux/reducerAction';
 
+import {uploadImage} from '../../util';
+
 enum DatePickState {
   OPENING_DATE = 'OPENING_DATE',
   CLOSING_DATE = 'CLOSING_DATE',
@@ -85,7 +87,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   const [datePickState, setDatePickState] = useState<DatePickState>(
     DatePickState.CLOSED,
   );
-  const [imagePickStage, setImagePickStage] = useState<boolean>(false);
+  const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
 
   const [form, setForm] = useState<Context>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -191,40 +193,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     setLoading(false);
   }
 
-  async function uploadImage(response) {
-    setLoading(true);
-    Alert.alert(
-      'Image Upload',
-      'Confirm Image Selection',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => setLoading(false),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: async () => {
-            const form: FormData = new FormData();
-            try {
-              form.append('photo', {
-                uri: response.uri,
-                type: response.type,
-                name: response.fileName,
-              } as any);
-              await uploadContextImage(form, selectedContextId);
-              setLoading(false);
-            } catch (e) {
-              alert('Failed to upload Image');
-              setLoading(false);
-            }
-          },
-        },
-      ],
-      {cancelable: false},
-    );
-  }
-
   return form == null ||
     selectedContextId == null ||
     contextIdToContextMap.get(selectedContextId) == null ? (
@@ -232,27 +200,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   ) : (
     <ScrollView>
       <LoadingModalComponent showLoading={loading} />
-      <Modal style={{justifyContent: 'flex-end'}} isVisible={imagePickStage}>
-        <ButtonComponent
-          buttonStyle={Styles.modalButtonStyle}
-          textStyle={{fontWeight: 'bold'}}
-          onPress={async () => {
-            ImagePicker.launchImageLibrary(
-              imagePickerOptions,
-              async (response: ImagePickerResponse) => {
-                setImagePickStage(false);
-                if (response.didCancel) {
-                } else if (response.error) {
-                  alert('Error selecting Image');
-                } else {
-                  await uploadImage(response);
-                }
-              },
-            );
-          }}
-          text="Select Photo"
-          rounded={true}
-        />
+      <Modal style={{justifyContent: 'flex-end'}} isVisible={isPickingImage}>
         <ButtonComponent
           buttonStyle={Styles.modalButtonStyle}
           textStyle={{fontWeight: 'bold'}}
@@ -261,11 +209,11 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
               imagePickerOptions,
               async (response: ImagePickerResponse) => {
                 if (response.didCancel) {
-                  setImagePickStage(false);
+                  setIsPickingImage(false);
                 } else if (response.error) {
                   alert('Error selecting Image');
                 } else {
-                  await uploadImage(response);
+                  await uploadImage(response, setLoading, selectedContextId);
                 }
               },
             );
@@ -276,7 +224,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         <ButtonComponent
           buttonStyle={Styles.cancelButtonStyle}
           textStyle={{color: 'black'}}
-          onPress={() => setImagePickStage(false)}
+          onPress={() => setIsPickingImage(false)}
           text="Close"
           rounded={true}
         />
@@ -403,7 +351,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         <Divider />
         <ButtonComponent
           buttonStyle={{width: '35%', height: 'auto', alignSelf: 'center'}}
-          onPress={() => setImagePickStage(true)}
+          onPress={() => setIsPickingImage(true)}
           textStyle={{padding: '4%'}}
           text={'Add Photo'}
           rounded={true}
