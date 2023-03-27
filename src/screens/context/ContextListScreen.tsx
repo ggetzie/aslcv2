@@ -5,7 +5,7 @@ import {
   NavigationScreenComponent,
   ScrollView,
 } from 'react-navigation';
-import {Picker, Text, TouchableOpacity, View} from 'react-native';
+import {Picker, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
 import {Context} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
@@ -24,6 +24,7 @@ import {getSpatialArea} from '../../constants/backend_api';
 import {setSelectedContextId} from '../../../redux/reducerAction';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 
 enum ContextChoice {
   OPEN = 'OPEN',
@@ -88,9 +89,9 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
           availableContexts.push(contextIdToContextMap.get(i));
         }
       }
-      availableContexts.sort((contextA: Context, contexB: Context) => {
-        if (contextA.context_number > contexB.context_number) return -1;
-        if (contextA.context_number < contexB.context_number) return 1;
+      availableContexts.sort((contextA: Context, contextB: Context) => {
+        if (contextA.context_number > contextB.context_number) return -1;
+        if (contextA.context_number < contextB.context_number) return 1;
         return 0;
       });
       switch (contextChoice) {
@@ -142,7 +143,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   return (
-    <ScrollView style={{padding: '5%'}}>
+    <ScrollView style={styles.background}>
       <ButtonComponent
         buttonStyle={{width: '60%', height: 'auto', alignSelf: 'center'}}
         onPress={async () => {
@@ -219,9 +220,6 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                   </RowView>
                   <RowView>
                     <Text style={{fontWeight: 'bold'}}>Opening Date</Text>
-                    {/*<Text>*/}
-                    {/*    {context.opening_date == null ? "Unset" : getFormattedDate(context.opening_date)}*/}
-                    {/*</Text>*/}
                     <Text>{renderDate(context.opening_date)}</Text>
                   </RowView>
                   <RowView>
@@ -248,7 +246,6 @@ ContextListScreen.navigationOptions = (screenProps) => ({
   title: 'Context: ' + getAreaStringForSelectedArea(),
   headerLeft: () => {
     const dispatch = useDispatch();
-
     return (
       <HeaderBackButton
         onPress={() => {
@@ -260,4 +257,10 @@ ContextListScreen.navigationOptions = (screenProps) => ({
   },
 });
 
+const styles = StyleSheet.create({
+  background: {
+    backgroundColor: ScreenColors.SELECTING_CONTEXT,
+    padding: '5%',
+  },
+});
 export default ContextListScreen;

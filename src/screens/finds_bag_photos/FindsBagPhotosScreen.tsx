@@ -31,7 +31,7 @@ import ImagePicker, {
 } from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
-import {baseURL} from '../../constants/Axios';
+import {mediaBaseURL} from '../../constants/Axios';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {
   enumToArray,
@@ -41,6 +41,10 @@ import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {nativeColors} from '../../constants/colors';
+import {
+  AppState,
+  ScreenColors,
+} from '../../constants/EnumsAndInterfaces/AppState';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -99,8 +103,8 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   async function uploadImage(response) {
     setLoading(true);
     Alert.alert(
-      'Image Upload',
-      'Confirm Image Selection',
+      `Bag Photo Upload - ${renderSource(source)}`,
+      'Confirm',
       [
         {
           text: 'Cancel',
@@ -133,7 +137,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   return (
-    <ScrollView>
+    <ScrollView style={Styles.bagScreen}>
       <LoadingModalComponent showLoading={loading} />
       {context && (
         <View>
@@ -268,7 +272,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                   <Image
                     style={Styles.imageStyle}
                     resizeMode="cover"
-                    source={{uri: baseURL + item.thumbnail_url}}
+                    source={{uri: mediaBaseURL + item.thumbnail_url}}
                   />
                 )}
                 numColumns={3}
@@ -322,6 +326,9 @@ const Styles = StyleSheet.create({
     fontSize: verticalScale(16),
     height: verticalScale(40),
     width: horizontalScale(100),
+  },
+  bagScreen: {
+    backgroundColor: ScreenColors.BAG_SCREEN,
   },
 });
 

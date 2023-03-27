@@ -4,8 +4,8 @@ import {Alert} from 'react-native';
 async function uploadImage(response, setLoading, contextId) {
   setLoading(true);
   Alert.alert(
-    'Image Upload',
-    'Confirm Image Selection',
+    'Context Photo Upload',
+    'Confirm',
     [
       {
         text: 'Cancel',

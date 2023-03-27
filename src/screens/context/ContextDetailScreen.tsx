@@ -44,7 +44,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {getContext} from '../../constants/backend_api_action';
 import {TextInputComponent} from '../../components/general/TextInputComponent';
 import moment from 'moment';
-import {baseURL} from '../../constants/Axios';
+import {mediaBaseURL} from '../../constants/Axios';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {
   setCanContestBeSubmitted,
@@ -52,6 +52,7 @@ import {
 } from '../../../redux/reducerAction';
 
 import {uploadImage} from '../../util';
+import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 
 enum DatePickState {
   OPENING_DATE = 'OPENING_DATE',
@@ -198,7 +199,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     contextIdToContextMap.get(selectedContextId) == null ? (
     <ScrollView />
   ) : (
-    <ScrollView>
+    <ScrollView style={Styles.background}>
       <LoadingModalComponent showLoading={loading} />
       <Modal style={{justifyContent: 'flex-end'}} isVisible={isPickingImage}>
         <ButtonComponent
@@ -372,7 +373,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
               <Image
                 style={Styles.imageStyle}
                 resizeMode="cover"
-                source={{uri: baseURL + item.thumbnail_url}}
+                source={{uri: mediaBaseURL + item.thumbnail_url}}
               />
             )}
             numColumns={3}
@@ -409,6 +410,9 @@ const Styles = StyleSheet.create({
   cancelButtonStyle: {
     width: '60%',
     backgroundColor: 'white',
+  },
+  background: {
+    backgroundColor: ScreenColors.CONTEXT_SCREEN,
   },
 });
 
