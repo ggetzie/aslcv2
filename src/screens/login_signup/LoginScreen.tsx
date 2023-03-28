@@ -11,12 +11,14 @@ import DataLoadingComponent from '../../components/DataLoadingComponent';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
+import {mediaBaseURL} from '../../constants/Axios';
 
 const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
   const dispatch = useDispatch();
   const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const host = mediaBaseURL.replace('https://', '');
 
   async function validateInputAndLogin() {
     if (usernameOrEmail.trim().length === 0) {
@@ -75,6 +77,9 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
         rounded={true}
         buttonStyle={{width: '50%'}}
       />
+      <View style={styles.infoContainer}>
+        <Text style={styles.info}>Host: {host}</Text>
+      </View>
     </View>
   );
 };
@@ -99,6 +104,12 @@ const styles = StyleSheet.create({
     borderColor: nativeColors.disabledGrey,
     width: '100%',
     padding: '5%',
+  },
+  info: {
+    textAlign: 'center',
+  },
+  infoContainer: {
+    marginTop: 20,
   },
 });
 

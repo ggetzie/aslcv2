@@ -8,17 +8,18 @@ import store from '../../../redux/store';
 // --ultra-violet: #484d6dff;
 
 export enum AppState {
-  SELECTING_AREA = '#08b2e333', // process-cyan
-  SELECTING_CONTEXT = '#ee635233', // bittersweet
+  SELECTING_AREA = '#efe9f433', // magnolia
+  SELECTING_CONTEXT = '#57a77333', // jade
   CONTEXT_SCREEN = '#484d6d33', // ultra-violet
-  BAG_SCREEN = '#57a77333', // jade
+  BAG_SCREEN = '#08b2e333', // process-cyan
 }
 
 export enum ScreenColors {
-  SELECTING_AREA = '#08b2e333', // process-cyan
-  SELECTING_CONTEXT = '#ee635233', // bittersweet
+  SELECTING_AREA = '#efe9f433', // magnolia
+  SELECTING_CONTEXT = '#57a77333', // jade
   CONTEXT_SCREEN = '#484d6d33', // ultra-violet
-  BAG_SCREEN = '#57a77333', // jade
+  BAG_SCREEN_DRYING = '#ee635233', // bittersweet
+  BAG_SCREEN_FIELD = '#08b2e333', // process-cyan
 }
 
 export function getAppState(): AppState {

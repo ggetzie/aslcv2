@@ -73,6 +73,13 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const background = {
+    backgroundColor:
+      source === Source.D
+        ? ScreenColors.BAG_SCREEN_DRYING
+        : ScreenColors.BAG_SCREEN_FIELD,
+  };
+
   async function fetchData() {
     setLoading(true);
     await getContext(selectedContextId)(dispatch);
@@ -137,7 +144,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   return (
-    <ScrollView style={Styles.bagScreen}>
+    <ScrollView style={background}>
       <LoadingModalComponent showLoading={loading} />
       {context && (
         <View>
@@ -326,9 +333,6 @@ const Styles = StyleSheet.create({
     fontSize: verticalScale(16),
     height: verticalScale(40),
     width: horizontalScale(100),
-  },
-  bagScreen: {
-    backgroundColor: ScreenColors.BAG_SCREEN,
   },
 });
 
