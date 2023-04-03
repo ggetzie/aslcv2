@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {uploadContextBagPhotoImage} from '../../constants/backend_api';
+import {uploadBagPhoto, uploadContextPhoto} from '../../constants/backend_api';
 import {getContext} from '../../constants/backend_api_action';
 import {
   Context,
@@ -45,6 +45,7 @@ import {
   AppState,
   ScreenColors,
 } from '../../constants/EnumsAndInterfaces/AppState';
+import UploadProgressModal from '../../components/UploadProgressModal';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -72,6 +73,8 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   const [source, setSource] = useState<Source>(Source.D);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploadedPct, setUploadedPct] = useState<number>(0);
+  const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
 
   const background = {
     backgroundColor:
@@ -108,14 +111,14 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   async function uploadImage(response) {
-    setLoading(true);
+    setShowUploadProgress(true);
     Alert.alert(
       `Bag Photo Upload - ${renderSource(source)}`,
       'Confirm',
       [
         {
           text: 'Cancel',
-          onPress: () => setLoading(false),
+          onPress: () => setShowUploadProgress(false),
           style: 'cancel',
         },
         {
@@ -129,12 +132,14 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                 name: response.fileName,
               } as any);
               form.append('source', source);
-              await uploadContextBagPhotoImage(form, selectedContextId);
+              await uploadBagPhoto(form, selectedContextId, ({loaded, total}) =>
+                setUploadedPct(Math.round((loaded * 100) / total)),
+              );
               getContext(selectedContextId)(dispatch);
-              setLoading(false);
+              setShowUploadProgress(false);
             } catch (e) {
               alert('Failed to upload Image');
-              setLoading(false);
+              setShowUploadProgress(false);
             }
           },
         },
@@ -146,6 +151,11 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   return (
     <ScrollView style={background}>
       <LoadingModalComponent showLoading={loading} />
+      <UploadProgressModal
+        isVisible={showUploadProgress}
+        progress={uploadedPct}
+        message={`Uploading ${renderSource(source)} bag photo...`}
+      />
       {context && (
         <View>
           <Modal

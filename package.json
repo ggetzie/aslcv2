@@ -15,6 +15,7 @@
     "@react-native-community/datetimepicker": "2.6.0",
     "@react-native-community/geolocation": "^2.0.2",
     "@react-native-community/masked-view": "^0.1.6",
+    "@react-native-community/progress-bar-android": "^1.0.5",
     "@react-navigation/native": "^5.7.4",
     "@stomp/stompjs": "^5.4.3",
     "@twotalltotems/react-native-otp-input": "1.2.0",

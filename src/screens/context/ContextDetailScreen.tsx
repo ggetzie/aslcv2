@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import {Context} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -27,11 +28,7 @@ import {
 } from '../../constants/utilityFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {Divider} from 'react-native-elements';
-import {
-  getContextTypes,
-  updateContext,
-  uploadContextImage,
-} from '../../constants/backend_api';
+import {getContextTypes, updateContext} from '../../constants/backend_api';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 import ImagePicker, {
@@ -51,8 +48,8 @@ import {
   setSelectedContextId,
 } from '../../../redux/reducerAction';
 
-import {uploadImage} from '../../util';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import UploadProgressModal from '../../components/UploadProgressModal';
 
 enum DatePickState {
   OPENING_DATE = 'OPENING_DATE',
@@ -89,11 +86,11 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     DatePickState.CLOSED,
   );
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
-
   const [form, setForm] = useState<Context>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
   const [types, setTypes] = useState<string[]>(null);
+  const [uploadedPct, setUploadedPct] = useState<number>(0);
+  const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
 
   async function fetchData() {
     setLoading(true);
@@ -194,6 +191,45 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     setLoading(false);
   }
 
+  async function uploadImage(response) {
+    setShowUploadProgress(true);
+    Alert.alert(
+      'Context Photo Upload',
+      'Confirm',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => setLoading(false),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            const form: FormData = new FormData();
+            try {
+              form.append('photo', {
+                uri: response.uri,
+                type: response.type,
+                name: response.fileName,
+              } as any);
+              await uploadContextPhoto(
+                form,
+                selectedContextId,
+                ({loaded, total}) =>
+                  setUploadedPct(Math.round((loaded * 100) / total)),
+              );
+              setShowUploadProgress(false);
+            } catch (e) {
+              alert('Failed to upload Image');
+              setShowUploadProgress(false);
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  }
+
   return form == null ||
     selectedContextId == null ||
     contextIdToContextMap.get(selectedContextId) == null ? (
@@ -201,6 +237,11 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   ) : (
     <ScrollView style={Styles.background}>
       <LoadingModalComponent showLoading={loading} />
+      <UploadProgressModal
+        isVisible={showUploadProgress}
+        progress={uploadedPct}
+        message={`Uploading Context photo...`}
+      />
       <Modal style={{justifyContent: 'flex-end'}} isVisible={isPickingImage}>
         <ButtonComponent
           buttonStyle={Styles.modalButtonStyle}
@@ -214,7 +255,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
                 } else if (response.error) {
                   alert('Error selecting Image');
                 } else {
-                  await uploadImage(response, setLoading, selectedContextId);
+                  await uploadImage(response);
                 }
               },
             );
