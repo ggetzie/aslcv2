@@ -44,7 +44,7 @@ import moment from 'moment';
 import {mediaBaseURL} from '../../constants/Axios';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {
-  setCanContestBeSubmitted,
+  setCanContextBeSubmitted,
   setSelectedContextId,
 } from '../../../redux/reducerAction';
 
@@ -113,7 +113,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
   useEffect(() => {
     if (form == null) {
-      dispatch(setCanContestBeSubmitted(false));
+      dispatch(setCanContextBeSubmitted(false));
       return;
     }
     if (isNotEmptyOrNullBatch(form.closing_date, form.opening_date)) {
@@ -142,12 +142,12 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         isNotEmptyOrNull(form.closing_date) &&
         !isNotEmptyOrNull(form.opening_date)
       ) {
-        dispatch(setCanContestBeSubmitted(false));
+        dispatch(setCanContextBeSubmitted(false));
       } else {
-        dispatch(setCanContestBeSubmitted(true));
+        dispatch(setCanContextBeSubmitted(true));
       }
     } else {
-      dispatch(setCanContestBeSubmitted(false));
+      dispatch(setCanContextBeSubmitted(false));
     }
   }, [form, contextIdToContextMap]);
 
