@@ -46,6 +46,7 @@ import {
   ScreenColors,
 } from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
+import {getBagPhotoSource} from '../../constants/utilityFunctions';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -75,6 +76,8 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
+  const [dryingPhotos, setDryingPhotos] = useState<PhotoDetails[]>([]);
+  const [fieldPhotos, setFieldPhotos] = useState<PhotoDetails[]>([]);
 
   const background = {
     backgroundColor:
@@ -98,7 +101,18 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
 
   useEffect(() => {
     if (contextIdToContextMap.has(selectedContextId)) {
-      setContext(contextIdToContextMap.get(selectedContextId));
+      const selectedContext = contextIdToContextMap.get(selectedContextId);
+      setContext(selectedContext);
+      setDryingPhotos(
+        selectedContext.bagphoto_set.filter(
+          (photo) => getBagPhotoSource(photo.photo_url) == Source.D,
+        ),
+      );
+      setFieldPhotos(
+        selectedContext.bagphoto_set.filter(
+          (photo) => getBagPhotoSource(photo.photo_url) == Source.F,
+        ),
+      );
     }
   }, [contextIdToContextMap, selectedContextId]);
 
@@ -254,7 +268,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                       : Styles.tabNotSelected
                   }>
                   <Text style={{alignSelf: 'center'}}>
-                    {renderSource(Source.F)}
+                    {renderSource(Source.F)} - ({fieldPhotos.length})
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -267,7 +281,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
                       : Styles.tabNotSelected
                   }>
                   <Text style={{alignSelf: 'center'}}>
-                    {renderSource(Source.D)}
+                    {renderSource(Source.D)} - ({dryingPhotos.length})
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -276,15 +290,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
             {context.bagphoto_set && (
               <FlatList
                 keyExtractor={(item) => item.thumbnail_url}
-                data={context.bagphoto_set.filter((item: PhotoDetails) =>
-                  source === Source.D
-                    ? ['bag_dry', 'drying'].includes(
-                        item.photo_url.split('/').slice(-2, -1)[0],
-                      )
-                    : ['bag_field', 'field'].includes(
-                        item.photo_url.split('/').slice(-2, -1)[0],
-                      ),
-                )}
+                data={source === Source.D ? dryingPhotos : fieldPhotos}
                 renderItem={({item}) => (
                   <Image
                     style={Styles.imageStyle}

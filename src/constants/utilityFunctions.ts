@@ -8,6 +8,7 @@ import {
 } from './EnumsAndInterfaces/SpatialAreaInterfaces';
 import {Context} from './EnumsAndInterfaces/ContextInterfaces';
 import store from '../../redux/store';
+import { Source } from './EnumsAndInterfaces/ContextInterfaces';
 
 export async function getJwtFromAsyncStorage(): Promise<string> {
   return await AsyncStorage.getItem(StoredItems.JWT_TOKEN);
@@ -158,4 +159,16 @@ export function getDateFromISO(datetime: string): string {
 
 export function enumToArray<T>(enumme): T[] {
   return Object.keys(enumme).map((key) => enumme[key]);
+}
+
+export function getBagPhotoSource(url: string) {
+  const parts = url.split("/");
+  const bag_type = parts.slice(-2, -1)[0];
+  if (["bag_dry", "drying"].includes(bag_type)) {
+    return Source.D
+  } else if (["bag_field", "field"].includes(bag_type)) {
+    return Source.F
+  } else {
+    throw new Error("Unknown bag type: " + bag_type)
+  }
 }
