@@ -41,12 +41,10 @@ import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {nativeColors} from '../../constants/colors';
-import {
-  AppState,
-  ScreenColors,
-} from '../../constants/EnumsAndInterfaces/AppState';
+import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import {getBagPhotoSource} from '../../constants/utilityFunctions';
+import CameraModal from '../../components/CameraModal';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -125,7 +123,6 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   async function uploadImage(response) {
-    setShowUploadProgress(true);
     Alert.alert(
       `Bag Photo Upload - ${renderSource(source)}`,
       'Confirm',
@@ -138,6 +135,7 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
         {
           text: 'OK',
           onPress: async () => {
+            setShowUploadProgress(true);
             const form: FormData = new FormData();
             try {
               form.append('photo', {
@@ -172,37 +170,24 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
       />
       {context && (
         <View>
-          <Modal
-            style={{justifyContent: 'flex-end'}}
-            isVisible={imagePickStage}>
-            <ButtonComponent
-              buttonStyle={Styles.modalButtonStyle}
-              textStyle={{fontWeight: 'bold'}}
-              onPress={() => {
-                ImagePicker.launchCamera(
-                  imagePickerOptions,
-                  async (response: ImagePickerResponse) => {
-                    if (response.didCancel) {
-                      setImagePickStage(false);
-                    } else if (response.error) {
-                      alert('Error selecting Image');
-                    } else {
-                      await uploadImage(response);
-                    }
-                  },
-                );
-              }}
-              text="Take Photo"
-              rounded={true}
-            />
-            <ButtonComponent
-              buttonStyle={Styles.cancelButtonStyle}
-              textStyle={{color: 'black'}}
-              onPress={() => setImagePickStage(false)}
-              text="Close"
-              rounded={true}
-            />
-          </Modal>
+          <CameraModal
+            isVisible={imagePickStage}
+            onTakePhoto={() => {
+              ImagePicker.launchCamera(
+                imagePickerOptions,
+                async (response: ImagePickerResponse) => {
+                  if (response.didCancel) {
+                    setImagePickStage(false);
+                  } else if (response.error) {
+                    alert('Error selecting Image');
+                  } else {
+                    await uploadImage(response);
+                  }
+                },
+              );
+            }}
+            onCancel={() => setImagePickStage(false)}
+          />
           <Text
             style={{
               fontSize: verticalScale(20),

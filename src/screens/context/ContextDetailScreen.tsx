@@ -50,6 +50,7 @@ import {
 
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
+import CameraModal from '../../components/CameraModal';
 
 enum DatePickState {
   OPENING_DATE = 'OPENING_DATE',
@@ -242,35 +243,24 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         progress={uploadedPct}
         message={`Uploading Context photo...`}
       />
-      <Modal style={{justifyContent: 'flex-end'}} isVisible={isPickingImage}>
-        <ButtonComponent
-          buttonStyle={Styles.modalButtonStyle}
-          textStyle={{fontWeight: 'bold'}}
-          onPress={() => {
-            ImagePicker.launchCamera(
-              imagePickerOptions,
-              async (response: ImagePickerResponse) => {
-                if (response.didCancel) {
-                  setIsPickingImage(false);
-                } else if (response.error) {
-                  alert('Error selecting Image');
-                } else {
-                  await uploadImage(response);
-                }
-              },
-            );
-          }}
-          text="Take Photo"
-          rounded={true}
-        />
-        <ButtonComponent
-          buttonStyle={Styles.cancelButtonStyle}
-          textStyle={{color: 'black'}}
-          onPress={() => setIsPickingImage(false)}
-          text="Close"
-          rounded={true}
-        />
-      </Modal>
+      <CameraModal
+        isVisible={isPickingImage}
+        onTakePhoto={() => {
+          ImagePicker.launchCamera(
+            imagePickerOptions,
+            async (response: ImagePickerResponse) => {
+              if (response.didCancel) {
+                setIsPickingImage(false);
+              } else if (response.error) {
+                alert('Error selecting Image');
+              } else {
+                await uploadImage(response);
+              }
+            },
+          );
+        }}
+        onCancel={() => setIsPickingImage(false)}
+      />
       <DateTimePickerModal
         isVisible={datePickState !== DatePickState.CLOSED}
         onConfirm={(date) => {

@@ -13,6 +13,14 @@ export interface Context {
   bagphoto_set: PhotoDetails[];
 }
 
+export interface ContextFormData {
+  type: string;
+  opening_date: string;
+  closing_date: string;
+  description: string;
+  director_notes: string;
+}
+
 export interface PhotoDetails {
   thumbnail_url: string;
   photo_url: string;
