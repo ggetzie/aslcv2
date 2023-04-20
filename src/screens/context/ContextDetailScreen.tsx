@@ -193,19 +193,19 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   }
 
   async function uploadImage(response) {
-    setShowUploadProgress(true);
     Alert.alert(
       'Context Photo Upload',
       'Confirm',
       [
         {
           text: 'Cancel',
-          onPress: () => setLoading(false),
+          onPress: () => setShowUploadProgress(false),
           style: 'cancel',
         },
         {
           text: 'OK',
           onPress: async () => {
+            setShowUploadProgress(true);
             const form: FormData = new FormData();
             try {
               form.append('photo', {
@@ -379,8 +379,10 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
           multiline={true}
           placeHolder="Brief Description of Context"
         />
+        {/* End Context Form */}
         <Divider />
         <Divider />
+        {/* Begin Photo section */}
         <ButtonComponent
           buttonStyle={{width: '35%', height: 'auto', alignSelf: 'center'}}
           onPress={() => setIsPickingImage(true)}

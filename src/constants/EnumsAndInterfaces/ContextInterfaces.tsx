@@ -18,7 +18,6 @@ export interface ContextFormData {
   opening_date: string;
   closing_date: string;
   description: string;
-  director_notes: string;
 }
 
 export interface PhotoDetails {
@@ -39,3 +38,14 @@ export function renderSource(source: Source): string {
       return 'In Field';
   }
 }
+
+export const defaultContextTypes = [
+  'cleaning',
+  'collapse',
+  'feature',
+  'fill',
+  'find',
+  'finds',
+  'topsoil mix',
+  'wall',
+];

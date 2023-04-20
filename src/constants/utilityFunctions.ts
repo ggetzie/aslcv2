@@ -8,7 +8,7 @@ import {
 } from './EnumsAndInterfaces/SpatialAreaInterfaces';
 import {Context} from './EnumsAndInterfaces/ContextInterfaces';
 import store from '../../redux/store';
-import { Source } from './EnumsAndInterfaces/ContextInterfaces';
+import {Source} from './EnumsAndInterfaces/ContextInterfaces';
 
 export async function getJwtFromAsyncStorage(): Promise<string> {
   return await AsyncStorage.getItem(StoredItems.JWT_TOKEN);
@@ -162,13 +162,52 @@ export function enumToArray<T>(enumme): T[] {
 }
 
 export function getBagPhotoSource(url: string) {
-  const parts = url.split("/");
+  const parts = url.split('/');
   const bag_type = parts.slice(-2, -1)[0];
-  if (["bag_dry", "drying"].includes(bag_type)) {
-    return Source.D
-  } else if (["bag_field", "field"].includes(bag_type)) {
-    return Source.F
+  if (['bag_dry', 'drying'].includes(bag_type)) {
+    return Source.D;
+  } else if (['bag_field', 'field'].includes(bag_type)) {
+    return Source.F;
   } else {
-    throw new Error("Unknown bag type: " + bag_type)
+    throw new Error('Unknown bag type: ' + bag_type);
   }
 }
+
+export const validateDates = (
+  openingDateISO?: string,
+  closingDateISO?: string,
+): boolean => {
+  const today = new Date();
+  if (openingDateISO) {
+    // always check that opening date is not more than a week in the future
+    // as long as it's defined
+    const openingDate = new Date(openingDateISO);
+    const openingIsMoreThanAWeekAway =
+      openingDate.getTime() - today.getTime() > 7 * 24 * 60 * 60 * 1000;
+    if (openingIsMoreThanAWeekAway) {
+      alert('Warning: Opening date is more than a week in the future!');
+    }
+    if (closingDateISO) {
+      // if both opening and closing dates are defined, check that closing date is after opening date
+      const closingDate = new Date(closingDateISO);
+      const closingIsAfterOpening = closingDate > openingDate;
+      if (!closingIsAfterOpening) {
+        alert("Closing date can't be before opening date");
+        return false;
+      }
+    } else {
+      // if only opening date is defined, return true
+      return true;
+    }
+  } else {
+    if (closingDateISO) {
+      // can't have a closing date with no opening date
+      alert('Closing date can only be set if opening date is set');
+      return false;
+    } else {
+      // if neither opening nor closing dates are defined, return true
+      return true;
+    }
+  }
+  return true;
+};
