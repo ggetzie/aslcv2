@@ -1,6 +1,6 @@
 import {SpatialAreaQuery} from './SpatialAreaInterfaces';
 
-export interface Context {
+export interface SpatialContext {
   spatial_area: SpatialAreaQuery | string;
   context_number: number;
   id: string;

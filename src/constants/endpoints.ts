@@ -13,7 +13,7 @@ const API_ENDPOINTS = {
     zone: number,
     easting: number,
     northing: number,
-  ) => `api/area/${hemisphere}/${zone}/${easting}/${northing}`,
+  ) => `api/area/${hemisphere}/${zone}/${easting}/${northing}/`,
   Area_DetailById: (areaID: string) => `api/area/${areaID}/`,
   Area_ListTypes: 'api/area/types/',
 
@@ -24,8 +24,8 @@ const API_ENDPOINTS = {
     zone: number,
     easting: number,
     northing: number,
-  ) => `api/context/${hemisphere}/${zone}/${easting}/${northing}`,
-  Context_DetailById: (contextID: string) => `api/context/${contextID}`,
+  ) => `api/context/${hemisphere}/${zone}/${easting}/${northing}/`,
+  Context_DetailById: (contextID: string) => `api/context/${contextID}/`,
   Context_PhotoUpload: (contextID: string) => `api/context/${contextID}/photo/`,
   Context_BagPhotoUpload: (contextID: string) =>
     `api/context/${contextID}/bagphoto/`,

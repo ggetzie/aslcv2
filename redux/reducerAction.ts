@@ -1,7 +1,7 @@
 import {ReducerAction} from './reducer';
 import {UserProfileWithCredentials} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
 import {SpatialArea} from '../src/constants/EnumsAndInterfaces/SpatialAreaInterfaces';
-import {Context} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
+import {SpatialContext} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
 
 export const RESET_REDUCER_DATA: string = 'RESET_REDUCER_DATA';
 export const SET_USER_PROFILE_WITH_CREDENTIALS: string =
@@ -61,8 +61,8 @@ export function insertInSpatialAreaIdToSpatialAreaMap(
 }
 
 export function insertInContextIdToContextMap(
-  context: Context,
-): ReducerAction<Context> {
+  context: SpatialContext,
+): ReducerAction<SpatialContext> {
   return {
     type: INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP,
     payload: context,

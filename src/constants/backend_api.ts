@@ -6,7 +6,7 @@ import {
   SpatialAreaQuery,
 } from './EnumsAndInterfaces/SpatialAreaInterfaces';
 import {getFilteredSpatialAreasQuery, getHeaders} from './utilityFunctions';
-import {Context} from './EnumsAndInterfaces/ContextInterfaces';
+import {SpatialContext} from './EnumsAndInterfaces/ContextInterfaces';
 import {API_ENDPOINTS, join_url} from './endpoints';
 
 export async function getFilteredSpatialAreasList(
@@ -46,7 +46,9 @@ export async function getSpatialArea(
   }
 }
 
-export async function createContext(spatial_area: string): Promise<Context> {
+export async function createContext(
+  spatial_area: string,
+): Promise<SpatialContext> {
   const url = API_ENDPOINTS.Context_ListAll;
   try {
     const headers = await getHeaders();
@@ -82,7 +84,9 @@ export async function getContextTypes(): Promise<string[]> {
   }
 }
 
-export async function updateContext(context: Context): Promise<Context> {
+export async function updateContext(
+  context: SpatialContext,
+): Promise<SpatialContext> {
   const url = API_ENDPOINTS.Context_DetailById(context.id);
   try {
     const headers = await getHeaders();

@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Context} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
@@ -76,7 +76,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   const selectedContextId: string = useSelector(
     ({reducer}: any) => reducer.selectedContextId,
   );
-  const contextIdToContextMap: Map<string, Context> = useSelector(
+  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
     ({reducer}: any) => reducer.contextIdToContextMap,
   );
   const canBeSubmitted: boolean = useSelector(
@@ -87,7 +87,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     DatePickState.CLOSED,
   );
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
-  const [form, setForm] = useState<Context>(null);
+  const [spatialContext, setSpatialContext] = useState<SpatialContext>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [types, setTypes] = useState<string[]>(null);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
@@ -109,39 +109,48 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   }, [selectedContextId]);
 
   useEffect(() => {
-    setForm(contextIdToContextMap.get(selectedContextId));
+    setSpatialContext(contextIdToContextMap.get(selectedContextId));
   }, [selectedContextId, contextIdToContextMap]);
 
   useEffect(() => {
-    if (form == null) {
+    if (spatialContext == null) {
       dispatch(setCanContextBeSubmitted(false));
       return;
     }
-    if (isNotEmptyOrNullBatch(form.closing_date, form.opening_date)) {
-      const openingDate = moment(form.opening_date, 'YYYY-MM-DD');
-      const closingDate = moment(form.closing_date, 'YYYY-MM-DD');
+    if (
+      isNotEmptyOrNullBatch(
+        spatialContext.closing_date,
+        spatialContext.opening_date,
+      )
+    ) {
+      const openingDate = moment(spatialContext.opening_date, 'YYYY-MM-DD');
+      const closingDate = moment(spatialContext.closing_date, 'YYYY-MM-DD');
       const currentDate = moment(new Date(), 'YYYY-MM-DD');
       const diff1 = openingDate.diff(closingDate, 'days');
       const diff2 = openingDate.diff(currentDate, 'days');
       if (diff1 > 0) {
         alert('Closing Date should be greater than opening date');
-        setForm({...form, opening_date: null, closing_date: null});
+        setSpatialContext({
+          ...spatialContext,
+          opening_date: null,
+          closing_date: null,
+        });
       }
       if (diff2 >= 7) {
         alert('Warning: Opening date is more than a week in the future!');
       }
     }
     const dbContext = contextIdToContextMap.get(selectedContextId);
-    if (form && form.spatial_area != null) {
-      delete form.spatial_area;
+    if (spatialContext && spatialContext.spatial_area != null) {
+      delete spatialContext.spatial_area;
     }
     if (dbContext && dbContext.spatial_area != null) {
       delete dbContext.spatial_area;
     }
-    if (!isEqual(form, dbContext)) {
+    if (!isEqual(spatialContext, dbContext)) {
       if (
-        isNotEmptyOrNull(form.closing_date) &&
-        !isNotEmptyOrNull(form.opening_date)
+        isNotEmptyOrNull(spatialContext.closing_date) &&
+        !isNotEmptyOrNull(spatialContext.opening_date)
       ) {
         dispatch(setCanContextBeSubmitted(false));
       } else {
@@ -150,7 +159,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     } else {
       dispatch(setCanContextBeSubmitted(false));
     }
-  }, [form, contextIdToContextMap]);
+  }, [spatialContext, contextIdToContextMap]);
 
   useEffect(() => {
     props.navigation.addListener('beforeRemove', (e) => {
@@ -183,7 +192,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   async function updateData() {
     setLoading(true);
     try {
-      await updateContext(form);
+      await updateContext(spatialContext);
       await getContext(selectedContextId)(dispatch);
     } catch (e) {
       console.log(e);
@@ -231,7 +240,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     );
   }
 
-  return form == null ||
+  return spatialContext == null ||
     selectedContextId == null ||
     contextIdToContextMap.get(selectedContextId) == null ? (
     <ScrollView />
@@ -266,13 +275,13 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         onConfirm={(date) => {
           setDatePickState(DatePickState.CLOSED);
           if (datePickState === DatePickState.OPENING_DATE) {
-            setForm({
-              ...form,
+            setSpatialContext({
+              ...spatialContext,
               opening_date: getDateFromISO(date.toISOString()),
             });
           } else if (datePickState === DatePickState.CLOSING_DATE) {
-            setForm({
-              ...form,
+            setSpatialContext({
+              ...spatialContext,
               closing_date: getDateFromISO(date.toISOString()),
             });
           }
@@ -340,9 +349,9 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
 
           <Picker
             style={Styles.inputStyle}
-            selectedValue={form.type}
+            selectedValue={spatialContext.type}
             onValueChange={(value: string, pos) =>
-              setForm({...form, type: value})
+              setSpatialContext({...spatialContext, type: value})
             }>
             {types &&
               types
@@ -355,23 +364,23 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
           <TouchableOpacity
             onPress={() => setDatePickState(DatePickState.OPENING_DATE)}>
             <Text style={Styles.labelStyle}>Opening Date</Text>
-            <Text>{renderDate(form.opening_date)}</Text>
+            <Text>{renderDate(spatialContext.opening_date)}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setDatePickState(DatePickState.CLOSING_DATE)}>
             <Text style={Styles.labelStyle}>Closing Date</Text>
-            <Text>{renderDate(form.closing_date)}</Text>
+            <Text>{renderDate(spatialContext.closing_date)}</Text>
           </TouchableOpacity>
         </RowView>
 
         <PaddingComponent vertical="2%" />
         <Text style={Styles.labelStyle}>Description</Text>
         <TextInputComponent
-          value={form.description}
+          value={spatialContext.description}
           containerStyle={{width: '100%'}}
           onChangeText={(text) =>
-            setForm({
-              ...form,
+            setSpatialContext({
+              ...spatialContext,
               description: text,
             })
           }
@@ -394,14 +403,16 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         <RowView>
           <Text style={Styles.labelStyle}>Total Context Photos</Text>
           <Text>
-            {form.contextphoto_set == null ? 0 : form.contextphoto_set.length}
+            {spatialContext.contextphoto_set == null
+              ? 0
+              : spatialContext.contextphoto_set.length}
           </Text>
         </RowView>
         <PaddingComponent vertical="2%" />
-        {form.contextphoto_set && (
+        {spatialContext.contextphoto_set && (
           <FlatList
             keyExtractor={(item) => item.thumbnail_url}
-            data={form.contextphoto_set}
+            data={spatialContext.contextphoto_set}
             renderItem={({item}) => (
               <Image
                 style={Styles.imageStyle}

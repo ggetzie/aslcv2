@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, Picker, TouchableOpacity} from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import {
-  Context,
+  SpatialContext,
   ContextFormData,
   defaultContextTypes,
 } from '../constants/EnumsAndInterfaces/ContextInterfaces';

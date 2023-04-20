@@ -18,7 +18,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {uploadBagPhoto, uploadContextPhoto} from '../../constants/backend_api';
 import {getContext} from '../../constants/backend_api_action';
 import {
-  Context,
+  SpatialContext,
   PhotoDetails,
   renderSource,
   Source,
@@ -64,11 +64,11 @@ const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
   const selectedContextId: string = useSelector(
     ({reducer}: any) => reducer.selectedContextId,
   );
-  const contextIdToContextMap: Map<string, Context> = useSelector(
+  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
     ({reducer}: any) => reducer.contextIdToContextMap,
   );
   const [imagePickStage, setImagePickStage] = useState<boolean>(false);
-  const [context, setContext] = useState<Context>(null);
+  const [context, setContext] = useState<SpatialContext>(null);
   const [source, setSource] = useState<Source>(Source.D);
 
   const [loading, setLoading] = useState<boolean>(false);

@@ -6,7 +6,7 @@ import {
   SpatialArea,
   SpatialAreaQuery,
 } from './EnumsAndInterfaces/SpatialAreaInterfaces';
-import {Context} from './EnumsAndInterfaces/ContextInterfaces';
+import {SpatialContext} from './EnumsAndInterfaces/ContextInterfaces';
 import store from '../../redux/store';
 import {Source} from './EnumsAndInterfaces/ContextInterfaces';
 
@@ -102,7 +102,7 @@ export function getAreaStringFromArea(area: any): string {
   );
 }
 
-export function getContextStringFromContext(context: Context): string {
+export function getContextStringFromContext(context: SpatialContext): string {
   if (context == null) {
     return '';
   }
@@ -120,7 +120,7 @@ export function getAreaStringForSelectedArea(): string {
 
 export function getContextAreaStringForSelectedContext(): string {
   const selectedContextId: string = store.getState().reducer.selectedContextId;
-  const contextIdToContextMap: Map<string, Context> =
+  const contextIdToContextMap: Map<string, SpatialContext> =
     store.getState().reducer.contextIdToContextMap;
   return getContextStringFromContext(
     contextIdToContextMap.get(selectedContextId),

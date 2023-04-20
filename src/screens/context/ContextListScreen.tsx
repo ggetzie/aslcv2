@@ -6,7 +6,7 @@ import {
   ScrollView,
 } from 'react-navigation';
 import {Picker, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
-import {Context} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
 import {PaddingComponent} from '../../components/PaddingComponent';
@@ -41,7 +41,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
   const selectedAreaId: string = useSelector(
     ({reducer}: any) => reducer.selectedSpatialAreaId,
   );
-  const contextIdToContextMap: Map<string, Context> = useSelector(
+  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
     ({reducer}: any) => reducer.contextIdToContextMap,
   );
   const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(
@@ -83,56 +83,58 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
     );
     setAllLoaded(all);
     if (all) {
-      const availableContexts: Context[] = [];
+      const availableContexts: SpatialContext[] = [];
       for (let i of contextIds) {
         if (contextIdToContextMap.has(i)) {
           availableContexts.push(contextIdToContextMap.get(i));
         }
       }
-      availableContexts.sort((contextA: Context, contextB: Context) => {
-        if (contextA.context_number > contextB.context_number) return -1;
-        if (contextA.context_number < contextB.context_number) return 1;
-        return 0;
-      });
+      availableContexts.sort(
+        (contextA: SpatialContext, contextB: SpatialContext) => {
+          if (contextA.context_number > contextB.context_number) return -1;
+          if (contextA.context_number < contextB.context_number) return 1;
+          return 0;
+        },
+      );
       switch (contextChoice) {
         case ContextChoice.ALL:
           setFilteredContextIds(
-            availableContexts.map((context: Context) => context.id),
+            availableContexts.map((context: SpatialContext) => context.id),
           );
           break;
         case ContextChoice.OPEN:
           setFilteredContextIds(
             availableContexts
               .filter(
-                (context: Context) =>
+                (context: SpatialContext) =>
                   context.opening_date != null && context.closing_date == null,
               )
-              .map((context: Context) => context.id),
+              .map((context: SpatialContext) => context.id),
           );
           break;
         case ContextChoice.UNUSED:
           setFilteredContextIds(
             availableContexts
               .filter(
-                (context: Context) =>
+                (context: SpatialContext) =>
                   context.opening_date == null && context.closing_date == null,
               )
-              .map((context: Context) => context.id),
+              .map((context: SpatialContext) => context.id),
           );
           break;
         case ContextChoice.CLOSED:
           setFilteredContextIds(
             availableContexts
               .filter(
-                (context: Context) =>
+                (context: SpatialContext) =>
                   context.opening_date != null && context.closing_date != null,
               )
-              .map((context: Context) => context.id),
+              .map((context: SpatialContext) => context.id),
           );
           break;
         default:
           setFilteredContextIds(
-            availableContexts.map((context: Context) => context.id),
+            availableContexts.map((context: SpatialContext) => context.id),
           );
       }
     }
