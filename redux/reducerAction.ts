@@ -9,19 +9,16 @@ export const SET_USER_PROFILE_WITH_CREDENTIALS: string =
 export const SET_SELECTED_SPATIAL_AREA_ID: string =
   'SET_SELECTED_SPATIAL_AREA_ID';
 export const SET_SELECTED_CONTEXT_ID: string = 'SET_SELECTED_CONTEXT_ID';
-export const SET_CAN_CONTEST_BE_SUBMITTED: string =
-  'SET_CAN_CONTEST_BE_SUBMITTED';
+export const SET_CAN_SUBMIT_CONTEXT: string = 'SET_CAN_SUBMIT_CONTEXT';
 
 export const INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP =
   'INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP';
 export const INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP =
   'INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP';
 
-export function setCanContextBeSubmitted(
-  flag: boolean,
-): ReducerAction<boolean> {
+export function setCanSubmitContext(flag: boolean): ReducerAction<boolean> {
   return {
-    type: SET_CAN_CONTEST_BE_SUBMITTED,
+    type: SET_CAN_SUBMIT_CONTEXT,
     payload: flag,
   };
 }
