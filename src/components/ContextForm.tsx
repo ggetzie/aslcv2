@@ -1,21 +1,19 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Picker, TouchableOpacity} from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {
-  SpatialContext,
-  ContextFormData,
-  defaultContextTypes,
-} from '../constants/EnumsAndInterfaces/ContextInterfaces';
+import {useSelector} from 'react-redux';
 import {verticalScale} from '../constants/nativeFunctions';
 import {RowView} from './general/RowView';
 import {TextInputComponent} from './general/TextInputComponent';
 import {ButtonComponent} from './general/ButtonComponent';
-import {validateDates, renderDate} from '../constants/utilityFunctions';
+import {ReducerState} from '../../redux/reducer';
 
 const OpeningDatePicker = DateTimePicker;
 const ClosingDatePicker = DateTimePicker;
 
-const contextTypes = defaultContextTypes;
+const YYYY_MM_DD = (date: Date) => {
+  return date.toISOString().split('T')[0];
+};
 
 const ContextForm = ({
   openingDate,
@@ -26,7 +24,7 @@ const ContextForm = ({
   onContextTypeChange,
   description,
   onDescriptionChange,
-  canSubmit,
+  contextTypes,
   onSave,
 }: {
   openingDate: string;
@@ -37,9 +35,13 @@ const ContextForm = ({
   onContextTypeChange: (type: string) => void;
   description: string;
   onDescriptionChange: (description: string) => void;
-  canSubmit: boolean;
+  contextTypes: string[];
   onSave: () => void;
 }) => {
+  const canSubmitGlobal: boolean = useSelector(
+    ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
+  );
+
   const [openingVisible, setOpeningVisible] = useState(false);
   const [closingVisible, setClosingVisible] = useState(false);
 
@@ -48,7 +50,7 @@ const ContextForm = ({
       <OpeningDatePicker
         isVisible={openingVisible}
         onConfirm={(date) => {
-          onOpeningDateChange(date.toISOString());
+          onOpeningDateChange(YYYY_MM_DD(date));
           setOpeningVisible(false);
         }}
         onCancel={() => setOpeningVisible(false)}
@@ -56,14 +58,14 @@ const ContextForm = ({
       <ClosingDatePicker
         isVisible={closingVisible}
         onConfirm={(date) => {
-          onClosingDateChange(date.toISOString());
+          onClosingDateChange(YYYY_MM_DD(date));
           setClosingVisible(false);
         }}
         onCancel={() => setClosingVisible(false)}
       />
 
       {/* Context type */}
-      <RowView style={{paddingVertical: '0%'}}>
+      <RowView style={styles.formRow}>
         <Text style={styles.labelStyle}>Type</Text>
 
         <Picker
@@ -77,33 +79,42 @@ const ContextForm = ({
       </RowView>
 
       {/* Opening and closing dates */}
-      <RowView>
-        <TouchableOpacity onPress={() => setOpeningVisible(true)}>
-          <Text style={styles.labelStyle}>Opening Date</Text>
-          <Text>{renderDate(openingDate)}</Text>
+      <RowView style={styles.formRow}>
+        <TouchableOpacity
+          onPress={() => setOpeningVisible(true)}
+          style={styles.inputStyle}>
+          <Text style={styles.labelStyle}>Opening Date:</Text>
+          <Text>{openingDate}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setClosingVisible(true)}>
-          <Text style={styles.labelStyle}>Closing Date</Text>
-          <Text>{renderDate(closingDate)}</Text>
+        <TouchableOpacity
+          onPress={() => setClosingVisible(true)}
+          style={styles.inputStyle}>
+          <Text style={styles.labelStyle}>Closing Date:</Text>
+          <Text>{closingDate}</Text>
         </TouchableOpacity>
       </RowView>
-      <Text style={styles.labelStyle}>Description</Text>
-      <TextInputComponent
-        value={description}
-        containerStyle={{width: '100%'}}
-        onChangeText={(text) => onDescriptionChange(text)}
-        numeric={false}
-        multiline={true}
-        placeHolder="Brief Description of Context"
-      />
-      <ButtonComponent
-        buttonStyle={styles.submitButton}
-        onPress={() => onSave()}
-        textStyle={{padding: '4%'}}
-        text={'Update'}
-        rounded={true}
-        disabled={!canSubmit}
-      />
+      <View style={styles.formCol}>
+        <Text style={[styles.labelStyle, {paddingHorizontal: 10}]}>
+          Description:
+        </Text>
+        <TextInputComponent
+          value={description}
+          containerStyle={{width: '100%', paddingHorizontal: 10}}
+          onChangeText={(text) => onDescriptionChange(text)}
+          numeric={false}
+          multiline={true}
+          placeHolder="Brief Description of Context"
+        />
+      </View>
+      {canSubmitGlobal && (
+        <ButtonComponent
+          buttonStyle={styles.submitButton}
+          onPress={() => onSave()}
+          textStyle={{padding: '4%'}}
+          text={'Update'}
+          rounded={true}
+        />
+      )}
     </View>
   );
 };
@@ -111,14 +122,17 @@ const ContextForm = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginBottom: 15,
   },
   labelStyle: {
     fontSize: verticalScale(16),
     color: 'black',
     width: 'auto',
   },
+
   inputStyle: {
     width: '50%',
   },
@@ -127,6 +141,18 @@ const styles = StyleSheet.create({
     height: 'auto',
     alignSelf: 'flex-end',
     marginHorizontal: '5%',
+  },
+  formRow: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+  },
+  formCol: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginTop: 20,
   },
 });
 

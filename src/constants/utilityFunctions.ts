@@ -1,7 +1,9 @@
-import moment from 'moment-timezone';
-import AsyncStorage from '@react-native-community/async-storage';
-import {StoredItems} from './StoredItem';
 import {AxiosResponse} from 'axios';
+import moment from 'moment-timezone';
+import {Alert} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import {StoredItems} from './StoredItem';
 import {
   SpatialArea,
   SpatialAreaQuery,
@@ -211,3 +213,23 @@ export const validateDates = (
   }
   return true;
 };
+
+export function confirmLeaveContext(
+  title: string,
+  message: string,
+  onConfirm: () => void,
+) {
+  Alert.alert(
+    title,
+    message,
+    [
+      {
+        text: 'Cancel',
+        onPress: () => null,
+        style: 'cancel',
+      },
+      {text: 'Yes', onPress: onConfirm},
+    ],
+    {cancelable: false},
+  );
+}

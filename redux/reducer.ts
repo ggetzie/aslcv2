@@ -42,7 +42,7 @@ export default function reducer(
     case SET_CAN_SUBMIT_CONTEXT:
       return {
         ...state,
-        canContextBeSubmitted: action.payload,
+        canSubmitContext: action.payload,
       };
     case SET_USER_PROFILE_WITH_CREDENTIALS:
       return {

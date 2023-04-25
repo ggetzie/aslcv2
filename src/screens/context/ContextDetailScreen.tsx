@@ -5,26 +5,16 @@ import {
   NavigationScreenComponent,
   ScrollView,
 } from 'react-navigation';
-import {
-  Alert,
-  Image,
-  Picker,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, Image, StyleSheet, Text, View} from 'react-native';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {
   getContextAreaStringForSelectedContext,
-  getDateFromISO,
-  isNotEmptyOrNull,
-  isNotEmptyOrNullBatch,
-  renderDate,
+  getContextStringFromContext,
+  validateDates,
+  confirmLeaveContext,
 } from '../../constants/utilityFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {Divider} from 'react-native-elements';
@@ -35,28 +25,21 @@ import ImagePicker, {
   ImagePickerOptions,
   ImagePickerResponse,
 } from 'react-native-image-picker';
-import Modal from 'react-native-modal';
-import {isEqual} from 'lodash';
 import {useDispatch, useSelector} from 'react-redux';
 import {getContext} from '../../constants/backend_api_action';
-import {TextInputComponent} from '../../components/general/TextInputComponent';
-import moment from 'moment';
 import {mediaBaseURL} from '../../constants/Axios';
 import {HeaderBackButton} from 'react-navigation-stack';
 import {
-  setCanContextBeSubmitted,
+  setCanSubmitContext,
   setSelectedContextId,
 } from '../../../redux/reducerAction';
 
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import CameraModal from '../../components/CameraModal';
-
-enum DatePickState {
-  OPENING_DATE = 'OPENING_DATE',
-  CLOSING_DATE = 'CLOSING_DATE',
-  CLOSED = 'CLOSED',
-}
+import ContextForm from '../../components/ContextForm';
+import {ReducerState} from '../../../redux/reducer';
+import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -74,22 +57,20 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
-    ({reducer}: any) => reducer.selectedContextId,
+    ({reducer}: {reducer: ReducerState}) => reducer.selectedContextId,
   );
   const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
-    ({reducer}: any) => reducer.contextIdToContextMap,
-  );
-  const canBeSubmitted: boolean = useSelector(
-    ({reducer}: any) => reducer.canContextBeSubmitted,
+    ({reducer}: {reducer: ReducerState}) => reducer.contextIdToContextMap,
   );
 
-  const [datePickState, setDatePickState] = useState<DatePickState>(
-    DatePickState.CLOSED,
+  const canSubmitGlobal: boolean = useSelector(
+    ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
   );
+
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
   const [spatialContext, setSpatialContext] = useState<SpatialContext>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [types, setTypes] = useState<string[]>(null);
+  const [types, setTypes] = useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
 
@@ -113,81 +94,27 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   }, [selectedContextId, contextIdToContextMap]);
 
   useEffect(() => {
+    // when spatialContext changes, check if can submit
     if (spatialContext == null) {
-      dispatch(setCanContextBeSubmitted(false));
+      dispatch(setCanSubmitContext(false));
       return;
     }
-    if (
-      isNotEmptyOrNullBatch(
-        spatialContext.closing_date,
-        spatialContext.opening_date,
-      )
-    ) {
-      const openingDate = moment(spatialContext.opening_date, 'YYYY-MM-DD');
-      const closingDate = moment(spatialContext.closing_date, 'YYYY-MM-DD');
-      const currentDate = moment(new Date(), 'YYYY-MM-DD');
-      const diff1 = openingDate.diff(closingDate, 'days');
-      const diff2 = openingDate.diff(currentDate, 'days');
-      if (diff1 > 0) {
-        alert('Closing Date should be greater than opening date');
-        setSpatialContext({
-          ...spatialContext,
-          opening_date: null,
-          closing_date: null,
-        });
-      }
-      if (diff2 >= 7) {
-        alert('Warning: Opening date is more than a week in the future!');
-      }
-    }
-    const dbContext = contextIdToContextMap.get(selectedContextId);
-    if (spatialContext && spatialContext.spatial_area != null) {
-      delete spatialContext.spatial_area;
-    }
-    if (dbContext && dbContext.spatial_area != null) {
-      delete dbContext.spatial_area;
-    }
-    if (!isEqual(spatialContext, dbContext)) {
-      if (
-        isNotEmptyOrNull(spatialContext.closing_date) &&
-        !isNotEmptyOrNull(spatialContext.opening_date)
-      ) {
-        dispatch(setCanContextBeSubmitted(false));
-      } else {
-        dispatch(setCanContextBeSubmitted(true));
-      }
-    } else {
-      dispatch(setCanContextBeSubmitted(false));
-    }
-  }, [spatialContext, contextIdToContextMap]);
+    const datesAreValid = validateDates(
+      spatialContext.opening_date,
+      spatialContext.closing_date,
+    );
 
-  useEffect(() => {
-    props.navigation.addListener('beforeRemove', (e) => {
-      if (!canBeSubmitted) {
-        return;
-      }
-      e.preventDefault();
-      Alert.alert(
-        'Save Edits',
-        'Are you sure you want to continue without saving?',
-        [
-          {
-            text: 'Cancel',
-            onPress: () => null,
-            style: 'cancel',
-          },
-          {
-            text: 'Yes',
-            onPress: async () => {
-              dispatch(setSelectedContextId(null));
-              props.navigation.goBack();
-            },
-          },
-        ],
-        {cancelable: false},
-      );
-    });
-  }, [props.navigation, canBeSubmitted]);
+    const oldContext = contextIdToContextMap.get(selectedContextId);
+    const contextDataChanged =
+      spatialContext.description != oldContext.description ||
+      spatialContext.type != oldContext.type ||
+      spatialContext.opening_date != oldContext.opening_date ||
+      spatialContext.closing_date != oldContext.closing_date;
+
+    const newCanSubmit = datesAreValid && contextDataChanged;
+    console.log('newCanSubmit', newCanSubmit);
+    dispatch(setCanSubmitContext(newCanSubmit));
+  }, [spatialContext, contextIdToContextMap]);
 
   async function updateData() {
     setLoading(true);
@@ -201,7 +128,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     setLoading(false);
   }
 
-  async function uploadImage(response) {
+  async function uploadImage(imagePickerResponse) {
     Alert.alert(
       'Context Photo Upload',
       'Confirm',
@@ -218,9 +145,9 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
             const form: FormData = new FormData();
             try {
               form.append('photo', {
-                uri: response.uri,
-                type: response.type,
-                name: response.fileName,
+                uri: imagePickerResponse.uri,
+                type: imagePickerResponse.type,
+                name: imagePickerResponse.fileName,
               } as any);
               await uploadContextPhoto(
                 form,
@@ -245,7 +172,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
     contextIdToContextMap.get(selectedContextId) == null ? (
     <ScrollView />
   ) : (
-    <ScrollView style={Styles.background}>
+    <ScrollView style={styles.background}>
       <LoadingModalComponent showLoading={loading} />
       <UploadProgressModal
         isVisible={showUploadProgress}
@@ -270,127 +197,43 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         }}
         onCancel={() => setIsPickingImage(false)}
       />
-      <DateTimePickerModal
-        isVisible={datePickState !== DatePickState.CLOSED}
-        onConfirm={(date) => {
-          setDatePickState(DatePickState.CLOSED);
-          if (datePickState === DatePickState.OPENING_DATE) {
-            setSpatialContext({
-              ...spatialContext,
-              opening_date: getDateFromISO(date.toISOString()),
-            });
-          } else if (datePickState === DatePickState.CLOSING_DATE) {
-            setSpatialContext({
-              ...spatialContext,
-              closing_date: getDateFromISO(date.toISOString()),
-            });
-          }
-        }}
-        onCancel={() => setDatePickState(DatePickState.CLOSED)}
-        date={
-          datePickState === DatePickState.OPENING_DATE
-            ? contextIdToContextMap.get(selectedContextId).opening_date == null
-              ? new Date()
-              : new Date(
-                  contextIdToContextMap.get(selectedContextId).opening_date,
-                )
-            : contextIdToContextMap.get(selectedContextId).closing_date == null
-            ? new Date()
-            : new Date(
-                contextIdToContextMap.get(selectedContextId).closing_date,
-              )
-        }
-        mode="date"
-      />
       <RowView style={{paddingTop: '2%', justifyContent: 'center'}}>
         <ButtonComponent
-          buttonStyle={{
-            width: '30%',
-            height: 'auto',
-            alignSelf: 'flex-end',
-            margin: 'auto',
-            marginHorizontal: '5%',
-          }}
+          buttonStyle={styles.refreshButton}
           onPress={() => fetchData()}
           textStyle={{padding: '4%'}}
           text={'Refresh'}
           rounded={true}
         />
       </RowView>
+      {/* Form title */}
       <RowView>
-        <Text
-          style={{
-            fontSize: verticalScale(20),
-            fontWeight: 'bold',
-            paddingHorizontal: '5%',
-            paddingTop: '2%',
-          }}>
-          Context Details
-        </Text>
-        {canBeSubmitted && (
-          <ButtonComponent
-            buttonStyle={{
-              width: '30%',
-              height: 'auto',
-              alignSelf: 'flex-end',
-              marginHorizontal: '5%',
-            }}
-            onPress={() => updateData()}
-            textStyle={{padding: '4%'}}
-            text={'Update'}
-            rounded={true}
-          />
-        )}
+        <Text style={styles.title}>Context Details</Text>
       </RowView>
 
-      <View style={{paddingHorizontal: '5%', paddingVertical: '0%'}}>
-        <RowView style={{paddingVertical: '0%'}}>
-          <Text style={Styles.labelStyle}>Type</Text>
-
-          <Picker
-            style={Styles.inputStyle}
-            selectedValue={spatialContext.type}
-            onValueChange={(value: string, pos) =>
-              setSpatialContext({...spatialContext, type: value})
-            }>
-            {types &&
-              types
-                .map((type) => <Picker.Item label={type} value={type} />)
-                .concat(<Picker.Item label={'Select'} value={null} />)}
-          </Picker>
-        </RowView>
-        <PaddingComponent vertical="2%" />
-        <RowView>
-          <TouchableOpacity
-            onPress={() => setDatePickState(DatePickState.OPENING_DATE)}>
-            <Text style={Styles.labelStyle}>Opening Date</Text>
-            <Text>{renderDate(spatialContext.opening_date)}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setDatePickState(DatePickState.CLOSING_DATE)}>
-            <Text style={Styles.labelStyle}>Closing Date</Text>
-            <Text>{renderDate(spatialContext.closing_date)}</Text>
-          </TouchableOpacity>
-        </RowView>
-
-        <PaddingComponent vertical="2%" />
-        <Text style={Styles.labelStyle}>Description</Text>
-        <TextInputComponent
-          value={spatialContext.description}
-          containerStyle={{width: '100%'}}
-          onChangeText={(text) =>
-            setSpatialContext({
-              ...spatialContext,
-              description: text,
-            })
-          }
-          numeric={false}
-          multiline={true}
-          placeHolder="Brief Description of Context"
-        />
-        {/* End Context Form */}
-        <Divider />
-        <Divider />
+      <ContextForm
+        openingDate={spatialContext.opening_date}
+        onOpeningDateChange={(date) =>
+          setSpatialContext({...spatialContext, opening_date: date})
+        }
+        closingDate={spatialContext.closing_date}
+        onClosingDateChange={(date) =>
+          setSpatialContext({...spatialContext, closing_date: date})
+        }
+        contextType={spatialContext.type}
+        onContextTypeChange={(type) =>
+          setSpatialContext({...spatialContext, type: type})
+        }
+        contextTypes={types}
+        description={spatialContext.description}
+        onDescriptionChange={(text) =>
+          setSpatialContext({...spatialContext, description: text})
+        }
+        onSave={() => updateData()}
+      />
+      <Divider />
+      <Divider />
+      <View style={{paddingHorizontal: 10}}>
         {/* Begin Photo section */}
         <ButtonComponent
           buttonStyle={{width: '35%', height: 'auto', alignSelf: 'center'}}
@@ -401,7 +244,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
         />
         <PaddingComponent vertical="2%" />
         <RowView>
-          <Text style={Styles.labelStyle}>Total Context Photos</Text>
+          <Text style={styles.labelStyle}>Total Context Photos</Text>
           <Text>
             {spatialContext.contextphoto_set == null
               ? 0
@@ -415,7 +258,7 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
             data={spatialContext.contextphoto_set}
             renderItem={({item}) => (
               <Image
-                style={Styles.imageStyle}
+                style={styles.imageStyle}
                 resizeMode="cover"
                 source={{uri: mediaBaseURL + item.thumbnail_url}}
               />
@@ -428,19 +271,11 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   );
 };
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   labelStyle: {
     fontSize: verticalScale(16),
     color: 'black',
     width: 'auto',
-  },
-  inputStyle: {
-    width: '50%',
-  },
-  iconStyle: {
-    alignSelf: 'center',
-    width: verticalScale(25),
-    height: verticalScale(25),
   },
   imageStyle: {
     alignSelf: 'center',
@@ -448,15 +283,21 @@ const Styles = StyleSheet.create({
     height: horizontalScale(100),
     marginHorizontal: horizontalScale(5),
   },
-  modalButtonStyle: {
-    width: '60%',
-  },
-  cancelButtonStyle: {
-    width: '60%',
-    backgroundColor: 'white',
-  },
   background: {
     backgroundColor: ScreenColors.CONTEXT_SCREEN,
+  },
+  title: {
+    fontSize: verticalScale(20),
+    fontWeight: 'bold',
+    paddingHorizontal: '5%',
+    paddingTop: '2%',
+  },
+  refreshButton: {
+    width: '30%',
+    height: 'auto',
+    alignSelf: 'flex-end',
+    margin: 'auto',
+    marginHorizontal: '5%',
   },
 });
 
@@ -464,13 +305,13 @@ ContextDetailScreen.navigationOptions = (screenProps) => ({
   title: 'Context: ' + getContextAreaStringForSelectedContext(),
   headerLeft: () => {
     const dispatch = useDispatch();
-    const canBeSubmitted: boolean = useSelector(
-      ({reducer}: any) => reducer.canContextBeSubmitted,
+    const canSubmit: boolean = useSelector(
+      ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
     );
     return (
       <HeaderBackButton
         onPress={() => {
-          if (canBeSubmitted === true) {
+          if (canSubmit) {
             Alert.alert(
               'Save Edits',
               'Are you sure you want to continue without saving?',
