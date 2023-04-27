@@ -2,6 +2,7 @@ import * as React from 'react';
 import {Image, StyleSheet} from 'react-native';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
+import {useSelector} from 'react-redux';
 import {verticalScale} from '../src/constants/nativeFunctions';
 import SignupScreen from '../src/screens/login_signup/SignupScreen';
 import DataLoadingComponent from '../src/components/DataLoadingComponent';
@@ -24,11 +25,12 @@ import {
   AppState,
   getAppState,
 } from '../src/constants/EnumsAndInterfaces/AppState';
+import ConfirmAlert from '../src/components/ConfirmAlert';
+import {ReducerState} from '../redux/reducer';
 
 function defaultNavOptions({navigation}) {
   return {
     headerStyle: {
-      //   backgroundColor: getAppState(),
       margin: 'auto',
       elevation: 0,
       shadowOpacity: 0,
@@ -49,20 +51,16 @@ const SettingsScreenStack = createStackNavigator(
   },
   {
     navigationOptions: {
-      tabBarIcon: ({focused}) =>
-        focused ? (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
-            resizeMode={'contain'}
-            source={SettingsBottomNav}
-          />
-        ) : (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
-            resizeMode={'contain'}
-            source={SettingsBottomNav}
-          />
-        ),
+      tabBarIcon: ({focused}) => (
+        <Image
+          style={[
+            styles.bottomImage,
+            {tintColor: focused ? nativeColors.iconBrown : nativeColors.grey},
+          ]}
+          resizeMode={'contain'}
+          source={SettingsBottomNav}
+        />
+      ),
     },
     defaultNavigationOptions: defaultNavOptions,
   },
@@ -76,22 +74,18 @@ const AreaScreenStack = createStackNavigator(
   },
   {
     navigationOptions: {
-      tabBarIcon: ({focused}) =>
-        focused ? (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
-            resizeMode={'contain'}
-            source={HomeBottomNav}
-          />
-        ) : (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
-            resizeMode={'contain'}
-            source={HomeBottomNav}
-          />
-        ),
+      tabBarIcon: ({focused}) => (
+        <Image
+          style={[
+            styles.bottomImage,
+            {tintColor: focused ? nativeColors.iconBrown : nativeColors.grey},
+          ]}
+          resizeMode={'contain'}
+          source={HomeBottomNav}
+        />
+      ),
+      defaultNavigationOptions: defaultNavOptions,
     },
-    defaultNavigationOptions: defaultNavOptions,
   },
 );
 
@@ -99,7 +93,6 @@ const ContextScreenStack = createStackNavigator(
   {
     ContextListScreen: ContextListScreen,
     ContextDetailScreen: ContextDetailScreen,
-    // Other screens go here
   },
   {
     navigationOptions: {
@@ -152,22 +145,6 @@ const FindsBagPhotosScreenStack = createStackNavigator(
   },
 );
 
-// const PhotogrammetryScreenStack = createStackNavigator({
-//     PhotogrammetryScreen: PhotogrammetryScreen,
-//     // Other screens go here
-// }, {
-//     navigationOptions: {
-//         tabBarIcon: ({focused}) =>
-//             (focused
-//                     ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-//                              source={PhotogrammetryBottomNav}/>
-//                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-//                              source={PhotogrammetryBottomNav}/>
-//             ),
-//     },
-//     defaultNavigationOptions:defaultNavOptions
-// });
-
 export const LoginScreenNavigator = createStackNavigator(
   {
     LoginScreen: LoginScreen,
@@ -185,7 +162,6 @@ export const MainTabNavigator = createBottomTabNavigator(
     ContextScreenStack: ContextScreenStack,
     FindsBagPhotosScreen: FindsBagPhotosScreenStack,
     SettingsScreenStack: SettingsScreenStack,
-    // PhotogrammetryScreenStack: PhotogrammetryScreenStack
   },
   {
     initialRouteName: 'AreaScreenStack',

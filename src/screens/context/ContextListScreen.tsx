@@ -245,7 +245,7 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
 };
 
 ContextListScreen.navigationOptions = (screenProps) => ({
-  title: 'Context: ' + getAreaStringForSelectedArea(),
+  title: 'Area: ' + getAreaStringForSelectedArea(),
   headerLeft: () => {
     const dispatch = useDispatch();
     return (

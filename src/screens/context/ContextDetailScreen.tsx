@@ -12,9 +12,7 @@ import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
 import {
   getContextAreaStringForSelectedContext,
-  getContextStringFromContext,
   validateDates,
-  confirmLeaveContext,
 } from '../../constants/utilityFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {Divider} from 'react-native-elements';
@@ -29,10 +27,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {getContext} from '../../constants/backend_api_action';
 import {mediaBaseURL} from '../../constants/Axios';
 import {HeaderBackButton} from 'react-navigation-stack';
-import {
-  setCanSubmitContext,
-  setSelectedContextId,
-} from '../../../redux/reducerAction';
+import {setCanSubmitContext} from '../../../redux/reducerAction';
 
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
@@ -40,6 +35,7 @@ import CameraModal from '../../components/CameraModal';
 import ContextForm from '../../components/ContextForm';
 import {ReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import ConfirmAlert from '../../components/ConfirmAlert';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -112,7 +108,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
       spatialContext.closing_date != oldContext.closing_date;
 
     const newCanSubmit = datesAreValid && contextDataChanged;
-    console.log('newCanSubmit', newCanSubmit);
     dispatch(setCanSubmitContext(newCanSubmit));
   }, [spatialContext, contextIdToContextMap]);
 
@@ -304,7 +299,6 @@ const styles = StyleSheet.create({
 ContextDetailScreen.navigationOptions = (screenProps) => ({
   title: 'Context: ' + getContextAreaStringForSelectedContext(),
   headerLeft: () => {
-    const dispatch = useDispatch();
     const canSubmit: boolean = useSelector(
       ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
     );
@@ -312,27 +306,12 @@ ContextDetailScreen.navigationOptions = (screenProps) => ({
       <HeaderBackButton
         onPress={() => {
           if (canSubmit) {
-            Alert.alert(
+            ConfirmAlert(
               'Save Edits',
               'Are you sure you want to continue without saving?',
-              [
-                {
-                  text: 'Cancel',
-                  onPress: () => null,
-                  style: 'cancel',
-                },
-                {
-                  text: 'Yes',
-                  onPress: async () => {
-                    dispatch(setSelectedContextId(null));
-                    screenProps.navigation.goBack();
-                  },
-                },
-              ],
-              {cancelable: false},
+              () => screenProps.navigation.goBack(),
             );
           } else {
-            dispatch(setSelectedContextId(null));
             screenProps.navigation.goBack();
           }
         }}

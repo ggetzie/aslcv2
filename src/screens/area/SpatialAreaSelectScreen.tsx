@@ -104,7 +104,7 @@ const SpatialAreaSelectScreen: NavigationScreenComponent<any, any> = (
             </Text>
             {/* TODO: Investigate Icon styling issue (gets cut-off)*/}
             <Icon
-              style={Styles.iconStyle}
+              style={styles.iconStyle}
               name="check"
               type="font-awesome"
               color={
@@ -121,7 +121,7 @@ const SpatialAreaSelectScreen: NavigationScreenComponent<any, any> = (
   }
 
   return (
-    <ScrollView style={Styles.background}>
+    <ScrollView style={styles.background}>
       <Text
         style={{
           fontSize: verticalScale(20),
@@ -197,7 +197,7 @@ SpatialAreaSelectScreen.navigationOptions = (screenProps) => ({
   headerLeft: () => null,
 });
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   containerStyle: {
     flexDirection: 'row',
     display: 'flex',
