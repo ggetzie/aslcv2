@@ -1,19 +1,21 @@
 import * as React from 'react';
 import {useState} from 'react';
-import {NavigationScreenComponent} from 'react-navigation';
 import {useDispatch} from 'react-redux';
 import {LoginDetails} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import {MainTabParamList} from '../../../navigation/MainTabNavigator';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {loginUser} from '../../constants/backend_api_action';
-import DataLoadingComponent from '../../components/DataLoadingComponent';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {mediaBaseURL} from '../../constants/Axios';
 
-const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
+type Props = BottomTabNavigationProp<MainTabParamList, 'Login'>;
+
+const LoginScreen = (_: Props) => {
   const dispatch = useDispatch();
   const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -37,9 +39,8 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
         password: password,
       };
 
-      await dispatch(loginUser(loginDetails));
+      dispatch(loginUser(loginDetails));
       setLoading(false);
-      props.navigation.navigate('DataLoadingComponent');
     } catch (e) {
       setLoading(false);
       alert(e);

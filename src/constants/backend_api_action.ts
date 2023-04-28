@@ -6,6 +6,7 @@ import {
   insertInContextIdToContextMap,
   insertInSpatialAreaIdToSpatialAreaMap,
   setUserProfileWithCredentials,
+  setIsSignedIn,
 } from '../../redux/reducerAction';
 import {StoredItems} from './StoredItem';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -30,6 +31,7 @@ export function loginUser(loginDetails: LoginDetails) {
       console.log('Response Data: ', response.data.token);
 
       dispatch(setUserProfileWithCredentials({id: null, ...loginDetails}));
+      dispatch(setIsSignedIn(true));
       return Promise.resolve();
     } catch (error) {
       console.warn(error);
@@ -80,10 +82,10 @@ export function refreshJwtToken() {
 }
 
 export function getFilteredSpatialAreaIdsList(
-  spacialAreaQuery: SpatialAreaQuery,
+  spatialAreaQuery: SpatialAreaQuery,
 ) {
   return async function (dispatch) {
-    const API = 'api/area/' + getFilteredSpatialAreasQuery(spacialAreaQuery);
+    const API = 'api/area/' + getFilteredSpatialAreasQuery(spatialAreaQuery);
     try {
       const headers = await getHeaders();
       const result = await axios.get(API, {

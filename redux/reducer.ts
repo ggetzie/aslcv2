@@ -16,22 +16,24 @@ export interface ReducerAction<T> {
   payload: T;
 }
 
-export interface ReducerState {
+export interface AslReducerState {
   canSubmitContext: boolean;
   selectedSpatialAreaId: string;
   selectedContextId: string;
   spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea>;
   contextIdToContextMap: Map<string, SpatialContext>;
   userProfileWithCredentials: UserProfileWithCredentials;
+  isSignedIn: boolean;
 }
 
-const initialState: ReducerState = {
+const initialState: AslReducerState = {
   canSubmitContext: false,
   selectedSpatialAreaId: null,
   selectedContextId: null,
   spatialAreaIdToSpatialAreaMap: new Map(),
   contextIdToContextMap: new Map(),
   userProfileWithCredentials: null,
+  isSignedIn: false,
 };
 
 export default function reducer(

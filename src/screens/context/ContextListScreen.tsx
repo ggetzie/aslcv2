@@ -1,11 +1,15 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
+  Picker,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
   FlatList,
-  NavigationScreenComponent,
   ScrollView,
-} from 'react-navigation';
-import {Picker, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
+  Button,
+} from 'react-native';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
@@ -22,7 +26,6 @@ import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {SpatialArea} from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {getSpatialArea} from '../../constants/backend_api';
 import {setSelectedContextId} from '../../../redux/reducerAction';
-import {HeaderBackButton} from 'react-navigation-stack';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 
@@ -33,7 +36,7 @@ enum ContextChoice {
   ALL = 'ALL',
 }
 
-const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
+const ContextListScreen: any = (props) => {
   const dispatch = useDispatch();
 
   const [contextIds, setContextIds] = useState<string[]>([]);
@@ -222,13 +225,19 @@ const ContextListScreen: NavigationScreenComponent<any, any> = (props) => {
                   </RowView>
                   <RowView>
                     <Text style={{fontWeight: 'bold'}}>Opening Date</Text>
-                    <Text>{renderDate(context.opening_date)}</Text>
+                    <Text>
+                      {context.opening_date == null
+                        ? 'Unset'
+                        : context.opening_date}
+                    </Text>
                   </RowView>
                   <RowView>
                     <Text style={{fontWeight: 'bold'}}>Closing Date</Text>
-                    {/*<Text>*/}
-                    {/*    {context.closing_date == null ? "Unset" : getFormattedDate(context.closing_date)}*/}
-                    {/*</Text>*/}
+                    <Text>
+                      {context.closing_date == null
+                        ? 'Unset'
+                        : context.closing_date}
+                    </Text>
                     <Text>{renderDate(context.closing_date)}</Text>
                   </RowView>
                   <PaddingComponent vertical="2%" />
@@ -249,7 +258,8 @@ ContextListScreen.navigationOptions = (screenProps) => ({
   headerLeft: () => {
     const dispatch = useDispatch();
     return (
-      <HeaderBackButton
+      <Button
+        title="Back"
         onPress={() => {
           dispatch(setSelectedContextId(null));
           screenProps.navigation.navigate('AreaScreenStack');

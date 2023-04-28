@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
   FlatList,
-  NavigationScreenComponent,
   ScrollView,
-} from 'react-navigation';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+} from 'react-native';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
 import {Divider, Icon} from 'react-native-elements';
@@ -24,9 +26,7 @@ import {LoadingComponent} from '../../components/general/LoadingComponent';
 import {getFilteredSpatialAreaIdsList} from '../../constants/backend_api_action';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 
-const SpatialAreaSelectScreen: NavigationScreenComponent<any, any> = (
-  props,
-) => {
+const SpatialAreaSelectScreen: any = (props) => {
   const dispatch = useDispatch();
 
   const selectedAreaId: string = useSelector(

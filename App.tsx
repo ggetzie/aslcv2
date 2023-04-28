@@ -1,58 +1,42 @@
-import * as React from 'react';
-import {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Platform, StatusBar} from 'react-native';
-import {createAppContainer} from 'react-navigation';
-import {rootNavigator} from './navigation/AppNavigator';
+import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import createStore from './redux/store';
 import {getJwtFromAsyncStorage} from './src/constants/utilityFunctions';
 import {LoadingComponent} from './src/components/general/LoadingComponent';
+import {MainTabNavigator} from './navigation/MainTabNavigator';
 
-interface Props {}
+const App = () => {
+  const [loading, setLoading] = useState<boolean>(true);
 
-interface State {
-  loading: boolean;
-  isSignedIn: boolean;
-}
-
-export default class App extends Component<Props, State> {
-  constructor(props: Readonly<Props>) {
-    super(props);
-
-    this.state = {
-      loading: true,
-      isSignedIn: false,
-    };
-  }
-
-  async componentDidMount(): Promise<void> {
+  const setToken = async () => {
     console.disableYellowBox = true;
     const token: string = await getJwtFromAsyncStorage();
     if (token != null && token.trim().length !== 0) {
       try {
-        this.setState({
-          isSignedIn: true,
-        });
+        setIsSignedIn(true);
+        setLoading(false);
       } catch (error) {
         console.warn(error);
       }
     }
-    this.setState({
-      loading: false,
-    });
+  };
+
+  useEffect(() => {
+    setToken();
+  }, []);
+
+  if (loading) {
+    return <LoadingComponent />;
   }
 
-  render() {
-    if (this.state.loading) {
-      return <LoadingComponent />;
-    }
-
-    const Layout = createAppContainer(rootNavigator(this.state.isSignedIn));
-    return (
-      <Provider store={createStore}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
-        <Layout />
-      </Provider>
-    );
-  }
-}
+  return (
+    <Provider store={createStore}>
+      {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
+      <NavigationContainer>
+        <MainTabNavigator />
+      </NavigationContainer>
+    </Provider>
+  );
+};

@@ -6,7 +6,7 @@ import {verticalScale} from '../constants/nativeFunctions';
 import {RowView} from './general/RowView';
 import {TextInputComponent} from './general/TextInputComponent';
 import {ButtonComponent} from './general/ButtonComponent';
-import {ReducerState} from '../../redux/reducer';
+import {AslReducerState} from '../../redux/reducer';
 
 const OpeningDatePicker = DateTimePicker;
 const ClosingDatePicker = DateTimePicker;
@@ -39,7 +39,7 @@ const ContextForm = ({
   onSave: () => void;
 }) => {
   const canSubmitGlobal: boolean = useSelector(
-    ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
+    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
   const [openingVisible, setOpeningVisible] = useState(false);

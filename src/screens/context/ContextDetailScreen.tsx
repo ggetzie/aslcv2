@@ -33,7 +33,7 @@ import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import CameraModal from '../../components/CameraModal';
 import ContextForm from '../../components/ContextForm';
-import {ReducerState} from '../../../redux/reducer';
+import {AslReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import ConfirmAlert from '../../components/ConfirmAlert';
 
@@ -53,14 +53,14 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
-    ({reducer}: {reducer: ReducerState}) => reducer.selectedContextId,
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
   );
   const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
-    ({reducer}: {reducer: ReducerState}) => reducer.contextIdToContextMap,
+    ({reducer}: {reducer: AslReducerState}) => reducer.contextIdToContextMap,
   );
 
   const canSubmitGlobal: boolean = useSelector(
-    ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
+    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
@@ -300,7 +300,7 @@ ContextDetailScreen.navigationOptions = (screenProps) => ({
   title: 'Context: ' + getContextAreaStringForSelectedContext(),
   headerLeft: () => {
     const canSubmit: boolean = useSelector(
-      ({reducer}: {reducer: ReducerState}) => reducer.canSubmitContext,
+      ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
     );
     return (
       <HeaderBackButton
