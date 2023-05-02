@@ -1,16 +1,16 @@
-import * as React from 'react';
-import {
-  FlatList,
-  NavigationScreenComponent,
-  ScrollView,
-} from 'react-navigation';
+import React from 'react';
+import {FlatList, ScrollView} from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
 import {RowView} from '../../components/general/RowView';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Icon} from 'react-native-elements';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import {AreaStackParamList} from '../../../navigation/MainTabNavigator';
 
-const SelectFromListScreen: NavigationScreenComponent<any, any> = (props) => {
+type Props = StackScreenProps<AreaStackParamList, 'SelectFromListScreen'>;
+
+const SelectFromListScreen = (props: Props) => {
   const list: any[] = props.navigation.getParam('list');
   const selectedIndex: number = props.navigation.getParam('selectedIndex');
   const onPress = props.navigation.getParam('onPress');

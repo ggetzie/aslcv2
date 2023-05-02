@@ -2,19 +2,18 @@ import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
   FlatList,
-  NavigationScreenComponent,
-  ScrollView,
-} from 'react-navigation';
-import {
   Alert,
+  Button,
   Image,
   Picker,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
+import {StackScreenProps} from '@react-navigation/stack';
 import {uploadBagPhoto, uploadContextPhoto} from '../../constants/backend_api';
 import {getContext} from '../../constants/backend_api_action';
 import {
@@ -39,12 +38,14 @@ import {
 } from '../../constants/utilityFunctions';
 import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
-import {HeaderBackButton} from 'react-navigation-stack';
 import {nativeColors} from '../../constants/colors';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import {getBagPhotoSource} from '../../constants/utilityFunctions';
 import CameraModal from '../../components/CameraModal';
+import {FindsStackParamList} from '../../../navigation/MainTabNavigator';
+
+type Props = StackScreenProps<FindsStackParamList, 'FindsBagPhotosScreen'>;
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -58,7 +59,7 @@ const imagePickerOptions: ImagePickerOptions = {
   },
 };
 
-const FindsBagPhotosScreen: NavigationScreenComponent<any, any> = (props) => {
+const FindsBagPhotosScreen = (props: Props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
@@ -340,9 +341,10 @@ const Styles = StyleSheet.create({
 FindsBagPhotosScreen.navigationOptions = (screenProps) => ({
   title: 'Finds Bag Photos',
   headerLeft: () => (
-    <HeaderBackButton
+    <Button
+      title="Back"
       onPress={() => {
-        screenProps.navigation.navigate('ContextScreenStack');
+        screenProps.navigation.navigate('ContextNavigator', {screen: 'ContextListScreen'});
       }}
     />
   ),

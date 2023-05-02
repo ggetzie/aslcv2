@@ -8,15 +8,17 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
+import {Divider, Icon} from 'react-native-elements';
+import {useDispatch, useSelector} from 'react-redux';
+import {StackScreenProps} from '@react-navigation/stack';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
-import {Divider, Icon} from 'react-native-elements';
 import {
   initSpatialArea,
   SpatialArea,
   SpatialAreaQuery,
 } from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
-import {useDispatch, useSelector} from 'react-redux';
+
 import {
   setSelectedContextId,
   setSelectedSpatialAreaId,
@@ -25,8 +27,11 @@ import {UTMForm} from '../../components/UTMForm';
 import {LoadingComponent} from '../../components/general/LoadingComponent';
 import {getFilteredSpatialAreaIdsList} from '../../constants/backend_api_action';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import {AreaStackParamList} from '../../../navigation/MainTabNavigator';
 
-const SpatialAreaSelectScreen: any = (props) => {
+type Props = StackScreenProps<AreaStackParamList, 'SpatialAreaSelectScreen'>;
+
+const SpatialAreaSelectScreen = (props: Props) => {
   const dispatch = useDispatch();
 
   const selectedAreaId: string = useSelector(

@@ -10,6 +10,7 @@ import {
   ScrollView,
   Button,
 } from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {Divider} from 'react-native-elements';
@@ -28,6 +29,7 @@ import {getSpatialArea} from '../../constants/backend_api';
 import {setSelectedContextId} from '../../../redux/reducerAction';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import {ContextStackParamList} from '../../../navigation/MainTabNavigator';
 
 enum ContextChoice {
   OPEN = 'OPEN',
@@ -36,7 +38,9 @@ enum ContextChoice {
   ALL = 'ALL',
 }
 
-const ContextListScreen: any = (props) => {
+type Props = StackScreenProps<ContextStackParamList, 'ContextListScreen'>;
+
+const ContextListScreen = (props: Props) => {
   const dispatch = useDispatch();
 
   const [contextIds, setContextIds] = useState<string[]>([]);

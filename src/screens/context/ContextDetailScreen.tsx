@@ -1,11 +1,16 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  View,
   FlatList,
-  NavigationScreenComponent,
   ScrollView,
-} from 'react-navigation';
-import {Alert, Image, StyleSheet, Text, View} from 'react-native';
+  Button,
+} from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
@@ -26,7 +31,6 @@ import ImagePicker, {
 import {useDispatch, useSelector} from 'react-redux';
 import {getContext} from '../../constants/backend_api_action';
 import {mediaBaseURL} from '../../constants/Axios';
-import {HeaderBackButton} from 'react-navigation-stack';
 import {setCanSubmitContext} from '../../../redux/reducerAction';
 
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
@@ -36,6 +40,7 @@ import ContextForm from '../../components/ContextForm';
 import {AslReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import ConfirmAlert from '../../components/ConfirmAlert';
+import {ContextStackParamList} from '../../../navigation/MainTabNavigator';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -49,7 +54,9 @@ const imagePickerOptions: ImagePickerOptions = {
   },
 };
 
-const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
+type Props = StackScreenProps<ContextStackParamList, 'ContextDetailScreen'>;
+
+const ContextDetailScreen = (props: Props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
@@ -57,10 +64,6 @@ const ContextDetailScreen: NavigationScreenComponent<any, any> = (props) => {
   );
   const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.contextIdToContextMap,
-  );
-
-  const canSubmitGlobal: boolean = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
@@ -303,7 +306,8 @@ ContextDetailScreen.navigationOptions = (screenProps) => ({
       ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
     );
     return (
-      <HeaderBackButton
+      <Button
+        title="Back"
         onPress={() => {
           if (canSubmit) {
             ConfirmAlert(

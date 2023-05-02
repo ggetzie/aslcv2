@@ -44,6 +44,9 @@ function defaultNavOptions({navigation}) {
 }
 
 const SettingsStack = createStackNavigator();
+export type SettingsStackParamList = {
+  SettingsScreen: undefined;
+};
 
 const SettingsNavigator = () => {
   return (
@@ -80,6 +83,11 @@ const SettingsNavigator = () => {
 // );
 
 const AreaStack = createStackNavigator();
+
+export type AreaStackParamList = {
+  SpatialAreaSelectScreen: undefined;
+  SelectFromListScreen: undefined;
+};
 
 const AreaNavigator = () => {
   return (
@@ -120,6 +128,11 @@ const AreaNavigator = () => {
 // );
 
 const ContextStack = createStackNavigator();
+
+export type ContextStackParamList = {
+  ContextListScreen: undefined;
+  ContextDetailScreen: undefined;
+};
 
 const ContextNavigator = () => {
   return (
@@ -167,6 +180,9 @@ const ContextNavigator = () => {
 //   },
 // );
 const FindsStack = createStackNavigator();
+export type FindsStackParamList = {
+  FindsBagPhotosScreen: undefined;
+};
 
 const FindsNavigator = () => {
   return (
@@ -203,17 +219,6 @@ const FindsNavigator = () => {
 //   },
 // );
 
-const LoginStack = createStackNavigator();
-
-export const LoginNavigator = () => {
-  return (
-    <LoginStack.Navigator screenOptions={{headerShown: false}}>
-      <LoginStack.Screen name="LoginScreen" component={LoginScreen} />
-      <LoginStack.Screen name="SignupScreen" component={SignupScreen} />
-    </LoginStack.Navigator>
-  );
-};
-
 // export const LoginScreenNavigator = createStackNavigator(
 //   {
 //     LoginScreen: LoginScreen,
@@ -237,6 +242,12 @@ export type MainTabParamList = {
 
 export const MainTabNavigator = () => {
   const isSignedIn = useSelector((state: AslReducerState) => state.isSignedIn);
+  const selectedArea = useSelector(
+    (state: AslReducerState) => state.selectedSpatialAreaId,
+  );
+  const selectedContext = useSelector(
+    (state: AslReducerState) => state.selectedContextId,
+  );
   return (
     <MainTab.Navigator
       initialRouteName={isSignedIn ? 'AreaNavigator' : 'Login'}
@@ -247,11 +258,15 @@ export const MainTabNavigator = () => {
       {isSignedIn ? (
         <>
           <MainTab.Screen name="AreaNavigator" component={AreaNavigator} />
-          <MainTab.Screen
-            name="ContextNavigator"
-            component={ContextNavigator}
-          />
-          <MainTab.Screen name="FindsNavigator" component={FindsNavigator} />
+          {selectedArea !== null && (
+            <MainTab.Screen
+              name="ContextNavigator"
+              component={ContextNavigator}
+            />
+          )}
+          {selectedContext !== null && (
+            <MainTab.Screen name="FindsNavigator" component={FindsNavigator} />
+          )}
           <MainTab.Screen
             name="SettingsNavigator"
             component={SettingsNavigator}
