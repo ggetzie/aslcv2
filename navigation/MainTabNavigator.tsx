@@ -4,8 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSelector} from 'react-redux';
 import {verticalScale} from '../src/constants/nativeFunctions';
-import SignupScreen from '../src/screens/login_signup/SignupScreen';
-import DataLoadingComponent from '../src/components/DataLoadingComponent';
+
 import LoginScreen from '../src/screens/login_signup/LoginScreen';
 import SettingsScreen from '../src/screens/settings/SettingsScreen';
 import {nativeColors} from '../src/constants/colors';
