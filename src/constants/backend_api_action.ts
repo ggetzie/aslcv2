@@ -6,7 +6,6 @@ import {
   insertInContextIdToContextMap,
   insertInSpatialAreaIdToSpatialAreaMap,
   setUserProfileWithCredentials,
-  setIsSignedIn,
 } from '../../redux/reducerAction';
 import {StoredItems} from './StoredItem';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -31,7 +30,7 @@ export function loginUser(loginDetails: LoginDetails) {
       console.log('Response Data: ', response.data.token);
 
       dispatch(setUserProfileWithCredentials({id: null, ...loginDetails}));
-      dispatch(setIsSignedIn(true));
+      console.log('Login Successful!');
       return Promise.resolve();
     } catch (error) {
       console.warn(error);

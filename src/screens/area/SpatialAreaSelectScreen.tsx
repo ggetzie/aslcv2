@@ -27,7 +27,7 @@ import {UTMForm} from '../../components/UTMForm';
 import {LoadingComponent} from '../../components/general/LoadingComponent';
 import {getFilteredSpatialAreaIdsList} from '../../constants/backend_api_action';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
-import {AreaStackParamList} from '../../../navigation/MainTabNavigator';
+import {AreaStackParamList} from '../../../navigation';
 
 type Props = StackScreenProps<AreaStackParamList, 'SpatialAreaSelectScreen'>;
 

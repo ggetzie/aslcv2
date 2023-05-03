@@ -40,7 +40,7 @@ import ContextForm from '../../components/ContextForm';
 import {AslReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import ConfirmAlert from '../../components/ConfirmAlert';
-import {ContextStackParamList} from '../../../navigation/MainTabNavigator';
+import {ContextStackParamList} from '../../../navigation';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',

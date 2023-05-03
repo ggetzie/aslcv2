@@ -29,7 +29,7 @@ import {getSpatialArea} from '../../constants/backend_api';
 import {setSelectedContextId} from '../../../redux/reducerAction';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
-import {ContextStackParamList} from '../../../navigation/MainTabNavigator';
+import {ContextStackParamList} from '../../../navigation';
 
 enum ContextChoice {
   OPEN = 'OPEN',

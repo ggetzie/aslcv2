@@ -13,18 +13,19 @@ import {
   FindBagPhotosBottomNav,
   HomeBottomNav,
   SettingsBottomNav,
+  LoginBottomNav,
 } from '../src/constants/imageAssets';
-import SpatialAreaSelectScreen from '../src/screens/area/SpatialAreaSelectScreen';
-import FindsBagPhotosScreen from '../src/screens/finds_bag_photos/FindsBagPhotosScreen';
-import SelectFromListScreen from '../src/screens/area/SelectFromListScreen';
-import ContextListScreen from '../src/screens/context/ContextListScreen';
-import ContextDetailScreen from '../src/screens/context/ContextDetailScreen';
+
 import {StateDependentTabIcon} from '../src/components/StateDependentTabIcon';
 import {
   AppState,
   getAppState,
 } from '../src/constants/EnumsAndInterfaces/AppState';
 import {AslReducerState} from '../redux/reducer';
+import SettingsNavigator from './SettingsNavigator';
+import AreaNavigator from './AreaNavigator';
+import ContextNavigator from './ContextNavigator';
+import FindsNavigator from './FindsNavigator';
 
 function defaultNavOptions({navigation}) {
   return {
@@ -42,233 +43,68 @@ function defaultNavOptions({navigation}) {
   };
 }
 
-const SettingsStack = createStackNavigator();
-export type SettingsStackParamList = {
-  SettingsScreen: undefined;
-};
-
-const SettingsNavigator = () => {
-  return (
-    <SettingsStack.Navigator>
-      <SettingsStack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{headerShown: false}}
-      />
-    </SettingsStack.Navigator>
-  );
-};
-
-// const SettingsScreenStack = createStackNavigator(
-//   {
-//     SettingsScreen: SettingsScreen,
-//     // Other screens go here
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => (
-//         <Image
-//           style={[
-//             styles.bottomImage,
-//             {tintColor: focused ? nativeColors.iconBrown : nativeColors.grey},
-//           ]}
-//           resizeMode={'contain'}
-//           source={SettingsBottomNav}
-//         />
-//       ),
-//     },
-//     defaultNavigationOptions: defaultNavOptions,
-//   },
-// );
-
-const AreaStack = createStackNavigator();
-
-export type AreaStackParamList = {
-  SpatialAreaSelectScreen: undefined;
-  SelectFromListScreen: undefined;
-};
-
-const AreaNavigator = () => {
-  return (
-    <AreaStack.Navigator>
-      <AreaStack.Screen
-        name="SpatialAreaSelectScreen"
-        component={SpatialAreaSelectScreen}
-      />
-      <AreaStack.Screen
-        name="SelectFromListScreen"
-        component={SelectFromListScreen}
-      />
-    </AreaStack.Navigator>
-  );
-};
-
-// const AreaScreenStack = createStackNavigator(
-//   {
-//     SpatialAreaSelectScreen: SpatialAreaSelectScreen,
-//     SelectFromListScreen: SelectFromListScreen,
-//     // Other screens go here
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => (
-//         <Image
-//           style={[
-//             styles.bottomImage,
-//             {tintColor: focused ? nativeColors.iconBrown : nativeColors.grey},
-//           ]}
-//           resizeMode={'contain'}
-//           source={HomeBottomNav}
-//         />
-//       ),
-//       defaultNavigationOptions: defaultNavOptions,
-//     },
-//   },
-// );
-
-const ContextStack = createStackNavigator();
-
-export type ContextStackParamList = {
-  ContextListScreen: undefined;
-  ContextDetailScreen: undefined;
-};
-
-const ContextNavigator = () => {
-  return (
-    <ContextStack.Navigator>
-      <ContextStack.Screen
-        name="ContextListScreen"
-        component={ContextListScreen}
-      />
-      <ContextStack.Screen
-        name="ContextDetailScreen"
-        component={ContextDetailScreen}
-      />
-    </ContextStack.Navigator>
-  );
-};
-
-// const ContextScreenStack = createStackNavigator(
-//   {
-//     ContextListScreen: ContextListScreen,
-//     ContextDetailScreen: ContextDetailScreen,
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => {
-//         return (
-//           <StateDependentTabIcon
-//             focused={focused}
-//             icon={ContextBottomNav}
-//             showState={[AppState.SELECTING_CONTEXT, AppState.CONTEXT_SCREEN]}
-//           />
-//         );
-//       },
-//       tabBarOnPress: ({defaultHandler}) => {
-//         if (
-//           [AppState.SELECTING_CONTEXT, AppState.CONTEXT_SCREEN].includes(
-//             getAppState(),
-//           )
-//         ) {
-//           return defaultHandler();
-//         }
-//         return null;
-//       },
-//     },
-//     defaultNavigationOptions: defaultNavOptions,
-//   },
-// );
-const FindsStack = createStackNavigator();
-export type FindsStackParamList = {
-  FindsBagPhotosScreen: undefined;
-};
-
-const FindsNavigator = () => {
-  return (
-    <FindsStack.Navigator>
-      <FindsStack.Screen
-        name="FindsBagPhotosScreen"
-        component={FindsBagPhotosScreen}
-      />
-    </FindsStack.Navigator>
-  );
-};
-// const FindsBagPhotosScreenStack = createStackNavigator(
-//   {
-//     FindsBagPhotosScreen: FindsBagPhotosScreen,
-//     // Other screens go here
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => (
-//         <StateDependentTabIcon
-//           focused={focused}
-//           icon={FindBagPhotosBottomNav}
-//           showState={[AppState.CONTEXT_SCREEN]}
-//         />
-//       ),
-//       tabBarOnPress: ({defaultHandler}) => {
-//         if (getAppState() == AppState.CONTEXT_SCREEN) {
-//           return defaultHandler();
-//         }
-//         return null;
-//       },
-//     },
-//     defaultNavigationOptions: defaultNavOptions,
-//   },
-// );
-
-// export const LoginScreenNavigator = createStackNavigator(
-//   {
-//     LoginScreen: LoginScreen,
-//     SignupScreen: SignupScreen,
-//     DataLoadingComponent: DataLoadingComponent,
-//   },
-//   {
-//     headerMode: 'none',
-//   },
-// );
+const getTabIcon = ({route}) => ({
+  tabBarIcon: ({focused, color, size}) => {
+    let icon;
+    if (route.name === 'Login') {
+      icon = LoginBottomNav;
+    } else if (route.name === 'AreaNavigator') {
+      icon = HomeBottomNav;
+    } else if (route.name === 'ContextNavigator') {
+      icon = ContextBottomNav;
+    } else if (route.name === 'FindsNavigator') {
+      icon = FindBagPhotosBottomNav;
+    } else if (route.name === 'SettingsNavigator') {
+      icon = SettingsBottomNav;
+    }
+    return <Image source={icon} style={styles.bottomImage} />;
+  },
+  tabBarActiveTintColor: nativeColors.iconBrown,
+  tabBarInactiveTintColor: nativeColors.grey,
+  tabBarShowLabel: false,
+});
 
 const MainTab = createBottomTabNavigator();
 
-export type MainTabParamList = {
-  AreaNavigator: undefined;
-  ContextNavigator: undefined;
-  FindsNavigator: undefined;
-  SettingsNavigator: undefined;
-  Login: undefined;
-};
-
 export const MainTabNavigator = () => {
-  const isSignedIn = useSelector((state: AslReducerState) => state.isSignedIn);
+  const isSignedIn = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.userProfileWithCredentials !== null,
+  );
   const selectedArea = useSelector(
-    (state: AslReducerState) => state.selectedSpatialAreaId,
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
   );
   const selectedContext = useSelector(
-    (state: AslReducerState) => state.selectedContextId,
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
   );
+
   return (
-    <MainTab.Navigator
-      initialRouteName={isSignedIn ? 'AreaNavigator' : 'Login'}
-      tabBarOptions={{
-        showLabel: false,
-        style: styles.tabBar,
-      }}>
+    <MainTab.Navigator screenOptions={getTabIcon}>
       {isSignedIn ? (
         <>
-          <MainTab.Screen name="AreaNavigator" component={AreaNavigator} />
+          <MainTab.Screen
+            name="AreaNavigator"
+            component={AreaNavigator}
+            options={{headerShown: false}}
+          />
           {selectedArea !== null && (
             <MainTab.Screen
               name="ContextNavigator"
               component={ContextNavigator}
+              options={{headerShown: false}}
             />
           )}
           {selectedContext !== null && (
-            <MainTab.Screen name="FindsNavigator" component={FindsNavigator} />
+            <MainTab.Screen
+              name="FindsNavigator"
+              component={FindsNavigator}
+              options={{headerShown: false}}
+            />
           )}
           <MainTab.Screen
             name="SettingsNavigator"
             component={SettingsNavigator}
+            options={{headerShown: false}}
           />
         </>
       ) : (

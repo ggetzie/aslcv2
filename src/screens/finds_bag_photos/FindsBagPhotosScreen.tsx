@@ -43,7 +43,7 @@ import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import {getBagPhotoSource} from '../../constants/utilityFunctions';
 import CameraModal from '../../components/CameraModal';
-import {FindsStackParamList} from '../../../navigation/MainTabNavigator';
+import {FindsStackParamList} from '../../../navigation';
 
 type Props = StackScreenProps<FindsStackParamList, 'FindsBagPhotosScreen'>;
 
@@ -344,7 +344,9 @@ FindsBagPhotosScreen.navigationOptions = (screenProps) => ({
     <Button
       title="Back"
       onPress={() => {
-        screenProps.navigation.navigate('ContextNavigator', {screen: 'ContextListScreen'});
+        screenProps.navigation.navigate('ContextNavigator', {
+          screen: 'ContextListScreen',
+        });
       }}
     />
   ),

@@ -6,7 +6,6 @@ import createStore from './redux/store';
 import {getJwtFromAsyncStorage} from './src/constants/utilityFunctions';
 import {LoadingComponent} from './src/components/general/LoadingComponent';
 import {MainTabNavigator} from './navigation/MainTabNavigator';
-import {setIsSignedIn} from './redux/reducerAction';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,7 +15,6 @@ const App = () => {
     const token: string = await getJwtFromAsyncStorage();
     if (token != null && token.trim().length !== 0) {
       try {
-        setIsSignedIn(true);
         setLoading(false);
       } catch (error) {
         console.warn(error);

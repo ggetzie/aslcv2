@@ -6,7 +6,7 @@ import {useSelector} from 'react-redux';
 import {UserProfileWithCredentials} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {verticalScale} from '../../constants/nativeFunctions';
-import {SettingsStackParamList} from '../../../navigation/MainTabNavigator';
+import {SettingsStackParamList} from '../../../navigation';
 
 type Props = StackScreenProps<SettingsStackParamList, 'SettingsScreen'>;
 

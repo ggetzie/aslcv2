@@ -23,12 +23,6 @@ export function setCanSubmitContext(flag: boolean): ReducerAction<boolean> {
   };
 }
 
-export function setIsSignedIn(flag: boolean): ReducerAction<boolean> {
-  return {
-    type: SET_IS_SIGNED_IN,
-    payload: flag,
-  };
-}
 
 export function setUserProfileWithCredentials(
   userProfileWithCredentials: UserProfileWithCredentials,

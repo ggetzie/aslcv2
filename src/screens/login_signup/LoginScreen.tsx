@@ -3,8 +3,8 @@ import {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {LoginDetails} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
-import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
-import {MainTabParamList} from '../../../navigation/MainTabNavigator';
+import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
+import {MainTabParamList} from '../../../navigation';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {loginUser} from '../../constants/backend_api_action';
@@ -13,7 +13,7 @@ import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {mediaBaseURL} from '../../constants/Axios';
 
-type Props = BottomTabNavigationProp<MainTabParamList, 'Login'>;
+type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 
 const LoginScreen = (_: Props) => {
   const dispatch = useDispatch();
