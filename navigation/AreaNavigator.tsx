@@ -11,32 +11,10 @@ const AreaNavigator = () => {
       <AreaStack.Screen
         name="SpatialAreaSelectScreen"
         component={SpatialAreaSelectScreen}
+        options={{title: 'Select a Spatial Area'}}
       />
     </AreaStack.Navigator>
   );
 };
-
-// const AreaScreenStack = createStackNavigator(
-//   {
-//     SpatialAreaSelectScreen: SpatialAreaSelectScreen,
-//     SelectFromListScreen: SelectFromListScreen,
-//     // Other screens go here
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => (
-//         <Image
-//           style={[
-//             styles.bottomImage,
-//             {tintColor: focused ? nativeColors.iconBrown : nativeColors.grey},
-//           ]}
-//           resizeMode={'contain'}
-//           source={HomeBottomNav}
-//         />
-//       ),
-//       defaultNavigationOptions: defaultNavOptions,
-//     },
-//   },
-// );
 
 export default AreaNavigator;

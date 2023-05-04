@@ -4,4 +4,5 @@ export const nativeColors = {
   iconBrown: '#B97117',
   lightBrown: '#ddb676',
   transparent: 'transparent',
+  highlight: '#11337844',
 };

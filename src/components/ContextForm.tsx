@@ -107,13 +107,15 @@ const ContextForm = ({
         />
       </View>
       {canSubmitGlobal && (
-        <ButtonComponent
-          buttonStyle={styles.submitButton}
-          onPress={() => onSave()}
-          textStyle={{padding: '4%'}}
-          text={'Update'}
-          rounded={true}
-        />
+        <RowView>
+          <ButtonComponent
+            buttonStyle={styles.submitButton}
+            onPress={() => onSave()}
+            textStyle={{padding: '4%'}}
+            text={'Update'}
+            rounded={true}
+          />
+        </RowView>
       )}
     </View>
   );

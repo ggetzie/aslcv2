@@ -15,7 +15,7 @@ const ConfirmAlert = (
         onPress: () => null,
         style: 'cancel',
       },
-      {text: 'Yes', onPress: onConfirm},
+      {text: 'Yes', onPress: onConfirm, style: 'destructive'},
     ],
     {cancelable: false},
   );

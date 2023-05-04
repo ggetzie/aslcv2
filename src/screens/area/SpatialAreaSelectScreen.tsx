@@ -127,15 +127,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
 
   return (
     <ScrollView style={styles.background}>
-      <Text
-        style={{
-          fontSize: verticalScale(20),
-          fontWeight: 'bold',
-          paddingHorizontal: '5%',
-          paddingTop: '5%',
-        }}>
-        Select a spatial Area
-      </Text>
       <UTMForm
         form={form}
         setForm={setForm}

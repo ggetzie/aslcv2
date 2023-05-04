@@ -39,8 +39,8 @@ import CameraModal from '../../components/CameraModal';
 import ContextForm from '../../components/ContextForm';
 import {AslReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
-import ConfirmAlert from '../../components/ConfirmAlert';
 import {ContextStackParamList} from '../../../navigation';
+import HeaderBack from '../../components/HeaderBack';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -56,7 +56,7 @@ const imagePickerOptions: ImagePickerOptions = {
 
 type Props = StackScreenProps<ContextStackParamList, 'ContextDetailScreen'>;
 
-const ContextDetailScreen = (props: Props) => {
+const ContextDetailScreen = ({navigation}: Props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
@@ -66,12 +66,17 @@ const ContextDetailScreen = (props: Props) => {
     ({reducer}: {reducer: AslReducerState}) => reducer.contextIdToContextMap,
   );
 
+  const canSubmit = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
+  );
+
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
   const [spatialContext, setSpatialContext] = useState<SpatialContext>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [types, setTypes] = useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
+  const tabNav = navigation.getParent();
 
   async function fetchData() {
     setLoading(true);
@@ -82,11 +87,29 @@ const ContextDetailScreen = (props: Props) => {
 
   useEffect(() => {
     if (selectedContextId == null) {
-      props.navigation.navigate('ContextListScreen');
+      navigation.navigate('ContextListScreen');
     } else {
       fetchData();
     }
   }, [selectedContextId]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: getContextAreaStringForSelectedContext(),
+      headerLeft: () => <HeaderBack navigation={navigation} />,
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    // @ts-ignore
+    const unsubscribe = tabNav.addListener('tabPress', (e) => {
+      if (canSubmit) {
+        // @ts-ignore
+        e.preventDefault();
+      }
+    });
+    return unsubscribe;
+  }, [tabNav, canSubmit]);
 
   useEffect(() => {
     setSpatialContext(contextIdToContextMap.get(selectedContextId));
@@ -296,31 +319,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     margin: 'auto',
     marginHorizontal: '5%',
-  },
-});
-
-ContextDetailScreen.navigationOptions = (screenProps) => ({
-  title: 'Context: ' + getContextAreaStringForSelectedContext(),
-  headerLeft: () => {
-    const canSubmit: boolean = useSelector(
-      ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
-    );
-    return (
-      <Button
-        title="Back"
-        onPress={() => {
-          if (canSubmit) {
-            ConfirmAlert(
-              'Save Edits',
-              'Are you sure you want to continue without saving?',
-              () => screenProps.navigation.goBack(),
-            );
-          } else {
-            screenProps.navigation.goBack();
-          }
-        }}
-      />
-    );
   },
 });
 

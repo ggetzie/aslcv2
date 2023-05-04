@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSelector} from 'react-redux';
@@ -43,7 +43,7 @@ function defaultNavOptions({navigation}) {
   };
 }
 
-const getTabIcon = ({route}) => ({
+const getTabOptions = ({route}) => ({
   tabBarIcon: ({focused, color, size}) => {
     let icon;
     if (route.name === 'Login') {
@@ -57,7 +57,12 @@ const getTabIcon = ({route}) => ({
     } else if (route.name === 'SettingsNavigator') {
       icon = SettingsBottomNav;
     }
-    return <Image source={icon} style={styles.bottomImage} />;
+
+    return (
+      <View style={[styles.tabIconContainer, focused ? styles.focused : {}]}>
+        <Image source={icon} resizeMode="contain" style={styles.tabIcon} />
+      </View>
+    );
   },
   tabBarActiveTintColor: nativeColors.iconBrown,
   tabBarInactiveTintColor: nativeColors.grey,
@@ -78,15 +83,21 @@ export const MainTabNavigator = () => {
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
   );
 
+  const canSubmitContext = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
+  );
+
   return (
-    <MainTab.Navigator screenOptions={getTabIcon}>
+    <MainTab.Navigator screenOptions={getTabOptions}>
       {isSignedIn ? (
         <>
-          <MainTab.Screen
-            name="AreaNavigator"
-            component={AreaNavigator}
-            options={{headerShown: false}}
-          />
+          {!canSubmitContext && (
+            <MainTab.Screen
+              name="AreaNavigator"
+              component={AreaNavigator}
+              options={{headerShown: false, tabBarHideOnKeyboard: true}}
+            />
+          )}
           {selectedArea !== null && (
             <MainTab.Screen
               name="ContextNavigator"
@@ -94,18 +105,20 @@ export const MainTabNavigator = () => {
               options={{headerShown: false}}
             />
           )}
-          {selectedContext !== null && (
+          {selectedContext !== null && !canSubmitContext && (
             <MainTab.Screen
               name="FindsNavigator"
               component={FindsNavigator}
               options={{headerShown: false}}
             />
           )}
-          <MainTab.Screen
-            name="SettingsNavigator"
-            component={SettingsNavigator}
-            options={{headerShown: false}}
-          />
+          {!canSubmitContext && (
+            <MainTab.Screen
+              name="SettingsNavigator"
+              component={SettingsNavigator}
+              options={{headerShown: false}}
+            />
+          )}
         </>
       ) : (
         <MainTab.Screen
@@ -117,36 +130,23 @@ export const MainTabNavigator = () => {
     </MainTab.Navigator>
   );
 };
-// export const MainTabNavigator = createBottomTabNavigator(
-//   {
-//     AreaScreenStack: AreaScreenStack,
-//     ContextScreenStack: ContextScreenStack,
-//     FindsBagPhotosScreen: FindsBagPhotosScreenStack,
-//     SettingsScreenStack: SettingsScreenStack,
-//   },
-//   {
-//     initialRouteName: 'AreaScreenStack',
-//     tabBarOptions: {
-//       showLabel: false,
-//       style: {
-//         backgroundColor: 'white',
-//         elevation: 0,
-//         shadowOpacity: 0,
-//         borderTopWidth: 0,
-//       },
-//     },
-//   },
-// );
 
 const styles = StyleSheet.create({
-  bottomImage: {
-    height: verticalScale(40),
-    width: verticalScale(40),
+  tabIcon: {
+    height: verticalScale(35),
+    width: verticalScale(35),
+  },
+  tabIconContainer: {
+    padding: 5,
+    borderRadius: 5,
   },
   tabBar: {
     backgroundColor: 'white',
     elevation: 0,
     shadowOpacity: 0,
     borderTopWidth: 0,
+  },
+  focused: {
+    backgroundColor: nativeColors.highlight,
   },
 });

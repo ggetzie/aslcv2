@@ -40,7 +40,7 @@ enum ContextChoice {
 
 type Props = StackScreenProps<ContextStackParamList, 'ContextListScreen'>;
 
-const ContextListScreen = (props: Props) => {
+const ContextListScreen = ({navigation}: Props) => {
   const dispatch = useDispatch();
 
   const [contextIds, setContextIds] = useState<string[]>([]);
@@ -76,6 +76,11 @@ const ContextListScreen = (props: Props) => {
     }
     updateIds();
   }, [selectedAreaId]);
+  useEffect(() => {
+    navigation.setOptions({
+      title: 'Area: ' + getAreaStringForSelectedArea(),
+    });
+  }, [navigation]);
 
   useEffect(() => {
     setLoading(true);
@@ -163,7 +168,7 @@ const ContextListScreen = (props: Props) => {
           }
           let contextId: string = await createContext(selectedArea)(dispatch);
           dispatch(setSelectedContextId(contextId));
-          props.navigation.navigate('ContextDetailScreen');
+          navigation.navigate('ContextDetailScreen');
         }}
         textStyle={{padding: '4%'}}
         text={'Create Context'}
@@ -215,7 +220,7 @@ const ContextListScreen = (props: Props) => {
               <TouchableOpacity
                 onPress={() => {
                   dispatch(setSelectedContextId(item));
-                  props.navigation.navigate('ContextDetailScreen');
+                  navigation.navigate('ContextDetailScreen');
                 }}>
                 <View>
                   <RowView>
@@ -256,22 +261,6 @@ const ContextListScreen = (props: Props) => {
     </ScrollView>
   );
 };
-
-ContextListScreen.navigationOptions = (screenProps) => ({
-  title: 'Area: ' + getAreaStringForSelectedArea(),
-  headerLeft: () => {
-    const dispatch = useDispatch();
-    return (
-      <Button
-        title="Back"
-        onPress={() => {
-          dispatch(setSelectedContextId(null));
-          screenProps.navigation.navigate('AreaScreenStack');
-        }}
-      />
-    );
-  },
-});
 
 const styles = StyleSheet.create({
   background: {
