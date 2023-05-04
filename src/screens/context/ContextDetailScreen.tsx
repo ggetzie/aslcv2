@@ -137,6 +137,11 @@ const ContextDetailScreen = ({navigation}: Props) => {
     dispatch(setCanSubmitContext(newCanSubmit));
   }, [spatialContext, contextIdToContextMap]);
 
+  const resetForm = () => {
+    const oldContext = contextIdToContextMap.get(selectedContextId);
+    setSpatialContext(oldContext);
+  };
+
   async function updateData() {
     setLoading(true);
     try {
@@ -250,6 +255,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
         onDescriptionChange={(text) =>
           setSpatialContext({...spatialContext, description: text})
         }
+        onReset={() => resetForm()}
         onSave={() => updateData()}
       />
       <Divider />

@@ -25,6 +25,7 @@ const ContextForm = ({
   description,
   onDescriptionChange,
   contextTypes,
+  onReset,
   onSave,
 }: {
   openingDate: string;
@@ -36,6 +37,7 @@ const ContextForm = ({
   description: string;
   onDescriptionChange: (description: string) => void;
   contextTypes: string[];
+  onReset: () => void;
   onSave: () => void;
 }) => {
   const canSubmitGlobal: boolean = useSelector(
@@ -107,15 +109,27 @@ const ContextForm = ({
         />
       </View>
       {canSubmitGlobal && (
-        <RowView>
-          <ButtonComponent
-            buttonStyle={styles.submitButton}
-            onPress={() => onSave()}
-            textStyle={{padding: '4%'}}
-            text={'Update'}
-            rounded={true}
-          />
-        </RowView>
+        <>
+          <Text style={styles.warning}>
+            Context data has changed. Submit or reset form to leave this screen.
+          </Text>
+          <RowView>
+            <ButtonComponent
+              buttonStyle={styles.submitButton}
+              onPress={() => onReset()}
+              textStyle={{padding: '4%'}}
+              text={'Reset'}
+              rounded={true}
+            />
+            <ButtonComponent
+              buttonStyle={styles.submitButton}
+              onPress={() => onSave()}
+              textStyle={{padding: '4%'}}
+              text={'Update'}
+              rounded={true}
+            />
+          </RowView>
+        </>
       )}
     </View>
   );
@@ -155,6 +169,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     marginTop: 20,
+  },
+  warning: {
+    color: 'red',
+    fontSize: verticalScale(10),
+    textAlign: 'center',
+    width: '100%',
   },
 });
 
