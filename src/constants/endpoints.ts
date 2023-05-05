@@ -30,6 +30,7 @@ const API_ENDPOINTS = {
   Context_BagPhotoUpload: (contextID: string) =>
     `api/context/${contextID}/bagphoto/`,
   Context_ListTypes: 'api/context/types/',
+  Login: 'auth-token/',
 };
 
 function join_url(parts: string[]): string {

@@ -1,12 +1,13 @@
-import * as React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-community/async-storage';
+import axios from 'axios';
+
 import {verticalScale} from '../src/constants/nativeFunctions';
 
 import LoginScreen from '../src/screens/login_signup/LoginScreen';
-import SettingsScreen from '../src/screens/settings/SettingsScreen';
 import {nativeColors} from '../src/constants/colors';
 import {
   ContextBottomNav,
@@ -16,32 +17,15 @@ import {
   LoginBottomNav,
 } from '../src/constants/imageAssets';
 
-import {StateDependentTabIcon} from '../src/components/StateDependentTabIcon';
-import {
-  AppState,
-  getAppState,
-} from '../src/constants/EnumsAndInterfaces/AppState';
 import {AslReducerState} from '../redux/reducer';
 import SettingsNavigator from './SettingsNavigator';
 import AreaNavigator from './AreaNavigator';
 import ContextNavigator from './ContextNavigator';
 import FindsNavigator from './FindsNavigator';
-
-function defaultNavOptions({navigation}) {
-  return {
-    headerStyle: {
-      margin: 'auto',
-      elevation: 0,
-      shadowOpacity: 0,
-      borderBottomWidth: 0,
-    },
-    headerTitleStyle: {
-      fontWeight: 'bold',
-      color: 'black',
-      fontSize: verticalScale(18),
-    },
-  };
-}
+import {LoadingComponent} from '../src/components/general/LoadingComponent';
+import {SET_USER_PROFILE} from '../redux/reducerAction';
+import { LoginDetails } from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
+import { API_ENDPOINTS } from '../src/constants/endpoints';
 
 const getTabOptions = ({route}) => ({
   tabBarIcon: ({focused, color, size}) => {
@@ -72,9 +56,9 @@ const getTabOptions = ({route}) => ({
 const MainTab = createBottomTabNavigator();
 
 export const MainTabNavigator = () => {
+  const dispatch = useDispatch();
   const isSignedIn = useSelector(
-    ({reducer}: {reducer: AslReducerState}) =>
-      reducer.userProfileWithCredentials !== null,
+    ({reducer}: {reducer: AslReducerState}) => reducer.userProfile !== null,
   );
   const selectedArea = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
@@ -82,10 +66,58 @@ export const MainTabNavigator = () => {
   const selectedContext = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
   );
-
   const canSubmitContext = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
+  const [loading, setLoading] = useState(false);
+
+  if (loading) {
+    return <LoadingComponent />;
+  }
+
+  // check if we have saved user profile in async storage
+  useEffect(() => {
+    const bootstrapAsync = async () => {
+      let authToken;
+      let username;
+      let userId;
+      try {
+        authToken = await AsyncStorage.getItem('authToken');
+        username = await AsyncStorage.getItem('username');
+        if (authToken !== null && username !== null && userId !== null) {
+          dispatch({
+            type: SET_USER_PROFILE,
+            payload: {authToken: authToken, username: username},
+          });
+        } else {
+          dispatch({type: SET_USER_PROFILE, payload: null});
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    setLoading(true);
+    bootstrapAsync().then(() => setLoading(false));
+  }, []);
+
+  const authContext = React.useMemo(() => ({
+    signIn: async (loginDetails: LoginDetails) => {
+      try {
+        setLoading(true);
+        let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
+        const userProfile = {authToken: response.data.token, username: loginDetails.username};
+        await AsyncStorage.setItem('authToken', userProfile.authToken);
+        await AsyncStorage.setItem('username', userProfile.username);
+        dispatch({type: SET_USER_PROFILE, payload: userProfile});
+        return Promise.resolve();
+      } catch (error) {
+        console.log(error);
+        return Promise.reject("Invalid Credentials!");
+      }
+  }
+  
+}), []
+  )
 
   return (
     <MainTab.Navigator screenOptions={getTabOptions}>

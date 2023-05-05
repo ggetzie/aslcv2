@@ -15,6 +15,7 @@ export const INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP =
   'INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP';
 export const INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP =
   'INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP';
+export const SET_USER_PROFILE: string = 'SET_USER_PROFILE';
 
 export function setCanSubmitContext(flag: boolean): ReducerAction<boolean> {
   return {
@@ -22,7 +23,6 @@ export function setCanSubmitContext(flag: boolean): ReducerAction<boolean> {
     payload: flag,
   };
 }
-
 
 export function setUserProfileWithCredentials(
   userProfileWithCredentials: UserProfileWithCredentials,

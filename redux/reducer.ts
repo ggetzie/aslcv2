@@ -1,4 +1,4 @@
-import {UserProfileWithCredentials} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
+import {UserProfile} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
 import {
   INSERT_IN_CONTEXT_ID_TO_CONTEXT_MAP,
   INSERT_IN_SPATIAL_AREA_ID_TO_SPATIAL_AREA_MAP,
@@ -7,6 +7,7 @@ import {
   SET_SELECTED_CONTEXT_ID,
   SET_SELECTED_SPATIAL_AREA_ID,
   SET_USER_PROFILE_WITH_CREDENTIALS,
+  SET_USER_PROFILE,
 } from './reducerAction';
 import {SpatialArea} from '../src/constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {SpatialContext} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
@@ -22,7 +23,7 @@ export interface AslReducerState {
   selectedContextId: string;
   spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea>;
   contextIdToContextMap: Map<string, SpatialContext>;
-  userProfileWithCredentials: UserProfileWithCredentials;
+  userProfile: UserProfile | null;
 }
 
 const initialState: AslReducerState = {
@@ -31,7 +32,7 @@ const initialState: AslReducerState = {
   selectedContextId: null,
   spatialAreaIdToSpatialAreaMap: new Map(),
   contextIdToContextMap: new Map(),
-  userProfileWithCredentials: null,
+  userProfile: null,
 };
 
 export default function reducer(
@@ -77,6 +78,11 @@ export default function reducer(
       return {
         ...state,
         contextIdToContextMap: contextIdToContextMap,
+      };
+    case SET_USER_PROFILE:
+      return {
+        ...state,
+        userProfile: action.payload,
       };
     case RESET_REDUCER_DATA:
       return {
