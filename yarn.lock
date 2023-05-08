@@ -939,6 +939,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/progress-bar-android/-/progress-bar-android-1.0.5.tgz#77c03389312ecaf73be55e21d4b7ff6fa4b2b8db"
   integrity sha512-/IYLHdoqeDqqGQMh9/qYgIReISBIu09lLNbrn70r98+IqQe9WFLuhAr/sdrDKxCUZDQyLqUc0p3rJ50VV0tR3g==
 
+"@react-native-picker/picker@^2.4.10":
+  version "2.4.10"
+  resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-2.4.10.tgz#339c7bfc6e1d9a5e934122eaaa7767dc1c5fb725"
+  integrity sha512-EvAlHmPEPOwvbP6Pjg/gtDV3XJzIjIxr10fXFNlX5r9HeHw582G1Zt2o8FLyB718nOttgj8HYUTGxvhu4N65sQ==
+
 "@react-navigation/bottom-tabs@^6.5.7":
   version "6.5.7"
   resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-6.5.7.tgz#08470c96e0d11481422214bb98f0ff034038856c"

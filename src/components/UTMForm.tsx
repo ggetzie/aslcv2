@@ -1,6 +1,7 @@
 import React from 'react';
 import {useState} from 'react';
-import {Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 import {ButtonComponent} from './general/ButtonComponent';
 import {
   SpatialArea,

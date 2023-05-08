@@ -18,9 +18,9 @@ export async function getJwtFromAsyncStorage(): Promise<string> {
 }
 
 export async function getHeaders(lastModifiedDate?: number) {
-  const jwt = await getJwtFromAsyncStorage();
+  const token = await AsyncStorage.getItem('authToken');
   return {
-    Authorization: jwt,
+    Authorization: `Token ${token}`,
     'If-Modified-Since': moment(
       lastModifiedDate == null ? 0 : lastModifiedDate + 1000,
     )

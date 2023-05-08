@@ -14,29 +14,5 @@ const FindsNavigator = () => {
     </FindsStack.Navigator>
   );
 };
-// const FindsBagPhotosScreenStack = createStackNavigator(
-//   {
-//     FindsBagPhotosScreen: FindsBagPhotosScreen,
-//     // Other screens go here
-//   },
-//   {
-//     navigationOptions: {
-//       tabBarIcon: ({focused}) => (
-//         <StateDependentTabIcon
-//           focused={focused}
-//           icon={FindBagPhotosBottomNav}
-//           showState={[AppState.CONTEXT_SCREEN]}
-//         />
-//       ),
-//       tabBarOnPress: ({defaultHandler}) => {
-//         if (getAppState() == AppState.CONTEXT_SCREEN) {
-//           return defaultHandler();
-//         }
-//         return null;
-//       },
-//     },
-//     defaultNavigationOptions: defaultNavOptions,
-//   },
-// );
 
 export default FindsNavigator;

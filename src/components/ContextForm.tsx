@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Picker, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Picker} from '@react-native-picker/picker';
+
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import {useSelector} from 'react-redux';
 import {verticalScale} from '../constants/nativeFunctions';

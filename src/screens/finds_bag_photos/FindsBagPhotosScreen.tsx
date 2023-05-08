@@ -5,16 +5,16 @@ import {
   Alert,
   Button,
   Image,
-  Picker,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   ScrollView,
 } from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 import {useDispatch, useSelector} from 'react-redux';
 import {StackScreenProps} from '@react-navigation/stack';
-import {uploadBagPhoto, uploadContextPhoto} from '../../constants/backend_api';
+import {uploadBagPhoto} from '../../constants/backend_api';
 import {getContext} from '../../constants/backend_api_action';
 import {
   SpatialContext,
