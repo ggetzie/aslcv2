@@ -1,19 +1,22 @@
-import * as React from 'react';
+import React, {useContext} from 'react';
 import {Text, View} from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
-import {LogoutButton} from '../../components/LogoutButton';
 import {useSelector} from 'react-redux';
-import {UserProfileWithCredentials} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
+import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {SettingsStackParamList} from '../../../navigation';
+import {ButtonComponent} from '../../components/general/ButtonComponent';
+import {AuthContext} from '../../../navigation/MainTabNavigator';
+import {AslReducerState} from '../../../redux/reducer';
 
 type Props = StackScreenProps<SettingsStackParamList, 'SettingsScreen'>;
 
 const SettingsScreen = (props: Props) => {
-  const userProfile: UserProfileWithCredentials = useSelector(
-    ({reducer}: any) => reducer.userProfileWithCredentials,
+  const userProfile: UserProfile = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.userProfile,
   );
+  const {signOut} = useContext(AuthContext);
 
   return (
     <View>
@@ -27,15 +30,14 @@ const SettingsScreen = (props: Props) => {
           </Text>
         )}
       </RowView>
-
-      <LogoutButton navigation={props.navigation} />
+      <ButtonComponent
+        onPress={signOut}
+        text={'Logout'}
+        rounded={true}
+        buttonStyle={{width: '30%'}}
+      />
     </View>
   );
 };
-
-SettingsScreen.navigationOptions = (screenProps) => ({
-  title: 'Settings',
-  headerLeft: () => null,
-});
 
 export default SettingsScreen;

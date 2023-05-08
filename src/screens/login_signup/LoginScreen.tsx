@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {LoginDetails} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
@@ -12,40 +11,18 @@ import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {mediaBaseURL} from '../../constants/Axios';
+import {AuthContext} from '../../../navigation/MainTabNavigator';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 
 const LoginScreen = (_: Props) => {
   const dispatch = useDispatch();
-  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const host = mediaBaseURL.replace('https://', '');
 
-  async function validateInputAndLogin() {
-    if (usernameOrEmail.trim().length === 0) {
-      alert('Username cannot be empty');
-      return;
-    } else if (password.trim().length === 0) {
-      alert('Password cannot be empty');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      let loginDetails: LoginDetails = {
-        email: undefined,
-        username: usernameOrEmail,
-        password: password,
-      };
-
-      dispatch(loginUser(loginDetails));
-      setLoading(false);
-    } catch (e) {
-      setLoading(false);
-      alert(e);
-    }
-  }
+  const {signIn} = useContext(AuthContext);
 
   return (
     <View>
@@ -54,9 +31,9 @@ const LoginScreen = (_: Props) => {
       <View style={styles.container}>
         <Text style={styles.headerText}>Login</Text>
         <TextInput
-          value={usernameOrEmail}
+          value={username}
           style={styles.textInputContainer}
-          onChangeText={(text) => setUsernameOrEmail(text)}
+          onChangeText={(text) => setUsername(text)}
           autoCapitalize={'none'}
           autoCorrect={false}
           placeholder="Username"
@@ -73,10 +50,11 @@ const LoginScreen = (_: Props) => {
         />
       </View>
       <ButtonComponent
-        onPress={validateInputAndLogin}
+        onPress={() => signIn({username, password})}
         text={'Log In'}
         rounded={true}
         buttonStyle={{width: '50%'}}
+        disabled={username === '' || password === ''}
       />
       <View style={styles.infoContainer}>
         <Text style={styles.info}>Host: {host}</Text>

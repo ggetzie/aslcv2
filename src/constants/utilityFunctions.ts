@@ -13,7 +13,8 @@ import store from '../../redux/store';
 import {Source} from './EnumsAndInterfaces/ContextInterfaces';
 
 export async function getJwtFromAsyncStorage(): Promise<string> {
-  return await AsyncStorage.getItem(StoredItems.JWT_TOKEN);
+  // return await AsyncStorage.getItem(StoredItems.JWT_TOKEN);
+  return await AsyncStorage.getItem('authToken');
 }
 
 export async function getHeaders(lastModifiedDate?: number) {

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, createContext} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSelector, useDispatch} from 'react-redux';
@@ -24,8 +24,10 @@ import ContextNavigator from './ContextNavigator';
 import FindsNavigator from './FindsNavigator';
 import {LoadingComponent} from '../src/components/general/LoadingComponent';
 import {SET_USER_PROFILE} from '../redux/reducerAction';
-import { LoginDetails } from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
-import { API_ENDPOINTS } from '../src/constants/endpoints';
+import {LoginDetails} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
+import {API_ENDPOINTS} from '../src/constants/endpoints';
+
+export const AuthContext = createContext(null);
 
 const getTabOptions = ({route}) => ({
   tabBarIcon: ({focused, color, size}) => {
@@ -80,11 +82,13 @@ export const MainTabNavigator = () => {
     const bootstrapAsync = async () => {
       let authToken;
       let username;
-      let userId;
       try {
+        console.log('checking for user profile');
         authToken = await AsyncStorage.getItem('authToken');
         username = await AsyncStorage.getItem('username');
-        if (authToken !== null && username !== null && userId !== null) {
+        console.log('authToken: ', authToken);
+        console.log('username: ', username);
+        if (authToken !== null && username !== null) {
           dispatch({
             type: SET_USER_PROFILE,
             payload: {authToken: authToken, username: username},
@@ -96,70 +100,84 @@ export const MainTabNavigator = () => {
         console.log(e);
       }
     };
-    setLoading(true);
-    bootstrapAsync().then(() => setLoading(false));
+    console.log('calling bootstrapAsync');
+    bootstrapAsync();
   }, []);
 
-  const authContext = React.useMemo(() => ({
-    signIn: async (loginDetails: LoginDetails) => {
-      try {
-        setLoading(true);
-        let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
-        const userProfile = {authToken: response.data.token, username: loginDetails.username};
-        await AsyncStorage.setItem('authToken', userProfile.authToken);
-        await AsyncStorage.setItem('username', userProfile.username);
-        dispatch({type: SET_USER_PROFILE, payload: userProfile});
-        return Promise.resolve();
-      } catch (error) {
-        console.log(error);
-        return Promise.reject("Invalid Credentials!");
-      }
-  }
-  
-}), []
-  )
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async (loginDetails: LoginDetails) => {
+        try {
+          setLoading(true);
+          console.log(
+            'signing in',
+            loginDetails.username,
+            loginDetails.password,
+          );
+          let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
+          const userProfile = {
+            authToken: response.data.token,
+            username: loginDetails.username,
+          };
+          await AsyncStorage.setItem('authToken', userProfile.authToken);
+          await AsyncStorage.setItem('username', userProfile.username);
+          dispatch({type: SET_USER_PROFILE, payload: userProfile});
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      signOut: async () => {
+        await AsyncStorage.removeItem('authToken');
+        await AsyncStorage.removeItem('username');
+        dispatch({type: SET_USER_PROFILE, payload: null});
+      },
+    }),
+    [],
+  );
 
   return (
-    <MainTab.Navigator screenOptions={getTabOptions}>
-      {isSignedIn ? (
-        <>
-          {!canSubmitContext && (
-            <MainTab.Screen
-              name="AreaNavigator"
-              component={AreaNavigator}
-              options={{headerShown: false, tabBarHideOnKeyboard: true}}
-            />
-          )}
-          {selectedArea !== null && (
-            <MainTab.Screen
-              name="ContextNavigator"
-              component={ContextNavigator}
-              options={{headerShown: false}}
-            />
-          )}
-          {selectedContext !== null && !canSubmitContext && (
-            <MainTab.Screen
-              name="FindsNavigator"
-              component={FindsNavigator}
-              options={{headerShown: false}}
-            />
-          )}
-          {!canSubmitContext && (
-            <MainTab.Screen
-              name="SettingsNavigator"
-              component={SettingsNavigator}
-              options={{headerShown: false}}
-            />
-          )}
-        </>
-      ) : (
-        <MainTab.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
-      )}
-    </MainTab.Navigator>
+    <AuthContext.Provider value={authContext}>
+      <MainTab.Navigator screenOptions={getTabOptions}>
+        {isSignedIn ? (
+          <>
+            {!canSubmitContext && (
+              <MainTab.Screen
+                name="AreaNavigator"
+                component={AreaNavigator}
+                options={{headerShown: false, tabBarHideOnKeyboard: true}}
+              />
+            )}
+            {selectedArea !== null && (
+              <MainTab.Screen
+                name="ContextNavigator"
+                component={ContextNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+            {selectedContext !== null && !canSubmitContext && (
+              <MainTab.Screen
+                name="FindsNavigator"
+                component={FindsNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+            {!canSubmitContext && (
+              <MainTab.Screen
+                name="SettingsNavigator"
+                component={SettingsNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+          </>
+        ) : (
+          <MainTab.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{headerShown: false}}
+          />
+        )}
+      </MainTab.Navigator>
+    </AuthContext.Provider>
   );
 };
 
