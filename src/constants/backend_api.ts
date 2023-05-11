@@ -7,7 +7,7 @@ import {
 } from './EnumsAndInterfaces/SpatialAreaInterfaces';
 import {getFilteredSpatialAreasQuery, getHeaders} from './utilityFunctions';
 import {SpatialContext} from './EnumsAndInterfaces/ContextInterfaces';
-import {API_ENDPOINTS, join_url} from './endpoints';
+import {API_ENDPOINTS} from './endpoints';
 
 export async function getFilteredSpatialAreasList(
   spatialAreaQuery: SpatialAreaQuery,
@@ -31,7 +31,6 @@ export async function getSpatialArea(
   spatialAreaId: string,
 ): Promise<SpatialArea> {
   const url = API_ENDPOINTS.Area_DetailById(spatialAreaId);
-  // const API = `api/area/${spatialAreaId}/`;
   try {
     const headers = await getHeaders();
     const result = await axios.get(url, {

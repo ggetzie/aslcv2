@@ -4,7 +4,11 @@ export type SettingsStackParamList = {
 
 export type AreaStackParamList = {
   SpatialAreaSelectScreen: undefined;
-  SelectFromListScreen: undefined;
+  SelectFromListScreen: {
+    list: number[];
+    selectedIndex: number;
+    onPress: (selection: number) => void;
+  };
 };
 
 export type ContextStackParamList = {

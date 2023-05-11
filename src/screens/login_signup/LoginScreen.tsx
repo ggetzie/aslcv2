@@ -16,18 +16,14 @@ import {AuthContext} from '../../../navigation/MainTabNavigator';
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 
 const LoginScreen = (_: Props) => {
-  const dispatch = useDispatch();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const host = mediaBaseURL.replace('https://', '');
 
   const {signIn} = useContext(AuthContext);
 
   return (
     <View>
-      <LoadingModalComponent showLoading={loading} />
-
       <View style={styles.container}>
         <Text style={styles.headerText}>Login</Text>
         <TextInput

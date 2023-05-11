@@ -1,15 +1,14 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
-  Picker,
   Text,
   TouchableOpacity,
   View,
   StyleSheet,
   FlatList,
   ScrollView,
-  Button,
 } from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 import {StackScreenProps} from '@react-navigation/stack';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {RowView} from '../../components/general/RowView';
