@@ -26,8 +26,7 @@ import {LoadingComponent} from '../src/components/general/LoadingComponent';
 import {SET_USER_PROFILE} from '../redux/reducerAction';
 import {LoginDetails} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
 import {API_ENDPOINTS} from '../src/constants/endpoints';
-
-export const AuthContext = createContext(null);
+import {AuthContext} from '.';
 
 const getTabOptions = ({route}) => ({
   tabBarIcon: ({focused, color, size}) => {
@@ -83,11 +82,8 @@ export const MainTabNavigator = () => {
       let authToken;
       let username;
       try {
-        console.log('checking for user profile');
         authToken = await AsyncStorage.getItem('authToken');
         username = await AsyncStorage.getItem('username');
-        console.log('authToken: ', authToken);
-        console.log('username: ', username);
         if (authToken !== null && username !== null) {
           dispatch({
             type: SET_USER_PROFILE,
@@ -100,7 +96,6 @@ export const MainTabNavigator = () => {
         console.log(e);
       }
     };
-    console.log('calling bootstrapAsync');
     bootstrapAsync();
   }, []);
 

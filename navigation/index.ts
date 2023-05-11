@@ -1,3 +1,5 @@
+import {createContext} from 'react';
+
 export type SettingsStackParamList = {
   SettingsScreen: undefined;
 };
@@ -27,3 +29,5 @@ export type MainTabParamList = {
   SettingsNavigator: undefined;
   Login: undefined;
 };
+
+export const AuthContext = createContext(null);

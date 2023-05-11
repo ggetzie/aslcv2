@@ -102,10 +102,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
   const selectedAreaId: string = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
   );
-  const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(
-    ({reducer}: {reducer: AslReducerState}) =>
-      reducer.spatialAreaIdToSpatialAreaMap,
-  );
   const [loading, setLoading] = useState<boolean>(false);
 
   async function updateSpatialAreas() {
@@ -133,7 +129,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
       setSpatialAreaList(newSpatialAreas);
       setEastingList(getEastings(newSpatialAreas));
       setNorthingList(getNorthings(newSpatialAreas));
-      console.log(newSpatialAreas);
       setLoading(false);
     });
   }, []);

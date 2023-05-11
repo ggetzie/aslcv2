@@ -11,7 +11,7 @@ import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {mediaBaseURL} from '../../constants/Axios';
-import {AuthContext} from '../../../navigation/MainTabNavigator';
+import {AuthContext} from '../../../navigation/';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 

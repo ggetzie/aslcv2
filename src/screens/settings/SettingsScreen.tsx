@@ -7,7 +7,7 @@ import {RowView} from '../../components/general/RowView';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {SettingsStackParamList} from '../../../navigation';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
-import {AuthContext} from '../../../navigation/MainTabNavigator';
+import {AuthContext} from '../../../navigation/';
 import {AslReducerState} from '../../../redux/reducer';
 
 type Props = StackScreenProps<SettingsStackParamList, 'SettingsScreen'>;
