@@ -6,6 +6,9 @@ import {
   SET_CAN_SUBMIT_CONTEXT as SET_CAN_SUBMIT_CONTEXT,
   SET_SELECTED_CONTEXT_ID,
   SET_SELECTED_SPATIAL_AREA_ID,
+  SET_SELECTED_SPATIAL_AREA,
+  SET_SELECTED_SPATIAL_CONTEXT,
+  CLEAR_SPATIAL_AREA_AND_CONTEXT,
   SET_USER_PROFILE_WITH_CREDENTIALS,
   SET_USER_PROFILE,
 } from './reducerAction';
@@ -20,7 +23,9 @@ export interface ReducerAction<T> {
 export interface AslReducerState {
   canSubmitContext: boolean;
   selectedSpatialAreaId: string;
+  selectedSpatialArea: SpatialArea | null;
   selectedContextId: string;
+  selectedSpatialContext: SpatialContext | null;
   spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea>;
   contextIdToContextMap: Map<string, SpatialContext>;
   userProfile: UserProfile | null;
@@ -29,7 +34,9 @@ export interface AslReducerState {
 const initialState: AslReducerState = {
   canSubmitContext: false,
   selectedSpatialAreaId: null,
+  selectedSpatialArea: null,
   selectedContextId: null,
+  selectedSpatialContext: null,
   spatialAreaIdToSpatialAreaMap: new Map(),
   contextIdToContextMap: new Map(),
   userProfile: null,
@@ -78,6 +85,24 @@ export default function reducer(
       return {
         ...state,
         contextIdToContextMap: contextIdToContextMap,
+      };
+    case SET_SELECTED_SPATIAL_AREA:
+      return {
+        ...state,
+        selectedSpatialArea: action.payload,
+      };
+    case SET_SELECTED_SPATIAL_CONTEXT:
+      return {
+        ...state,
+        selectedSpatialContext: action.payload,
+      };
+    case CLEAR_SPATIAL_AREA_AND_CONTEXT:
+      return {
+        ...state,
+        selectedSpatialArea: null,
+        selectedSpatialAreaId: null,
+        selectedSpatialContext: null,
+        selectedSpatialContextId: null,
       };
     case SET_USER_PROFILE:
       return {

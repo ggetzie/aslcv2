@@ -26,6 +26,26 @@ export async function getFilteredSpatialAreasList(
     return Promise.reject();
   }
 }
+export async function getContextsForArea(area: SpatialArea) {
+  const url = API_ENDPOINTS.Context_ListHZEN(
+    area.utm_hemisphere,
+    area.utm_zone,
+    area.area_utm_easting_meters,
+    area.area_utm_northing_meters,
+  );
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
+}
 
 export async function getSpatialArea(
   spatialAreaId: string,

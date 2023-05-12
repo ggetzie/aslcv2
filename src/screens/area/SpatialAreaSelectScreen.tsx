@@ -1,31 +1,16 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-  ScrollView,
-} from 'react-native';
-import {Divider, Icon} from 'react-native-elements';
+import {StyleSheet, Text, ScrollView} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {StackScreenProps} from '@react-navigation/stack';
 import {verticalScale} from '../../constants/nativeFunctions';
-import {RowView} from '../../components/general/RowView';
 import {
-  initSpatialArea,
   SpatialArea,
-  SpatialAreaQuery,
   UTM_Hemisphere,
 } from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 
-import {
-  setSelectedContextId,
-  setSelectedSpatialAreaId,
-} from '../../../redux/reducerAction';
+import {CLEAR_SPATIAL_AREA_AND_CONTEXT} from '../../../redux/reducerAction';
 import {UTMForm} from '../../components/UTMForm';
-import {LoadingComponent} from '../../components/general/LoadingComponent';
 import {getFilteredSpatialAreasList} from '../../constants/backend_api';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {AreaStackParamList} from '../../../navigation';
@@ -51,22 +36,11 @@ function getNorthings(areas: SpatialArea[]) {
   return Array.from(uniqueNorthings).sort((a, b) => a - b);
 }
 
-const SpatialAreaList = ({
-  areas,
-  onPress,
-}: {
-  areas: SpatialArea[];
-  onPress: (id: string) => void;
-}) => {
+const SpatialAreaList = ({areas}: {areas: SpatialArea[]}) => {
   return (
     <>
       {areas.map((area, index) => (
-        <SpatialAreaCell
-          key={area.id}
-          area={area}
-          index={index}
-          onPress={onPress}
-        />
+        <SpatialAreaCell key={area.id} area={area} index={index} />
       ))}
     </>
   );
@@ -90,7 +64,6 @@ const matchArea = (
 const SpatialAreaSelectScreen = (props: Props) => {
   const dispatch = useDispatch();
   const [hemisphere, setHemisphere] = useState<UTM_Hemisphere>('N');
-  const hemisphereList = ['N', 'S'];
   const [zone, setZone] = useState<number>(38);
   const [zoneList, setZoneList] = useState<number[]>([38]);
   const [easting, setEasting] = useState<number | null>(null);
@@ -99,9 +72,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
   const [northingList, setNorthingList] = useState<number[]>([]);
   const [spatialAreaList, setSpatialAreaList] = useState<SpatialArea[]>([]);
 
-  const selectedAreaId: string = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
-  );
   const [loading, setLoading] = useState<boolean>(false);
 
   async function updateSpatialAreas() {
@@ -120,23 +90,15 @@ const SpatialAreaSelectScreen = (props: Props) => {
   }
 
   useEffect(() => {
-    selectArea(null);
-  }, []);
-
-  useEffect(() => {
     setLoading(true);
     updateSpatialAreas().then((newSpatialAreas) => {
       setSpatialAreaList(newSpatialAreas);
+      console.log(newSpatialAreas);
       setEastingList(getEastings(newSpatialAreas));
       setNorthingList(getNorthings(newSpatialAreas));
       setLoading(false);
     });
   }, []);
-
-  function selectArea(id: string) {
-    dispatch(setSelectedContextId(null));
-    dispatch(setSelectedSpatialAreaId(id));
-  }
 
   return (
     <ScrollView style={styles.background}>
@@ -195,11 +157,11 @@ const SpatialAreaSelectScreen = (props: Props) => {
       <ButtonComponent
         text="Clear"
         onPress={() => {
-          selectArea(null);
           setHemisphere('N');
           setZone(38);
           setEasting(null);
           setNorthing(null);
+          dispatch({type: CLEAR_SPATIAL_AREA_AND_CONTEXT});
         }}
         rounded={true}
         buttonStyle={styles.clearButton}
@@ -213,13 +175,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
           areas={spatialAreaList.filter((area) =>
             matchArea(area, hemisphere, zone, easting, northing),
           )}
-          onPress={(id) => {
-            if (selectedAreaId === id) {
-              selectArea(null);
-            } else {
-              selectArea(id);
-            }
-          }}
         />
       )}
     </ScrollView>

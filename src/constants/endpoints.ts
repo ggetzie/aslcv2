@@ -1,15 +1,15 @@
-type utm_hemisphere = 'N' | 'S';
+import { UTM_Hemisphere } from "./EnumsAndInterfaces/SpatialAreaInterfaces";
 
 const API_ENDPOINTS = {
   // Spatial Area endpoints
   Area_ListAll: 'api/area/',
-  Area_ListH: (hemisphere: utm_hemisphere) => `api/area/${hemisphere}/`,
-  Area_ListHZ: (hemisphere: utm_hemisphere, zone: number) =>
+  Area_ListH: (hemisphere:  UTM_Hemisphere) => `api/area/${hemisphere}/`,
+  Area_ListHZ: (hemisphere:  UTM_Hemisphere, zone: number) =>
     `api/area/${hemisphere}/${zone}/`,
-  Area_ListHZE: (hemisphere: utm_hemisphere, zone: number, easting: number) =>
+  Area_ListHZE: (hemisphere:  UTM_Hemisphere, zone: number, easting: number) =>
     `api/area/${hemisphere}/${zone}/${easting}/`,
   Area_ListHZEN: (
-    hemisphere: utm_hemisphere,
+    hemisphere:  UTM_Hemisphere,
     zone: number,
     easting: number,
     northing: number,
@@ -20,11 +20,12 @@ const API_ENDPOINTS = {
   // Spatial Context endpoints
   Context_ListAll: 'api/context/',
   Context_ListHZEN: (
-    hemisphere: utm_hemisphere,
+    hemisphere:  UTM_Hemisphere,
     zone: number,
     easting: number,
     northing: number,
-  ) => `api/context/${hemisphere}/${zone}/${easting}/${northing}/`,
+  ) =>
+    `api/context?utm_hemisphere=${hemisphere}&utm_zone=${zone}&area_utm_easting_meters=${easting}&area_utm_northing_meters=${northing}`,
   Context_DetailById: (contextID: string) => `api/context/${contextID}/`,
   Context_PhotoUpload: (contextID: string) => `api/context/${contextID}/photo/`,
   Context_BagPhotoUpload: (contextID: string) =>

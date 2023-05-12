@@ -1,30 +1,36 @@
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 import {Divider, Icon} from 'react-native-elements';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {SpatialArea} from '../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {RowView} from './general/RowView';
 import {verticalScale} from '../constants/nativeFunctions';
 import {AslReducerState} from '../../redux/reducer';
+import {
+  SET_SELECTED_SPATIAL_AREA,
+  SET_SELECTED_SPATIAL_AREA_ID,
+  SET_SELECTED_CONTEXT_ID,
+  SET_SELECTED_SPATIAL_CONTEXT,
+} from '../../redux/reducerAction';
 
-const SpatialAreaCell = ({
-  area,
-  index,
-  onPress,
-}: {
-  area: SpatialArea;
-  index: number;
-  onPress: (id: string) => void;
-}) => {
+const SpatialAreaCell = ({area, index}: {area: SpatialArea; index: number}) => {
+  const dispatch = useDispatch();
   const selectedAreaId = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
   );
+  console.log(selectedAreaId);
 
   const areaStr = `${area.utm_hemisphere}.${area.utm_zone}.${area.area_utm_easting_meters}.${area.area_utm_northing_meters}`;
 
   return (
     <View style={{padding: '5%'}}>
-      <TouchableOpacity onPress={() => onPress(area.id)}>
+      <TouchableOpacity
+        onPress={() => {
+          dispatch({type: SET_SELECTED_SPATIAL_AREA_ID, payload: area.id});
+          dispatch({type: SET_SELECTED_SPATIAL_AREA, payload: area});
+          dispatch({type: SET_SELECTED_CONTEXT_ID, payload: null});
+          dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: null});
+        }}>
         <RowView>
           <View style={styles.areaContainer}>
             <Text style={styles.area}>{areaStr}</Text>

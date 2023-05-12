@@ -1,5 +1,6 @@
+export type UTM_Hemisphere = 'N' | 'S';
 export interface SpatialAreaQuery {
-  utm_hemisphere: string;
+  utm_hemisphere: UTM_Hemisphere;
   utm_zone: number;
   area_utm_easting_meters: number;
   area_utm_northing_meters: number;
@@ -19,8 +20,6 @@ export const initSpatialArea = (): SpatialAreaQuery => {
     area_utm_northing_meters: null,
   };
 };
-
-export type UTM_Hemisphere = 'N' | 'S';
 
 export const hemisphereList = ['N', 'S'];
 

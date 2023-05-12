@@ -72,10 +72,6 @@ export const MainTabNavigator = () => {
   );
   const [loading, setLoading] = useState(false);
 
-  if (loading) {
-    return <LoadingComponent />;
-  }
-
   // check if we have saved user profile in async storage
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -99,6 +95,9 @@ export const MainTabNavigator = () => {
     bootstrapAsync();
   }, []);
 
+  if (loading) {
+    return <LoadingComponent />;
+  }
   const authContext = React.useMemo(
     () => ({
       signIn: async (loginDetails: LoginDetails) => {
