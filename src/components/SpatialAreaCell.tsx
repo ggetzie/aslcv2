@@ -18,7 +18,6 @@ const SpatialAreaCell = ({area, index}: {area: SpatialArea; index: number}) => {
   const selectedAreaId = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
   );
-  console.log(selectedAreaId);
 
   const areaStr = `${area.utm_hemisphere}.${area.utm_zone}.${area.area_utm_easting_meters}.${area.area_utm_northing_meters}`;
 

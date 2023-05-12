@@ -93,7 +93,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
     setLoading(true);
     updateSpatialAreas().then((newSpatialAreas) => {
       setSpatialAreaList(newSpatialAreas);
-      console.log(newSpatialAreas);
       setEastingList(getEastings(newSpatialAreas));
       setNorthingList(getNorthings(newSpatialAreas));
       setLoading(false);

@@ -73,7 +73,6 @@ type Props = StackScreenProps<ContextStackParamList, 'ContextListScreen'>;
 const ContextListScreen = ({navigation}: Props) => {
   const dispatch = useDispatch();
 
-  const [contextIds, setContextIds] = useState<string[]>([]);
   const [spatialContexts, setSpatialContexts] = useState<SpatialContext[]>([]);
 
   const selectedAreaId: string = useSelector(
@@ -90,39 +89,27 @@ const ContextListScreen = ({navigation}: Props) => {
     ({reducer}: any) => reducer.spatialAreaIdToSpatialAreaMap,
   );
 
-  const [filteredContextIds, setFilteredContextIds] =
-    useState<string[]>(contextIds);
   const [contextChoice, setContextChoice] = useState<ContextChoice>(
     ContextChoice.ALL,
   );
-  const [allLoaded, setAllLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  async function updateIds() {
-    setLoading(true);
-    const area: SpatialArea = await getSpatialArea(selectedAreaId);
-    setContextIds(area.spatialcontext_set.map((item) => item[0]));
-    setLoading(false);
-  }
-
   async function getSpatialContexts() {
-    setLoading(true);
     const newSpatialContexts = await getContextsForArea(selectedArea);
-    console.log(newSpatialContexts);
     setSpatialContexts(
       newSpatialContexts.sort(
         (a: SpatialContext, b: SpatialContext) =>
-          a.context_number - b.context_number,
+          b.context_number - a.context_number,
       ),
     );
-    setLoading(false);
   }
 
   useEffect(() => {
     if (selectedAreaId == null) {
       return;
     }
-    getSpatialContexts();
+    setLoading(true);
+    getSpatialContexts().then(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -135,12 +122,9 @@ const ContextListScreen = ({navigation}: Props) => {
     });
   }, [navigation]);
 
-  if (selectedAreaId == null) {
-    return <ScrollView style={{padding: '5%'}} />;
-  }
-
   return (
     <ScrollView style={styles.background}>
+      <LoadingModalComponent showLoading={loading} />
       <ButtonComponent
         buttonStyle={{width: '60%', height: 'auto', alignSelf: 'center'}}
         onPress={async () => {
@@ -180,9 +164,6 @@ const ContextListScreen = ({navigation}: Props) => {
           <Picker.Item label="Closed" value={ContextChoice.CLOSED} />
         </Picker>
       </RowView>
-      <LoadingModalComponent
-        showLoading={selectedAreaId && (loading || allLoaded == false)}
-      />
       <PaddingComponent />
       <SpatialContextList
         spatialContexts={spatialContexts.filter((context) =>
