@@ -17,10 +17,11 @@ import {SpatialArea} from '../../constants/EnumsAndInterfaces/SpatialAreaInterfa
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {getSpatialArea} from '../../constants/backend_api';
 import {setSelectedContextId} from '../../../redux/reducerAction';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {ContextStackParamList} from '../../../navigation';
 import SpatialContextCell from '../../components/SpatialContextCell';
+import LoadingBar from '../../components/LoadingBar';
 
 enum ContextChoice {
   OPEN = 'OPEN',
@@ -31,16 +32,22 @@ enum ContextChoice {
 
 const SpatialContextList = ({
   spatialContexts,
+  onSelect,
 }: {
   spatialContexts: SpatialContext[];
+  onSelect: () => void;
 }) => {
   if (spatialContexts.length === 0) {
-    return <Text>No contexts available</Text>;
+    return <Text style={{padding: '5%'}}>No contexts available</Text>;
   }
   return (
     <>
       {spatialContexts.map((context) => (
-        <SpatialContextCell key={context.id} spatialContext={context} />
+        <SpatialContextCell
+          key={context.id}
+          spatialContext={context}
+          onSelect={onSelect}
+        />
       ))}
     </>
   );
@@ -76,17 +83,12 @@ const ContextListScreen = ({navigation}: Props) => {
   const [spatialContexts, setSpatialContexts] = useState<SpatialContext[]>([]);
 
   const selectedAreaId: string = useSelector(
-    ({reducer}: any) => reducer.selectedSpatialAreaId,
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialArea ? reducer.selectedSpatialArea.id : null,
   );
 
   const selectedArea: SpatialArea = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialArea,
-  );
-  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
-    ({reducer}: any) => reducer.contextIdToContextMap,
-  );
-  const spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea> = useSelector(
-    ({reducer}: any) => reducer.spatialAreaIdToSpatialAreaMap,
   );
 
   const [contextChoice, setContextChoice] = useState<ContextChoice>(
@@ -109,6 +111,7 @@ const ContextListScreen = ({navigation}: Props) => {
       return;
     }
     setLoading(true);
+    console.log('loading contexts');
     getSpatialContexts().then(() => setLoading(false));
   }, []);
 
@@ -124,12 +127,9 @@ const ContextListScreen = ({navigation}: Props) => {
 
   return (
     <ScrollView style={styles.background}>
-      <LoadingModalComponent showLoading={loading} />
       <ButtonComponent
         buttonStyle={{width: '60%', height: 'auto', alignSelf: 'center'}}
         onPress={async () => {
-          const selectedArea: SpatialArea =
-            spatialAreaIdToSpatialAreaMap.get(selectedAreaId);
           if (selectedArea == null) {
             return;
           }
@@ -165,11 +165,20 @@ const ContextListScreen = ({navigation}: Props) => {
         </Picker>
       </RowView>
       <PaddingComponent />
-      <SpatialContextList
-        spatialContexts={spatialContexts.filter((context) =>
-          filterSpatialContextByChoice(context, contextChoice),
-        )}
-      />
+      {loading ? (
+        <LoadingBar message="Fetching spatial contexts from server..." />
+      ) : (
+        <SpatialContextList
+          spatialContexts={spatialContexts.filter((context) =>
+            filterSpatialContextByChoice(context, contextChoice),
+          )}
+          onSelect={() => {
+            console.log('trying to navigate...');
+            console.log(navigation);
+            navigation.navigate('ContextDetailScreen');
+          }}
+        />
+      )}
     </ScrollView>
   );
 };

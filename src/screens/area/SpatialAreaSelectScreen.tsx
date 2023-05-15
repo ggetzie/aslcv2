@@ -15,7 +15,7 @@ import {getFilteredSpatialAreasList} from '../../constants/backend_api';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {AreaStackParamList} from '../../../navigation';
 import {AslReducerState} from '../../../redux/reducer';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import LoadingBar from '../../components/LoadingBar';
 import SpatialAreaCell from '../../components/SpatialAreaCell';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 
@@ -37,6 +37,10 @@ function getNorthings(areas: SpatialArea[]) {
 }
 
 const SpatialAreaList = ({areas}: {areas: SpatialArea[]}) => {
+  if (areas.length === 0) {
+    return <Text>No areas available</Text>;
+  }
+
   return (
     <>
       {areas.map((area, index) => (
@@ -101,7 +105,6 @@ const SpatialAreaSelectScreen = (props: Props) => {
 
   return (
     <ScrollView style={styles.background}>
-      <LoadingModalComponent showLoading={loading} />
       <UTMForm
         hemisphere={hemisphere}
         onHemisphereChange={(h) => {
@@ -165,10 +168,8 @@ const SpatialAreaSelectScreen = (props: Props) => {
         rounded={true}
         buttonStyle={styles.clearButton}
       />
-      {spatialAreaList.length === 0 ? (
-        <Text style={{padding: '5%'}}>
-          No Area available for current selection
-        </Text>
+      {loading ? (
+        <LoadingBar message="Fetching spatial areas from server.." />
       ) : (
         <SpatialAreaList
           areas={spatialAreaList.filter((area) =>

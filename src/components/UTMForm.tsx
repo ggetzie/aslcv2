@@ -4,27 +4,12 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {
   SpatialArea,
-  SpatialAreaQuery,
   UTM_Hemisphere,
   hemisphereList,
 } from '../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 
 import {RowView} from './general/RowView';
 import {verticalScale} from '../constants/nativeFunctions';
-import {TextInputWithClearComponent} from './general/TextInputWithClearComponent';
-import {nativeColors} from '../constants/colors';
-import {LoadingModalComponent} from './general/LoadingModalComponent';
-import {Icon} from 'react-native-elements';
-import {getFilteredSpatialAreasList} from '../constants/backend_api';
-import {useSelector, useDispatch} from 'react-redux';
-import {AslReducerState} from '../../redux/reducer';
-
-interface Props {
-  form: SpatialAreaQuery;
-  setForm: (form) => void;
-  availableSpatialAreaIds: string[];
-  navigation: any;
-}
 
 export const UTMForm = ({
   hemisphere,

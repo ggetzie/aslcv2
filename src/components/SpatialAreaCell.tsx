@@ -8,15 +8,13 @@ import {verticalScale} from '../constants/nativeFunctions';
 import {AslReducerState} from '../../redux/reducer';
 import {
   SET_SELECTED_SPATIAL_AREA,
-  SET_SELECTED_SPATIAL_AREA_ID,
-  SET_SELECTED_CONTEXT_ID,
   SET_SELECTED_SPATIAL_CONTEXT,
 } from '../../redux/reducerAction';
 
 const SpatialAreaCell = ({area, index}: {area: SpatialArea; index: number}) => {
   const dispatch = useDispatch();
-  const selectedAreaId = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
+  const selectedAreaId = useSelector(({reducer}: {reducer: AslReducerState}) =>
+    reducer.selectedSpatialArea ? reducer.selectedSpatialArea.id : '',
   );
 
   const areaStr = `${area.utm_hemisphere}.${area.utm_zone}.${area.area_utm_easting_meters}.${area.area_utm_northing_meters}`;
@@ -25,9 +23,11 @@ const SpatialAreaCell = ({area, index}: {area: SpatialArea; index: number}) => {
     <View style={{padding: '5%'}}>
       <TouchableOpacity
         onPress={() => {
-          dispatch({type: SET_SELECTED_SPATIAL_AREA_ID, payload: area.id});
-          dispatch({type: SET_SELECTED_SPATIAL_AREA, payload: area});
-          dispatch({type: SET_SELECTED_CONTEXT_ID, payload: null});
+          if (selectedAreaId === area.id) {
+            dispatch({type: SET_SELECTED_SPATIAL_AREA, payload: null});
+          } else {
+            dispatch({type: SET_SELECTED_SPATIAL_AREA, payload: area});
+          }
           dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: null});
         }}>
         <RowView>

@@ -1,26 +1,29 @@
 import * as React from 'react';
-import Modal from 'react-native-modal';
-import {View} from 'react-native';
-import {LoadingComponent} from './LoadingComponent';
+import {View, Modal, ActivityIndicator, StyleSheet} from 'react-native';
+import {nativeColors} from '../../constants/colors';
 
-interface Props {
+export const LoadingModalComponent = ({
+  showLoading,
+}: {
   showLoading: boolean;
-}
-
-export const LoadingModalComponent: React.FC<Props> = (props) => {
+}) => {
   return (
-    <Modal
-      isVisible={props.showLoading}
-      style={{backgroundColor: 'transparent', backfaceVisibility: 'hidden'}}>
-      <View
-        style={{
-          height: '100%',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <LoadingComponent containerStyle={{backgroundColor: 'transparent'}} />
+    <Modal visible={showLoading} transparent={true}>
+      <View style={styles.container}>
+        <ActivityIndicator color={nativeColors.lightBrown} size="large" />
       </View>
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#ffffff77',
+  },
+});

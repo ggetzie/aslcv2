@@ -77,8 +77,8 @@ const ContextForm = ({
           selectedValue={contextType}
           onValueChange={(value: string, pos) => onContextTypeChange(value)}>
           {contextTypes
-            .map((type) => <Picker.Item label={type} value={type} />)
-            .concat(<Picker.Item label={'Select'} value={null} />)}
+            .map((type) => <Picker.Item key={type} label={type} value={type} />)
+            .concat(<Picker.Item key="select" label="Select" value={null} />)}
         </Picker>
       </RowView>
 
@@ -113,7 +113,7 @@ const ContextForm = ({
       {canSubmitGlobal && (
         <>
           <Text style={styles.warning}>
-            Context data has changed. Submit or reset form to leave this screen.
+            Context data has changed. Reset or Submit form to leave this screen.
           </Text>
           <RowView>
             <ButtonComponent
@@ -127,7 +127,7 @@ const ContextForm = ({
               buttonStyle={styles.submitButton}
               onPress={() => onSave()}
               textStyle={{padding: '4%'}}
-              text={'Update'}
+              text={'Submit'}
               rounded={true}
             />
           </RowView>
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   submitButton: {
-    width: '30%',
+    width: '40%',
     height: 'auto',
     alignSelf: 'flex-end',
     marginHorizontal: '5%',
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   warning: {
     color: 'red',
-    fontSize: verticalScale(10),
+    fontSize: verticalScale(12),
     textAlign: 'center',
     width: '100%',
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity, View, Text} from 'react-native';
+import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 import {Divider} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
@@ -8,42 +8,35 @@ import {SpatialContext} from '../constants/EnumsAndInterfaces/ContextInterfaces'
 import {RowView} from './general/RowView';
 import {PaddingComponent} from './PaddingComponent';
 import {AslReducerState} from '../../redux/reducer';
-import {
-  SET_SELECTED_SPATIAL_CONTEXT,
-  SET_SELECTED_CONTEXT_ID,
-} from '../../redux/reducerAction';
+import {SET_SELECTED_SPATIAL_CONTEXT} from '../../redux/reducerAction';
 
 const SpatialContextCell = ({
   spatialContext,
+  onSelect,
 }: {
   spatialContext: SpatialContext;
+  onSelect: () => void;
 }) => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const selectedSpatialContext = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialContext,
+  const selectedSpatialContextId = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialContext ? reducer.selectedSpatialContext.id : '',
   );
-  const isSelected =
-    selectedSpatialContext === null
-      ? false
-      : selectedSpatialContext.id === spatialContext.id;
+  const isSelected = selectedSpatialContextId === spatialContext.id;
   return (
     <TouchableOpacity
       onPress={() => {
         if (isSelected) {
-          dispatch({type: SET_SELECTED_CONTEXT_ID, payload: null});
           dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: null});
         } else {
           dispatch({
             type: SET_SELECTED_SPATIAL_CONTEXT,
             payload: spatialContext,
           });
-          dispatch({type: SET_SELECTED_CONTEXT_ID, payload: spatialContext.id});
-          // @ts-ignore
-          navigation.navigate('ContextDetailScreen');
+          onSelect();
         }
       }}>
-      <View>
+      <View style={isSelected ? styles.selected : {}}>
         <RowView>
           <Text style={{fontWeight: 'bold'}}>Context Number</Text>
           <Text>{spatialContext.context_number}</Text>
@@ -79,5 +72,13 @@ const SpatialContextCell = ({
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  selected: {
+    backgroundColor: 'yellow',
+    padding: 10,
+    borderRadius: 10,
+  },
+});
 
 export default SpatialContextCell;

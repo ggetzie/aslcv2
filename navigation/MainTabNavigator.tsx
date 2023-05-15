@@ -61,11 +61,13 @@ export const MainTabNavigator = () => {
   const isSignedIn = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.userProfile !== null,
   );
-  const selectedArea = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialAreaId,
+  const areaSelected = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialArea !== null,
   );
-  const selectedContext = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
+  const contextSelected = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialContext !== null,
   );
   const canSubmitContext = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
@@ -141,14 +143,14 @@ export const MainTabNavigator = () => {
                 options={{headerShown: false, tabBarHideOnKeyboard: true}}
               />
             )}
-            {selectedArea !== null && (
+            {areaSelected && (
               <MainTab.Screen
                 name="ContextNavigator"
                 component={ContextNavigator}
                 options={{headerShown: false}}
               />
             )}
-            {selectedContext !== null && !canSubmitContext && (
+            {contextSelected && !canSubmitContext && (
               <MainTab.Screen
                 name="FindsNavigator"
                 component={FindsNavigator}

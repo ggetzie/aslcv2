@@ -15,10 +15,7 @@ import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfac
 import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
-import {
-  getContextAreaStringForSelectedContext,
-  validateDates,
-} from '../../constants/utilityFunctions';
+import {validateDates} from '../../constants/utilityFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {Divider} from 'react-native-elements';
 import {getContextTypes, updateContext} from '../../constants/backend_api';
@@ -29,9 +26,12 @@ import ImagePicker, {
   ImagePickerResponse,
 } from 'react-native-image-picker';
 import {useDispatch, useSelector} from 'react-redux';
-import {getContext} from '../../constants/backend_api_action';
-import {mediaBaseURL} from '../../constants/Axios';
-import {setCanSubmitContext} from '../../../redux/reducerAction';
+
+import {
+  SET_SELECTED_SPATIAL_CONTEXT,
+  SET_CAN_SUBMIT_CONTEXT,
+  setCanSubmitContext,
+} from '../../../redux/reducerAction';
 
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import UploadProgressModal from '../../components/UploadProgressModal';
@@ -41,6 +41,7 @@ import {AslReducerState} from '../../../redux/reducer';
 import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {ContextStackParamList} from '../../../navigation';
 import HeaderBack from '../../components/HeaderBack';
+import PhotoGrid from '../../components/PhotoGrid';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -59,11 +60,12 @@ type Props = StackScreenProps<ContextStackParamList, 'ContextDetailScreen'>;
 const ContextDetailScreen = ({navigation}: Props) => {
   const dispatch = useDispatch();
 
-  const selectedContextId: string = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.selectedContextId,
+  const selectedContext = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialContext,
   );
-  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.contextIdToContextMap,
+
+  const selectedArea = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialArea,
   );
 
   const canSubmit = useSelector(
@@ -71,7 +73,11 @@ const ContextDetailScreen = ({navigation}: Props) => {
   );
 
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
-  const [spatialContext, setSpatialContext] = useState<SpatialContext>(null);
+
+  // copy context from redux to local state for editing
+  const [editingContext, setEditingContext] =
+    useState<SpatialContext>(selectedContext);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [types, setTypes] = useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
@@ -80,27 +86,36 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   async function fetchData() {
     setLoading(true);
-    await getContext(selectedContextId)(dispatch);
     setTypes(await getContextTypes());
     setLoading(false);
   }
 
   useEffect(() => {
-    if (selectedContextId == null) {
+    if (selectedContext == null) {
       navigation.navigate('ContextListScreen');
     } else {
       fetchData();
     }
-  }, [selectedContextId]);
+  }, [selectedContext]);
 
   useEffect(() => {
+    // set title
+    let title: string;
+    if (selectedArea === null) {
+      title = 'No area selected!';
+    } else if (selectedContext === null) {
+      title = 'No context selected!';
+    } else {
+      title = `${selectedArea.utm_hemisphere}.${selectedArea.utm_zone}.${selectedArea.area_utm_easting_meters}.${selectedArea.area_utm_northing_meters}.${selectedContext.context_number}`;
+    }
     navigation.setOptions({
-      title: getContextAreaStringForSelectedContext(),
+      title: title,
       headerLeft: () => <HeaderBack navigation={navigation} />,
     });
   }, [navigation]);
 
   useEffect(() => {
+    // prevent leaving the screen if there are changes
     // @ts-ignore
     const unsubscribe = tabNav.addListener('tabPress', (e) => {
       if (canSubmit) {
@@ -112,46 +127,41 @@ const ContextDetailScreen = ({navigation}: Props) => {
   }, [tabNav, canSubmit]);
 
   useEffect(() => {
-    setSpatialContext(contextIdToContextMap.get(selectedContextId));
-  }, [selectedContextId, contextIdToContextMap]);
-
-  useEffect(() => {
     // when spatialContext changes, check if can submit
-    if (spatialContext == null) {
+    if (editingContext == null) {
       dispatch(setCanSubmitContext(false));
       return;
     }
     const datesAreValid = validateDates(
-      spatialContext.opening_date,
-      spatialContext.closing_date,
+      editingContext.opening_date,
+      editingContext.closing_date,
     );
 
-    const oldContext = contextIdToContextMap.get(selectedContextId);
+    const oldContext = selectedContext;
     const contextDataChanged =
-      spatialContext.description != oldContext.description ||
-      spatialContext.type != oldContext.type ||
-      spatialContext.opening_date != oldContext.opening_date ||
-      spatialContext.closing_date != oldContext.closing_date;
+      editingContext.description != oldContext.description ||
+      editingContext.type != oldContext.type ||
+      editingContext.opening_date != oldContext.opening_date ||
+      editingContext.closing_date != oldContext.closing_date;
 
     const newCanSubmit = datesAreValid && contextDataChanged;
     dispatch(setCanSubmitContext(newCanSubmit));
-  }, [spatialContext, contextIdToContextMap]);
+  }, [editingContext]);
 
-  const resetForm = () => {
-    const oldContext = contextIdToContextMap.get(selectedContextId);
-    setSpatialContext(oldContext);
-  };
-
-  async function updateData() {
+  function updateData() {
     setLoading(true);
-    try {
-      await updateContext(spatialContext);
-      await getContext(selectedContextId)(dispatch);
-    } catch (e) {
-      console.log(e);
-      alert('Error Updating Context');
-    }
-    setLoading(false);
+    updateContext(editingContext)
+      .then(() => {
+        // after successful update, update redux
+        dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: editingContext});
+        dispatch({type: SET_CAN_SUBMIT_CONTEXT, payload: false});
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        alert('Error Updating Context');
+        setLoading(false);
+      });
   }
 
   async function uploadImage(imagePickerResponse) {
@@ -177,7 +187,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
               } as any);
               await uploadContextPhoto(
                 form,
-                selectedContextId,
+                selectedContext.id,
                 ({loaded, total}) =>
                   setUploadedPct(Math.round((loaded * 100) / total)),
               );
@@ -193,9 +203,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
     );
   }
 
-  return spatialContext == null ||
-    selectedContextId == null ||
-    contextIdToContextMap.get(selectedContextId) == null ? (
+  return editingContext == null || selectedContext == null ? (
     <ScrollView />
   ) : (
     <ScrollView style={styles.background}>
@@ -238,27 +246,26 @@ const ContextDetailScreen = ({navigation}: Props) => {
       </RowView>
 
       <ContextForm
-        openingDate={spatialContext.opening_date}
+        openingDate={editingContext.opening_date}
         onOpeningDateChange={(date) =>
-          setSpatialContext({...spatialContext, opening_date: date})
+          setEditingContext({...editingContext, opening_date: date})
         }
-        closingDate={spatialContext.closing_date}
+        closingDate={editingContext.closing_date}
         onClosingDateChange={(date) =>
-          setSpatialContext({...spatialContext, closing_date: date})
+          setEditingContext({...editingContext, closing_date: date})
         }
-        contextType={spatialContext.type}
+        contextType={editingContext.type}
         onContextTypeChange={(type) =>
-          setSpatialContext({...spatialContext, type: type})
+          setEditingContext({...editingContext, type: type})
         }
         contextTypes={types}
-        description={spatialContext.description}
+        description={editingContext.description}
         onDescriptionChange={(text) =>
-          setSpatialContext({...spatialContext, description: text})
+          setEditingContext({...editingContext, description: text})
         }
-        onReset={() => resetForm()}
+        onReset={() => setEditingContext(selectedContext)}
         onSave={() => updateData()}
       />
-      <Divider />
       <Divider />
       <View style={{paddingHorizontal: 10}}>
         {/* Begin Photo section */}
@@ -273,26 +280,13 @@ const ContextDetailScreen = ({navigation}: Props) => {
         <RowView>
           <Text style={styles.labelStyle}>Total Context Photos</Text>
           <Text>
-            {spatialContext.contextphoto_set == null
+            {editingContext.contextphoto_set == null
               ? 0
-              : spatialContext.contextphoto_set.length}
+              : editingContext.contextphoto_set.length}
           </Text>
         </RowView>
         <PaddingComponent vertical="2%" />
-        {spatialContext.contextphoto_set && (
-          <FlatList
-            keyExtractor={(item) => item.thumbnail_url}
-            data={spatialContext.contextphoto_set}
-            renderItem={({item}) => (
-              <Image
-                style={styles.imageStyle}
-                resizeMode="cover"
-                source={{uri: mediaBaseURL + item.thumbnail_url}}
-              />
-            )}
-            numColumns={3}
-          />
-        )}
+        <PhotoGrid photoList={editingContext.contextphoto_set} columns={3} />
       </View>
     </ScrollView>
   );
@@ -309,6 +303,7 @@ const styles = StyleSheet.create({
     width: horizontalScale(100),
     height: horizontalScale(100),
     marginHorizontal: horizontalScale(5),
+    marginBottom: verticalScale(5),
   },
   background: {
     backgroundColor: ScreenColors.CONTEXT_SCREEN,
