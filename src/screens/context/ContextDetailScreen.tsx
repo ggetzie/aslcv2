@@ -15,7 +15,10 @@ import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfac
 import {uploadContextPhoto} from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {RowView} from '../../components/general/RowView';
-import {validateDates} from '../../constants/utilityFunctions';
+import {
+  getSpatialString,
+  validateDates,
+} from '../../constants/utilityFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {Divider} from 'react-native-elements';
 import {getContextTypes, updateContext} from '../../constants/backend_api';
@@ -68,6 +71,8 @@ const ContextDetailScreen = ({navigation}: Props) => {
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialArea,
   );
 
+  const spatialString = getSpatialString(selectedArea, selectedContext);
+
   const canSubmit = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
@@ -100,19 +105,11 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   useEffect(() => {
     // set title
-    let title: string;
-    if (selectedArea === null) {
-      title = 'No area selected!';
-    } else if (selectedContext === null) {
-      title = 'No context selected!';
-    } else {
-      title = `${selectedArea.utm_hemisphere}.${selectedArea.utm_zone}.${selectedArea.area_utm_easting_meters}.${selectedArea.area_utm_northing_meters}.${selectedContext.context_number}`;
-    }
     navigation.setOptions({
-      title: title,
+      title: spatialString,
       headerLeft: () => <HeaderBack navigation={navigation} />,
     });
-  }, [navigation]);
+  }, [navigation, spatialString]);
 
   useEffect(() => {
     // prevent leaving the screen if there are changes

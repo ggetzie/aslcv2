@@ -1,49 +1,51 @@
+import {Picker} from '@react-native-picker/picker';
+import {StackScreenProps} from '@react-navigation/stack';
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
-  FlatList,
   Alert,
-  Button,
+  FlatList,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
-import {useDispatch, useSelector} from 'react-redux';
-import {StackScreenProps} from '@react-navigation/stack';
-import {uploadBagPhoto} from '../../constants/backend_api';
-import {getContext} from '../../constants/backend_api_action';
-import {
-  SpatialContext,
-  PhotoDetails,
-  renderSource,
-  Source,
-} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
-import {ButtonComponent} from '../../components/general/ButtonComponent';
+import {Divider} from 'react-native-elements';
 import ImagePicker, {
   ImagePickerOptions,
   ImagePickerResponse,
 } from 'react-native-image-picker';
-import Modal from 'react-native-modal';
-import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
-import {mediaBaseURL} from '../../constants/Axios';
+import {useDispatch, useSelector} from 'react-redux';
+import {FindsStackParamList} from '../../../navigation';
+import {AslReducerState} from '../../../redux/reducer';
+import {SET_SELECTED_SPATIAL_CONTEXT} from '../../../redux/reducerAction';
+import CameraModal from '../../components/CameraModal';
 import {PaddingComponent} from '../../components/PaddingComponent';
+import UploadProgressModal from '../../components/UploadProgressModal';
+import {ButtonComponent} from '../../components/general/ButtonComponent';
+import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import {RowView} from '../../components/general/RowView';
+import {mediaBaseURL} from '../../constants/Axios';
+import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import {
+  PhotoDetails,
+  Source,
+  SpatialContext,
+  renderSource,
+} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {SpatialArea} from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
+import {getContextDetail, uploadBagPhoto} from '../../constants/backend_api';
+import {getContext} from '../../constants/backend_api_action';
+import {nativeColors} from '../../constants/colors';
+import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {
   enumToArray,
-  getContextStringFromContext,
+  getBagPhotoSource,
+  getSpatialString,
 } from '../../constants/utilityFunctions';
-import {RowView} from '../../components/general/RowView';
-import {Divider} from 'react-native-elements';
-import {nativeColors} from '../../constants/colors';
-import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
-import UploadProgressModal from '../../components/UploadProgressModal';
-import {getBagPhotoSource} from '../../constants/utilityFunctions';
-import CameraModal from '../../components/CameraModal';
-import {FindsStackParamList} from '../../../navigation';
+import PhotoGrid from '../../components/PhotoGrid';
 
 type Props = StackScreenProps<FindsStackParamList, 'FindsBagPhotosScreen'>;
 
@@ -59,17 +61,24 @@ const imagePickerOptions: ImagePickerOptions = {
   },
 };
 
-const FindsBagPhotosScreen = (props: Props) => {
+const FindsBagPhotosScreen = ({navigation}: Props) => {
   const dispatch = useDispatch();
 
   const selectedContextId: string = useSelector(
-    ({reducer}: any) => reducer.selectedContextId,
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialContext !== null
+        ? reducer.selectedSpatialContext.id
+        : null,
   );
-  const contextIdToContextMap: Map<string, SpatialContext> = useSelector(
-    ({reducer}: any) => reducer.contextIdToContextMap,
+
+  const selectedArea: SpatialArea = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialArea,
   );
+  const selectedContext: SpatialContext = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialContext,
+  );
+  const spatialString = getSpatialString(selectedArea, selectedContext);
   const [imagePickStage, setImagePickStage] = useState<boolean>(false);
-  const [context, setContext] = useState<SpatialContext>(null);
   const [source, setSource] = useState<Source>(Source.D);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -91,17 +100,27 @@ const FindsBagPhotosScreen = (props: Props) => {
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (selectedContextId == null) {
+  function refreshContext() {
+    if (selectedContext === null) {
       return;
     }
-    fetchData();
-  }, [selectedContextId]);
+    setLoading(true);
+    console.log('refreshing context', selectedContext.id);
+    getContextDetail(selectedContext.id)
+      .then((spatialContext) => {
+        console.log(spatialContext);
+        dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        alert('Error fetching context');
+        setLoading(false);
+      });
+  }
 
   useEffect(() => {
-    if (contextIdToContextMap.has(selectedContextId)) {
-      const selectedContext = contextIdToContextMap.get(selectedContextId);
-      setContext(selectedContext);
+    if (selectedContext !== null) {
       setDryingPhotos(
         selectedContext.bagphoto_set.filter(
           (photo) => getBagPhotoSource(photo.photo_url) == Source.D,
@@ -113,9 +132,9 @@ const FindsBagPhotosScreen = (props: Props) => {
         ),
       );
     }
-  }, [contextIdToContextMap, selectedContextId]);
+  }, [selectedContext]);
 
-  if (selectedContextId == null) {
+  if (selectedContext === null) {
     return (
       <ScrollView>
         <Text>Please Select a context first</Text>
@@ -123,7 +142,7 @@ const FindsBagPhotosScreen = (props: Props) => {
     );
   }
 
-  async function uploadImage(response) {
+  async function uploadImage(response: ImagePickerResponse) {
     Alert.alert(
       `Bag Photo Upload - ${renderSource(source)}`,
       'Confirm',
@@ -151,7 +170,7 @@ const FindsBagPhotosScreen = (props: Props) => {
               getContext(selectedContextId)(dispatch);
               setShowUploadProgress(false);
             } catch (e) {
-              alert('Failed to upload Image');
+              alert('Failed to upload image');
               setShowUploadProgress(false);
             }
           },
@@ -169,127 +188,136 @@ const FindsBagPhotosScreen = (props: Props) => {
         progress={uploadedPct}
         message={`Uploading ${renderSource(source)} bag photo...`}
       />
-      {context && (
-        <View>
-          <CameraModal
-            isVisible={imagePickStage}
-            onTakePhoto={() => {
-              ImagePicker.launchCamera(
-                imagePickerOptions,
-                async (response: ImagePickerResponse) => {
-                  if (response.didCancel) {
-                    setImagePickStage(false);
-                  } else if (response.error) {
-                    alert('Error selecting Image');
-                  } else {
-                    await uploadImage(response);
-                  }
-                },
-              );
+
+      <View>
+        <CameraModal
+          isVisible={imagePickStage}
+          onTakePhoto={() => {
+            ImagePicker.launchCamera(
+              imagePickerOptions,
+              async (response: ImagePickerResponse) => {
+                if (response.didCancel) {
+                  setImagePickStage(false);
+                } else if (response.error) {
+                  alert('Error selecting Image');
+                } else {
+                  await uploadImage(response);
+                }
+              },
+            );
+          }}
+          onCancel={() => setImagePickStage(false)}
+        />
+        <Text
+          style={{
+            fontSize: verticalScale(20),
+            fontWeight: 'bold',
+            paddingHorizontal: '5%',
+            paddingTop: '5%',
+          }}>
+          {'Context: ' + spatialString}
+        </Text>
+        <RowView style={{paddingTop: '2%', justifyContent: 'center'}}>
+          <ButtonComponent
+            buttonStyle={{
+              width: '30%',
+              height: 'auto',
+              alignSelf: 'flex-end',
+              margin: 'auto',
+              marginHorizontal: '5%',
             }}
-            onCancel={() => setImagePickStage(false)}
+            onPress={() => refreshContext()}
+            textStyle={{padding: '4%'}}
+            text={'Refresh'}
+            rounded={true}
           />
-          <Text
-            style={{
-              fontSize: verticalScale(20),
-              fontWeight: 'bold',
-              paddingHorizontal: '5%',
-              paddingTop: '5%',
-            }}>
-            {'Context: ' + getContextStringFromContext(context)}
-          </Text>
-          <RowView style={{paddingTop: '2%', justifyContent: 'center'}}>
-            <ButtonComponent
-              buttonStyle={{
-                width: '30%',
-                height: 'auto',
-                alignSelf: 'flex-end',
-                margin: 'auto',
-                marginHorizontal: '5%',
-              }}
-              onPress={() => fetchData()}
-              textStyle={{padding: '4%'}}
-              text={'Refresh'}
-              rounded={true}
-            />
+        </RowView>
+        <PaddingComponent vertical="2%" />
+        <View style={{paddingHorizontal: '5%', paddingVertical: '0%'}}>
+          <Divider />
+          <PaddingComponent vertical="2%" />
+          <RowView style={{paddingVertical: '0%'}}>
+            <Text style={Styles.labelStyle}>Source</Text>
+            <Picker
+              style={Styles.inputStyle}
+              selectedValue={source}
+              onValueChange={(value: Source, pos) => setSource(value)}>
+              {enumToArray<Source>(Source).map((source: Source) => (
+                <Picker.Item
+                  key={renderSource(source)}
+                  label={renderSource(source)}
+                  value={source}
+                />
+              ))}
+            </Picker>
+          </RowView>
+          <ButtonComponent
+            buttonStyle={{width: '35%', height: 'auto', alignSelf: 'center'}}
+            onPress={() => setImagePickStage(true)}
+            textStyle={{padding: '4%'}}
+            text={'Add Photo'}
+            rounded={true}
+          />
+          <PaddingComponent vertical="2%" />
+          <Divider />
+          <PaddingComponent vertical="2%" />
+          <RowView>
+            <Text style={Styles.labelStyle}>Total Bag Photos</Text>
+            <Text>
+              {selectedContext.bagphoto_set == null
+                ? 0
+                : selectedContext.bagphoto_set.length}
+            </Text>
           </RowView>
           <PaddingComponent vertical="2%" />
-          <View style={{paddingHorizontal: '5%', paddingVertical: '0%'}}>
-            <Divider />
-            <PaddingComponent vertical="2%" />
-            <RowView style={{paddingVertical: '0%'}}>
-              <Text style={Styles.labelStyle}>Source</Text>
-              <Picker
-                style={Styles.inputStyle}
-                selectedValue={source}
-                onValueChange={(value: Source, pos) => setSource(value)}>
-                {enumToArray<Source>(Source).map((source: Source) => (
-                  <Picker.Item label={renderSource(source)} value={source} />
-                ))}
-              </Picker>
-            </RowView>
-            <ButtonComponent
-              buttonStyle={{width: '35%', height: 'auto', alignSelf: 'center'}}
-              onPress={() => setImagePickStage(true)}
-              textStyle={{padding: '4%'}}
-              text={'Add Photo'}
-              rounded={true}
-            />
-            <PaddingComponent vertical="2%" />
-            <Divider />
-            <PaddingComponent vertical="2%" />
-            <RowView>
-              <Text style={Styles.labelStyle}>Total Bag Photos</Text>
-              <Text>
-                {context.bagphoto_set == null ? 0 : context.bagphoto_set.length}
-              </Text>
-            </RowView>
-            <PaddingComponent vertical="2%" />
-            <RowView style={{justifyContent: 'space-evenly'}}>
-              <TouchableOpacity onPress={() => setSource(Source.F)}>
-                <View
-                  style={
-                    source === Source.F
-                      ? Styles.tabItemSelected
-                      : Styles.tabNotSelected
-                  }>
-                  <Text style={{alignSelf: 'center'}}>
-                    {renderSource(Source.F)} - ({fieldPhotos.length})
-                  </Text>
-                </View>
-              </TouchableOpacity>
+          <RowView style={{justifyContent: 'space-evenly'}}>
+            <TouchableOpacity onPress={() => setSource(Source.F)}>
+              <View
+                style={
+                  source === Source.F
+                    ? Styles.tabItemSelected
+                    : Styles.tabNotSelected
+                }>
+                <Text style={{alignSelf: 'center'}}>
+                  {renderSource(Source.F)} - ({fieldPhotos.length})
+                </Text>
+              </View>
+            </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setSource(Source.D)}>
-                <View
-                  style={
-                    source === Source.D
-                      ? Styles.tabItemSelected
-                      : Styles.tabNotSelected
-                  }>
-                  <Text style={{alignSelf: 'center'}}>
-                    {renderSource(Source.D)} - ({dryingPhotos.length})
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </RowView>
-            <PaddingComponent vertical="2%" />
-            {context.bagphoto_set && (
-              <FlatList
-                keyExtractor={(item) => item.thumbnail_url}
-                data={source === Source.D ? dryingPhotos : fieldPhotos}
-                renderItem={({item}) => (
-                  <Image
-                    style={Styles.imageStyle}
-                    resizeMode="cover"
-                    source={{uri: mediaBaseURL + item.thumbnail_url}}
-                  />
-                )}
-                numColumns={3}
-              />
-            )}
-          </View>
+            <TouchableOpacity onPress={() => setSource(Source.D)}>
+              <View
+                style={
+                  source === Source.D
+                    ? Styles.tabItemSelected
+                    : Styles.tabNotSelected
+                }>
+                <Text style={{alignSelf: 'center'}}>
+                  {renderSource(Source.D)} - ({dryingPhotos.length})
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </RowView>
+          <PaddingComponent vertical="2%" />
+          {/* {selectedContext.bagphoto_set && (
+            <FlatList
+              keyExtractor={(item) => item.thumbnail_url}
+              data={source === Source.D ? dryingPhotos : fieldPhotos}
+              renderItem={({item}) => (
+                <Image
+                  style={Styles.imageStyle}
+                  resizeMode="cover"
+                  source={{uri: mediaBaseURL + item.thumbnail_url}}
+                />
+              )}
+              numColumns={3}
+            />
+          )} */}
+          <PhotoGrid
+            photoList={source === Source.D ? dryingPhotos : fieldPhotos}
+            columns={3}
+          />
         </View>
-      )}
+      </View>
     </ScrollView>
   );
 };
@@ -336,20 +364,6 @@ const Styles = StyleSheet.create({
     height: verticalScale(40),
     width: horizontalScale(100),
   },
-});
-
-FindsBagPhotosScreen.navigationOptions = (screenProps) => ({
-  title: 'Finds Bag Photos',
-  headerLeft: () => (
-    <Button
-      title="Back"
-      onPress={() => {
-        screenProps.navigation.navigate('ContextNavigator', {
-          screen: 'ContextListScreen',
-        });
-      }}
-    />
-  ),
 });
 
 export default FindsBagPhotosScreen;

@@ -13,11 +13,7 @@ const PhotoGrid = ({
   columns: number;
 }) => {
   if (photoList.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>No photos available for this context</Text>;
-      </View>
-    );
+    return <Text>{'No photos available'}</Text>;
   }
   let rows = [];
   let buffer = [];

@@ -22,6 +22,7 @@ import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {ContextStackParamList} from '../../../navigation';
 import SpatialContextCell from '../../components/SpatialContextCell';
 import LoadingBar from '../../components/LoadingBar';
+import {getSpatialString} from '../../constants/utilityFunctions';
 
 enum ContextChoice {
   OPEN = 'OPEN',
@@ -82,14 +83,11 @@ const ContextListScreen = ({navigation}: Props) => {
 
   const [spatialContexts, setSpatialContexts] = useState<SpatialContext[]>([]);
 
-  const selectedAreaId: string = useSelector(
-    ({reducer}: {reducer: AslReducerState}) =>
-      reducer.selectedSpatialArea ? reducer.selectedSpatialArea.id : null,
-  );
-
   const selectedArea: SpatialArea = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.selectedSpatialArea,
   );
+
+  const spatialString = getSpatialString(selectedArea, null);
 
   const [contextChoice, setContextChoice] = useState<ContextChoice>(
     ContextChoice.ALL,
@@ -107,23 +105,18 @@ const ContextListScreen = ({navigation}: Props) => {
   }
 
   useEffect(() => {
-    if (selectedAreaId == null) {
+    if (selectedArea == null) {
       return;
     }
     setLoading(true);
-    console.log('loading contexts');
     getSpatialContexts().then(() => setLoading(false));
-  }, []);
+  }, [selectedArea]);
 
   useEffect(() => {
-    const title =
-      selectedArea === null
-        ? 'No Area Selected!'
-        : `Area: ${selectedArea.utm_hemisphere}.${selectedArea.utm_zone}.${selectedArea.area_utm_easting_meters}.${selectedArea.area_utm_northing_meters}`;
     navigation.setOptions({
-      title: title,
+      title: `Area: ${spatialString}`,
     });
-  }, [navigation]);
+  }, [navigation, spatialString]);
 
   return (
     <ScrollView style={styles.background}>
@@ -173,7 +166,6 @@ const ContextListScreen = ({navigation}: Props) => {
             filterSpatialContextByChoice(context, contextChoice),
           )}
           onSelect={() => {
-            console.log('trying to navigate...');
             console.log(navigation);
             navigation.navigate('ContextDetailScreen');
           }}

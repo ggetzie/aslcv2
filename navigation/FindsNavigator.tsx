@@ -10,6 +10,7 @@ const FindsNavigator = () => {
       <FindsStack.Screen
         name="FindsBagPhotosScreen"
         component={FindsBagPhotosScreen}
+        options={{title: 'Finds Bag Photos'}}
       />
     </FindsStack.Navigator>
   );

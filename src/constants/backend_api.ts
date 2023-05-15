@@ -124,6 +124,22 @@ export async function updateContext(
   }
 }
 
+export async function getContextDetail(id: string): Promise<SpatialContext> {
+  const url = API_ENDPOINTS.Context_DetailById(id);
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
+}
+
 export async function uploadContextPhoto(
   contextImage: any,
   contextID: string,

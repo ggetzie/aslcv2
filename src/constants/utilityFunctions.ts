@@ -130,6 +130,20 @@ export function getContextAreaStringForSelectedContext(): string {
   );
 }
 
+export function getSpatialString(
+  spatialArea: SpatialArea | null,
+  spatialContext: SpatialContext | null,
+): string {
+  if (spatialArea === null) {
+    return 'No Area Selected';
+  }
+  const areaString = `${spatialArea.utm_hemisphere}.${spatialArea.utm_zone}.${spatialArea.area_utm_easting_meters}.${spatialArea.area_utm_northing_meters}`;
+  if (spatialContext === null) {
+    return areaString;
+  }
+  return `${areaString}.${spatialContext.context_number}`;
+}
+
 export function getFormattedDate(datetime: string): string {
   if (!isNotEmptyOrNull(datetime)) {
     return datetime;

@@ -1,7 +1,11 @@
-import {SpatialAreaQuery} from './SpatialAreaInterfaces';
+import {SpatialAreaQuery, UTM_Hemisphere} from './SpatialAreaInterfaces';
 
 export interface SpatialContext {
   spatial_area: SpatialAreaQuery | string;
+  area_utm_hemisphere: UTM_Hemisphere;
+  area_utm_zone: number;
+  area_utm_easting_meters: number;
+  area_utm_northing_meters: number;
   context_number: number;
   id: string;
   type: string;
