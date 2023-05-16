@@ -1,11 +1,12 @@
 import React from 'react';
-import {ProgressBarAndroid, View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import {ProgressBar} from '@react-native-community/progress-bar-android';
 
 const LoadingBar = ({message}: {message: string}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{message}</Text>
-      <ProgressBarAndroid
+      <ProgressBar
         styleAttr="Horizontal"
         indeterminate={true}
         style={styles.bar}

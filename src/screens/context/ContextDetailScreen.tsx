@@ -1,50 +1,45 @@
+import {StackScreenProps} from '@react-navigation/stack';
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  ScrollView,
-  Button,
-} from 'react-native';
-import {StackScreenProps} from '@react-navigation/stack';
-import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
-import {uploadContextPhoto} from '../../constants/backend_api';
-import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
-import {RowView} from '../../components/general/RowView';
-import {
-  getSpatialString,
-  validateDates,
-} from '../../constants/utilityFunctions';
-import {PaddingComponent} from '../../components/PaddingComponent';
+import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Divider} from 'react-native-elements';
-import {getContextTypes, updateContext} from '../../constants/backend_api';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
-import {ButtonComponent} from '../../components/general/ButtonComponent';
 import ImagePicker, {
   ImagePickerOptions,
   ImagePickerResponse,
 } from 'react-native-image-picker';
 import {useDispatch, useSelector} from 'react-redux';
+import {PaddingComponent} from '../../components/PaddingComponent';
+import {ButtonComponent} from '../../components/general/ButtonComponent';
+import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import {RowView} from '../../components/general/RowView';
+import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {
+  getContextTypes,
+  updateContext,
+  uploadContextPhoto,
+  getContextDetail,
+} from '../../constants/backend_api';
+import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
+import {
+  getSpatialString,
+  validateDates,
+} from '../../constants/utilityFunctions';
 
 import {
-  SET_SELECTED_SPATIAL_CONTEXT,
   SET_CAN_SUBMIT_CONTEXT,
+  SET_SELECTED_SPATIAL_CONTEXT,
   setCanSubmitContext,
 } from '../../../redux/reducerAction';
 
-import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
-import UploadProgressModal from '../../components/UploadProgressModal';
+import {ContextStackParamList} from '../../../navigation';
+import {AslReducerState} from '../../../redux/reducer';
 import CameraModal from '../../components/CameraModal';
 import ContextForm from '../../components/ContextForm';
-import {AslReducerState} from '../../../redux/reducer';
-import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
-import {ContextStackParamList} from '../../../navigation';
 import HeaderBack from '../../components/HeaderBack';
 import PhotoGrid from '../../components/PhotoGrid';
+import UploadProgressModal from '../../components/UploadProgressModal';
+import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
+import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -87,19 +82,29 @@ const ContextDetailScreen = ({navigation}: Props) => {
   const [types, setTypes] = useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
+
   const tabNav = navigation.getParent();
 
-  async function fetchData() {
+  function refreshContext() {
+    if (selectedContext === null) {
+      return;
+    }
     setLoading(true);
-    setTypes(await getContextTypes());
-    setLoading(false);
+    getContextDetail(selectedContext.id)
+      .then((spatialContext) => {
+        dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
+        setEditingContext(spatialContext);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      });
   }
 
   useEffect(() => {
     if (selectedContext == null) {
       navigation.navigate('ContextListScreen');
-    } else {
-      fetchData();
     }
   }, [selectedContext]);
 
@@ -124,7 +129,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
   }, [tabNav, canSubmit]);
 
   useEffect(() => {
-    // when spatialContext changes, check if can submit
+    // when editingContext changes, check if can submit
     if (editingContext == null) {
       dispatch(setCanSubmitContext(false));
       return;
@@ -134,12 +139,12 @@ const ContextDetailScreen = ({navigation}: Props) => {
       editingContext.closing_date,
     );
 
-    const oldContext = selectedContext;
+    // compare the local editing context to the selected context from redux
     const contextDataChanged =
-      editingContext.description != oldContext.description ||
-      editingContext.type != oldContext.type ||
-      editingContext.opening_date != oldContext.opening_date ||
-      editingContext.closing_date != oldContext.closing_date;
+      editingContext.description != selectedContext.description ||
+      editingContext.type != selectedContext.type ||
+      editingContext.opening_date != selectedContext.opening_date ||
+      editingContext.closing_date != selectedContext.closing_date;
 
     const newCanSubmit = datesAreValid && contextDataChanged;
     dispatch(setCanSubmitContext(newCanSubmit));
@@ -189,6 +194,8 @@ const ContextDetailScreen = ({navigation}: Props) => {
                   setUploadedPct(Math.round((loaded * 100) / total)),
               );
               setShowUploadProgress(false);
+              setLoading(true);
+              setTimeout(refreshContext, 3000);
             } catch (e) {
               alert('Failed to upload Image');
               setShowUploadProgress(false);
@@ -199,12 +206,20 @@ const ContextDetailScreen = ({navigation}: Props) => {
       {cancelable: false},
     );
   }
+  if (editingContext === null || selectedContext === null) {
+    return (
+      <ScrollView>
+        <Text>No context selected</Text>
+      </ScrollView>
+    );
+  }
 
-  return editingContext == null || selectedContext == null ? (
-    <ScrollView />
-  ) : (
+  return (
     <ScrollView style={styles.background}>
-      <LoadingModalComponent showLoading={loading} />
+      <LoadingModalComponent
+        showLoading={loading}
+        message="Refreshing context data from server..."
+      />
       <UploadProgressModal
         isVisible={showUploadProgress}
         progress={uploadedPct}
@@ -220,8 +235,10 @@ const ContextDetailScreen = ({navigation}: Props) => {
                 setIsPickingImage(false);
               } else if (response.error) {
                 alert('Error selecting Image');
+                console.log(response.error);
               } else {
                 await uploadImage(response);
+                setIsPickingImage(false);
               }
             },
           );
@@ -231,7 +248,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
       <RowView style={{paddingTop: '2%', justifyContent: 'center'}}>
         <ButtonComponent
           buttonStyle={styles.refreshButton}
-          onPress={() => fetchData()}
+          onPress={refreshContext}
           textStyle={{padding: '4%'}}
           text={'Refresh'}
           rounded={true}

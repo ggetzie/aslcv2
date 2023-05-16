@@ -94,21 +94,13 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
         : ScreenColors.BAG_SCREEN_FIELD,
   };
 
-  async function fetchData() {
-    setLoading(true);
-    await getContext(selectedContextId)(dispatch);
-    setLoading(false);
-  }
-
   function refreshContext() {
     if (selectedContext === null) {
       return;
     }
     setLoading(true);
-    console.log('refreshing context', selectedContext.id);
     getContextDetail(selectedContext.id)
       .then((spatialContext) => {
-        console.log(spatialContext);
         dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
         setLoading(false);
       })
@@ -169,6 +161,8 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
               );
               getContext(selectedContextId)(dispatch);
               setShowUploadProgress(false);
+              setLoading(true);
+              setTimeout(refreshContext, 3000);
             } catch (e) {
               alert('Failed to upload image');
               setShowUploadProgress(false);
@@ -182,7 +176,10 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
 
   return (
     <ScrollView style={background}>
-      <LoadingModalComponent showLoading={loading} />
+      <LoadingModalComponent
+        showLoading={loading}
+        message="Refreshing context data from server..."
+      />
       <UploadProgressModal
         isVisible={showUploadProgress}
         progress={uploadedPct}
@@ -226,7 +223,7 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
               margin: 'auto',
               marginHorizontal: '5%',
             }}
-            onPress={() => refreshContext()}
+            onPress={refreshContext}
             textStyle={{padding: '4%'}}
             text={'Refresh'}
             rounded={true}

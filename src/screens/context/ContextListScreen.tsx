@@ -166,7 +166,6 @@ const ContextListScreen = ({navigation}: Props) => {
             filterSpatialContextByChoice(context, contextChoice),
           )}
           onSelect={() => {
-            console.log(navigation);
             navigation.navigate('ContextDetailScreen');
           }}
         />

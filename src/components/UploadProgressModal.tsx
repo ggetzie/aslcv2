@@ -8,21 +8,15 @@ const UploadProgressModal = ({isVisible, progress, message}) => {
     <Modal visible={isVisible} animationType="slide" transparent={true}>
       <View style={styles.modalContainer}>
         <View style={styles.innerContainer}>
-          {progress !== 100 ? (
-            <>
-              <Text style={styles.progressText}>
-                {message} {progress}%
-              </Text>
-              <ProgressBar
-                styleAttr="Horizontal"
-                style={{width: 200}}
-                progress={progress / 100}
-                indeterminate={false}
-              />
-            </>
-          ) : (
-            <ActivityIndicator size="large" color="#0000ff" />
-          )}
+          <Text style={styles.progressText}>
+            {message} {progress}%
+          </Text>
+          <ProgressBar
+            styleAttr="Horizontal"
+            style={{width: 200}}
+            progress={progress / 100}
+            indeterminate={progress === 100}
+          />
         </View>
       </View>
     </Modal>

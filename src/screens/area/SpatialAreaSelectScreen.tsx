@@ -169,7 +169,7 @@ const SpatialAreaSelectScreen = (props: Props) => {
         buttonStyle={styles.clearButton}
       />
       {loading ? (
-        <LoadingBar message="Fetching spatial areas from server.." />
+        <LoadingBar message="Fetching spatial areas from server..." />
       ) : (
         <SpatialAreaList
           areas={spatialAreaList.filter((area) =>
