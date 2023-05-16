@@ -66,21 +66,32 @@ export async function getSpatialArea(
 }
 
 export async function createContext(
-  spatial_area: string,
+  spatial_area: SpatialArea,
 ): Promise<SpatialContext> {
   const url = API_ENDPOINTS.Context_ListAll;
   try {
     const headers = await getHeaders();
     const result = await axios.post(
       url,
-      {spatial_area: spatial_area},
+      {
+        utm_hemisphere: spatial_area.utm_hemisphere,
+        utm_zone: spatial_area.utm_zone,
+        area_utm_easting_meters: spatial_area.area_utm_easting_meters,
+        area_utm_northing_meters: spatial_area.area_utm_northing_meters,
+      },
       {
         headers: {
           ...headers,
         },
       },
     );
-    return Promise.resolve(result.data);
+    // manually add photo set fields, since they are not returned by the API
+    // fix this on the server
+    return Promise.resolve({
+      ...result.data,
+      contextphoto_set: [],
+      bagphoto_set: [],
+    });
   } catch (e) {
     console.log(e);
     return Promise.reject();

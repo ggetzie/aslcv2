@@ -1,6 +1,5 @@
 import {AxiosResponse} from 'axios';
 import moment from 'moment-timezone';
-import {Alert} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import {StoredItems} from './StoredItem';
@@ -11,6 +10,7 @@ import {
 import {SpatialContext} from './EnumsAndInterfaces/ContextInterfaces';
 import store from '../../redux/store';
 import {Source} from './EnumsAndInterfaces/ContextInterfaces';
+import {ContextChoice} from './EnumsAndInterfaces/ContextInterfaces';
 
 export async function getJwtFromAsyncStorage(): Promise<string> {
   // return await AsyncStorage.getItem(StoredItems.JWT_TOKEN);
@@ -227,4 +227,26 @@ export const validateDates = (
     }
   }
   return true;
+};
+
+export const filterSpatialContextByChoice = (
+  spatialContext: SpatialContext,
+  choice: ContextChoice,
+) => {
+  switch (choice) {
+    case ContextChoice.OPEN:
+      return (
+        spatialContext.opening_date !== null &&
+        spatialContext.closing_date === null
+      );
+    case ContextChoice.UNUSED:
+      return (
+        spatialContext.opening_date === null &&
+        spatialContext.closing_date === null
+      );
+    case ContextChoice.CLOSED:
+      return spatialContext.closing_date !== null;
+    case ContextChoice.ALL:
+      return true;
+  }
 };

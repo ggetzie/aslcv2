@@ -34,6 +34,13 @@ export enum Source {
   D = 'D',
 }
 
+export enum ContextChoice {
+  OPEN = 'OPEN',
+  UNUSED = 'UNUSED',
+  CLOSED = 'CLOSED',
+  ALL = 'ALL',
+}
+
 export function renderSource(source: Source): string {
   switch (source) {
     case Source.D:
