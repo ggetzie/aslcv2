@@ -166,6 +166,7 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
             } catch (e) {
               alert('Failed to upload image');
               setShowUploadProgress(false);
+              setLoading(false);
             }
           },
         },

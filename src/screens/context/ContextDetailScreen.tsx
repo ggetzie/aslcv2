@@ -199,6 +199,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
             } catch (e) {
               alert('Failed to upload Image');
               setShowUploadProgress(false);
+              setLoading(false);
             }
           },
         },
