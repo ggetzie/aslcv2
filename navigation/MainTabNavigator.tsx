@@ -104,17 +104,12 @@ export const MainTabNavigator = () => {
     () => ({
       signIn: async (loginDetails: LoginDetails) => {
         try {
-          setLoading(true);
-          console.log(
-            'signing in',
-            loginDetails.username,
-            loginDetails.password,
-          );
           let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
           const userProfile = {
             authToken: response.data.token,
             username: loginDetails.username,
           };
+          console.log('got token: ', userProfile.authToken);
           await AsyncStorage.setItem('authToken', userProfile.authToken);
           await AsyncStorage.setItem('username', userProfile.username);
           dispatch({type: SET_USER_PROFILE, payload: userProfile});

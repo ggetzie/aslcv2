@@ -6,7 +6,6 @@ import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {MainTabParamList} from '../../../navigation';
 import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
-import {loginUser} from '../../constants/backend_api_action';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
