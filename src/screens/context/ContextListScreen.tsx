@@ -9,7 +9,6 @@ import {verticalScale} from '../../constants/nativeFunctions';
 import {useDispatch, useSelector} from 'react-redux';
 import {AslReducerState} from '../../../redux/reducer';
 import {getContextsForArea, createContext} from '../../constants/backend_api';
-import {getContexts} from '../../constants/backend_api_action';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {SpatialArea} from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {

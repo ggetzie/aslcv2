@@ -36,7 +36,6 @@ import {
 } from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {SpatialArea} from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {getContextDetail, uploadBagPhoto} from '../../constants/backend_api';
-import {getContext} from '../../constants/backend_api_action';
 import {nativeColors} from '../../constants/colors';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {
@@ -159,7 +158,6 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
               await uploadBagPhoto(form, selectedContextId, ({loaded, total}) =>
                 setUploadedPct(Math.round((loaded * 100) / total)),
               );
-              getContext(selectedContextId)(dispatch);
               setShowUploadProgress(false);
               setLoadingMessage('refreshingContext');
               setTimeout(refreshContext, 3000);
