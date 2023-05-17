@@ -10,11 +10,12 @@ import ImagePicker, {
 import {useDispatch, useSelector} from 'react-redux';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import LoadingModalComponent, {
+  LoadingMessage,
+} from '../../components/general/LoadingModalComponent';
 import {RowView} from '../../components/general/RowView';
 import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {
-  getContextTypes,
   updateContext,
   uploadContextPhoto,
   getContextDetail,
@@ -52,7 +53,6 @@ const imagePickerOptions: ImagePickerOptions = {
     path: 'images',
   },
 };
-
 type Props = StackScreenProps<ContextStackParamList, 'ContextDetailScreen'>;
 
 const ContextDetailScreen = ({navigation}: Props) => {
@@ -78,7 +78,8 @@ const ContextDetailScreen = ({navigation}: Props) => {
   const [editingContext, setEditingContext] =
     useState<SpatialContext>(selectedContext);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] =
+    useState<LoadingMessage>('hidden');
   const [types, setTypes] = useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
@@ -89,16 +90,16 @@ const ContextDetailScreen = ({navigation}: Props) => {
     if (selectedContext === null) {
       return;
     }
-    setLoading(true);
+    setLoadingMessage('refreshingContext');
     getContextDetail(selectedContext.id)
       .then((spatialContext) => {
         dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
         setEditingContext(spatialContext);
-        setLoading(false);
+        setLoadingMessage('hidden');
       })
       .catch((error) => {
         console.log(error);
-        setLoading(false);
+        setLoadingMessage('hidden');
       });
   }
 
@@ -151,18 +152,18 @@ const ContextDetailScreen = ({navigation}: Props) => {
   }, [editingContext]);
 
   function updateData() {
-    setLoading(true);
+    setLoadingMessage('savingContext');
     updateContext(editingContext)
       .then(() => {
         // after successful update, update redux
         dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: editingContext});
         dispatch({type: SET_CAN_SUBMIT_CONTEXT, payload: false});
-        setLoading(false);
+        setLoadingMessage('hidden');
       })
       .catch((e) => {
         console.log(e);
         alert('Error Updating Context');
-        setLoading(false);
+        setLoadingMessage('hidden');
       });
   }
 
@@ -194,12 +195,12 @@ const ContextDetailScreen = ({navigation}: Props) => {
                   setUploadedPct(Math.round((loaded * 100) / total)),
               );
               setShowUploadProgress(false);
-              setLoading(true);
+              setLoadingMessage('refreshingContext');
               setTimeout(refreshContext, 3000);
             } catch (e) {
               alert('Failed to upload Image');
               setShowUploadProgress(false);
-              setLoading(false);
+              setLoadingMessage('hidden');
             }
           },
         },
@@ -217,10 +218,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   return (
     <ScrollView style={styles.background}>
-      <LoadingModalComponent
-        showLoading={loading}
-        message="Refreshing context data from server..."
-      />
+      <LoadingModalComponent message={loadingMessage} />
       <UploadProgressModal
         isVisible={showUploadProgress}
         progress={uploadedPct}

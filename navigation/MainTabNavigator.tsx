@@ -72,7 +72,6 @@ export const MainTabNavigator = () => {
   const canSubmitContext = useSelector(
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
-  const [loading, setLoading] = useState(false);
 
   // check if we have saved user profile in async storage
   useEffect(() => {
@@ -97,24 +96,16 @@ export const MainTabNavigator = () => {
     bootstrapAsync();
   }, []);
 
-  if (loading) {
-    return <LoadingComponent />;
-  }
   const authContext = React.useMemo(
     () => ({
-      signIn: async (loginDetails: LoginDetails) => {
+      signIn: async (loginDetails: LoginDetails): Promise<string> => {
         try {
           let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
-          const userProfile = {
-            authToken: response.data.token,
-            username: loginDetails.username,
-          };
-          console.log('got token: ', userProfile.authToken);
-          await AsyncStorage.setItem('authToken', userProfile.authToken);
-          await AsyncStorage.setItem('username', userProfile.username);
-          dispatch({type: SET_USER_PROFILE, payload: userProfile});
+          const token = response.data.token;
+          return token;
         } catch (error) {
           console.log(error);
+          return '';
         }
       },
       signOut: async () => {

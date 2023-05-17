@@ -1,11 +1,9 @@
 import {Picker} from '@react-native-picker/picker';
 import {StackScreenProps} from '@react-navigation/stack';
-import * as React from 'react';
+import React from 'react';
 import {useEffect, useState} from 'react';
 import {
   Alert,
-  FlatList,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,9 +23,10 @@ import CameraModal from '../../components/CameraModal';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import LoadingModalComponent, {
+  LoadingMessage,
+} from '../../components/general/LoadingModalComponent';
 import {RowView} from '../../components/general/RowView';
-import {mediaBaseURL} from '../../constants/Axios';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {
   PhotoDetails,
@@ -81,7 +80,8 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
   const [imagePickStage, setImagePickStage] = useState<boolean>(false);
   const [source, setSource] = useState<Source>(Source.D);
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] =
+    useState<LoadingMessage>('hidden');
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
   const [dryingPhotos, setDryingPhotos] = useState<PhotoDetails[]>([]);
@@ -98,16 +98,16 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
     if (selectedContext === null) {
       return;
     }
-    setLoading(true);
+    setLoadingMessage('refreshingContext');
     getContextDetail(selectedContext.id)
       .then((spatialContext) => {
         dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
-        setLoading(false);
+        setLoadingMessage('hidden');
       })
       .catch((error) => {
         console.log(error);
         alert('Error fetching context');
-        setLoading(false);
+        setLoadingMessage('hidden');
       });
   }
 
@@ -161,12 +161,12 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
               );
               getContext(selectedContextId)(dispatch);
               setShowUploadProgress(false);
-              setLoading(true);
+              setLoadingMessage('refreshingContext');
               setTimeout(refreshContext, 3000);
             } catch (e) {
               alert('Failed to upload image');
               setShowUploadProgress(false);
-              setLoading(false);
+              setLoadingMessage('hidden');
             }
           },
         },
@@ -177,10 +177,7 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
 
   return (
     <ScrollView style={background}>
-      <LoadingModalComponent
-        showLoading={loading}
-        message="Refreshing context data from server..."
-      />
+      <LoadingModalComponent message={loadingMessage} />
       <UploadProgressModal
         isVisible={showUploadProgress}
         progress={uploadedPct}

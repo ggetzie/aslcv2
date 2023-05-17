@@ -1,28 +1,36 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React, {useState, useContext} from 'react';
 import {useDispatch} from 'react-redux';
-import {LoginDetails} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
+import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {MainTabParamList} from '../../../navigation';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import LoadingModalComponent, {
+  LoadingMessage,
+} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
 import {mediaBaseURL} from '../../constants/Axios';
 import {AuthContext} from '../../../navigation/';
+import {SET_USER_PROFILE} from '../../../redux/reducerAction';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 
 const LoginScreen = (_: Props) => {
+  const dispatch = useDispatch();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const host = mediaBaseURL.replace('https://', '');
+  const [loadingMessage, setLoadingMessage] =
+    useState<LoadingMessage>('hidden');
 
   const {signIn} = useContext(AuthContext);
 
   return (
     <View>
+      <LoadingModalComponent message={loadingMessage} />
       <View style={styles.container}>
         <Text style={styles.headerText}>Login</Text>
         <TextInput
@@ -45,7 +53,23 @@ const LoginScreen = (_: Props) => {
         />
       </View>
       <ButtonComponent
-        onPress={() => signIn({username, password})}
+        onPress={async () => {
+          setLoadingMessage('loggingIn');
+          const token = await signIn({username, password});
+          if (token) {
+            const userProfile: UserProfile = {
+              username: username,
+              authToken: token,
+            };
+            await AsyncStorage.setItem('authToken', userProfile.authToken);
+            await AsyncStorage.setItem('username', userProfile.username);
+            setLoadingMessage('hidden');
+            dispatch({type: SET_USER_PROFILE, payload: userProfile});
+          } else {
+            setLoadingMessage('hidden');
+            alert('Invalid username or password');
+          }
+        }}
         text={'Log In'}
         rounded={true}
         buttonStyle={{width: '50%'}}

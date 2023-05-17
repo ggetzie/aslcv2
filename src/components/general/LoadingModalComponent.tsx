@@ -2,17 +2,22 @@ import * as React from 'react';
 import {View, Modal, ActivityIndicator, StyleSheet, Text} from 'react-native';
 import {nativeColors} from '../../constants/colors';
 
-export const LoadingModalComponent = ({
-  showLoading,
-  message,
-}: {
-  showLoading: boolean;
-  message?: string;
-}) => {
+// collect all possible loading messages in one place
+const LOADING_MESSAGES = {
+  hidden: '',
+  refreshingContext: 'Refreshing context data from server...',
+  savingContext: 'Saving context changes...',
+  loggingIn: 'Logging in...',
+  loggingOut: 'Logging out...',
+};
+
+export type LoadingMessage = keyof typeof LOADING_MESSAGES;
+
+const LoadingModalComponent = ({message}: {message: LoadingMessage}) => {
   return (
-    <Modal visible={showLoading} transparent={true}>
+    <Modal visible={message !== 'hidden'} transparent={true}>
       <View style={styles.container}>
-        {message && <Text style={styles.message}>{message}</Text>}
+        <Text style={styles.message}>{LOADING_MESSAGES[message]}</Text>
         <ActivityIndicator color={nativeColors.lightBrown} size="large" />
       </View>
     </Modal>
@@ -36,3 +41,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export {LOADING_MESSAGES};
+export default LoadingModalComponent;
