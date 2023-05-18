@@ -1,9 +1,11 @@
 import React from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
+import {useSelector} from 'react-redux';
 import {PhotoDetails} from '../constants/EnumsAndInterfaces/ContextInterfaces';
 import {horizontalScale, verticalScale} from '../constants/nativeFunctions';
-import {mediaBaseURL} from '../constants/Axios';
+// import {mediaBaseURL} from '../constants/Axios';
 import {uniqueId} from 'underscore';
+import {AslReducerState, HOSTS} from '../../redux/reducer';
 
 const PhotoGrid = ({
   photoList,
@@ -12,6 +14,9 @@ const PhotoGrid = ({
   photoList: PhotoDetails[];
   columns: number;
 }) => {
+  const mediaBaseURL = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => HOSTS[reducer.host].mediaURL,
+  );
   if (photoList.length === 0) {
     return <Text>{'No photos available'}</Text>;
   }

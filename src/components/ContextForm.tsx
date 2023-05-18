@@ -111,21 +111,10 @@ const ContextForm = ({
         <TextInput
           value={description}
           onChangeText={(text) => onDescriptionChange(text)}
-          // onEndEditing={(e) => {
-          //   onDescriptionChange(localDescription);
-          // }}
           multiline={true}
           style={{width: '100%', paddingHorizontal: 10}}
           placeholder="Brief Description of Context"
         />
-        {/* <TextInputComponent
-          value={description}
-          containerStyle={{width: '100%', paddingHorizontal: 10}}
-          onChangeText={(text) => onDescriptionChange(text)}
-          numeric={false}
-          multiline={true}
-          placeHolder="Brief Description of Context"
-        /> */}
       </View>
       {canSubmitGlobal && (
         <>

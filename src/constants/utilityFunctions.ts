@@ -250,3 +250,14 @@ export const filterSpatialContextByChoice = (
       return true;
   }
 };
+
+export function getDomain(url: string): string {
+  // extract the domain from a url
+  const re = /https?:\/\/([^\/]+)\//;
+  const match = url.match(re);
+  if (match && match.length > 1) {
+    return match[1];
+  } else {
+    return '';
+  }
+}

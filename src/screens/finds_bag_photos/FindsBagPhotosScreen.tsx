@@ -291,20 +291,6 @@ const FindsBagPhotosScreen = ({navigation}: Props) => {
             </TouchableOpacity>
           </RowView>
           <PaddingComponent vertical="2%" />
-          {/* {selectedContext.bagphoto_set && (
-            <FlatList
-              keyExtractor={(item) => item.thumbnail_url}
-              data={source === Source.D ? dryingPhotos : fieldPhotos}
-              renderItem={({item}) => (
-                <Image
-                  style={Styles.imageStyle}
-                  resizeMode="cover"
-                  source={{uri: mediaBaseURL + item.thumbnail_url}}
-                />
-              )}
-              numColumns={3}
-            />
-          )} */}
           <PhotoGrid
             photoList={source === Source.D ? dryingPhotos : fieldPhotos}
             columns={3}

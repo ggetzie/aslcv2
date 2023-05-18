@@ -11,6 +11,7 @@ import {
   CLEAR_SPATIAL_AREA_AND_CONTEXT,
   SET_USER_PROFILE_WITH_CREDENTIALS,
   SET_USER_PROFILE,
+  SET_HOST,
 } from './reducerAction';
 import {SpatialArea} from '../src/constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {SpatialContext} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
@@ -19,6 +20,19 @@ export interface ReducerAction<T> {
   type: string;
   payload: T;
 }
+
+export const HOSTS = {
+  test: {
+    baseURL: 'https://j20200007.kotsf.com/asl',
+    mediaURL: 'https://j20200007.kotsf.com',
+  },
+  live: {
+    baseURL: 'http://gpuserver.edu.hku.hk/asl',
+    mediaURL: 'http://gpuserver.edu.hku.hk/asl',
+  },
+};
+
+export type hostChoices = keyof typeof HOSTS;
 
 export interface AslReducerState {
   canSubmitContext: boolean;
@@ -29,6 +43,7 @@ export interface AslReducerState {
   spatialAreaIdToSpatialAreaMap: Map<string, SpatialArea>;
   contextIdToContextMap: Map<string, SpatialContext>;
   userProfile: UserProfile | null;
+  host: hostChoices;
 }
 
 const initialState: AslReducerState = {
@@ -40,6 +55,7 @@ const initialState: AslReducerState = {
   spatialAreaIdToSpatialAreaMap: new Map(),
   contextIdToContextMap: new Map(),
   userProfile: null,
+  host: 'test',
 };
 
 export default function reducer(
@@ -113,6 +129,12 @@ export default function reducer(
       return {
         ...initialState,
       };
+    case SET_HOST:
+      return {
+        ...state,
+        host: action.payload,
+      };
+
     default:
       return {
         ...state,

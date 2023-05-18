@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React, {useState, useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
@@ -12,9 +12,9 @@ import {ButtonComponent} from '../../components/general/ButtonComponent';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
-import {mediaBaseURL} from '../../constants/Axios';
 import {AuthContext} from '../../../navigation/';
 import {SET_USER_PROFILE} from '../../../redux/reducerAction';
+import HostPicker from '../../components/HostPicker';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 
@@ -22,7 +22,6 @@ const LoginScreen = (_: Props) => {
   const dispatch = useDispatch();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const host = mediaBaseURL.replace('https://', '');
   const [loadingMessage, setLoadingMessage] =
     useState<LoadingMessage>('hidden');
 
@@ -52,6 +51,7 @@ const LoginScreen = (_: Props) => {
           placeholder="Password"
         />
       </View>
+      <HostPicker />
       <ButtonComponent
         onPress={async () => {
           setLoadingMessage('loggingIn');
@@ -75,9 +75,6 @@ const LoginScreen = (_: Props) => {
         buttonStyle={{width: '50%'}}
         disabled={username === '' || password === ''}
       />
-      <View style={styles.infoContainer}>
-        <Text style={styles.info}>Host: {host}</Text>
-      </View>
     </View>
   );
 };

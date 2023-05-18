@@ -109,9 +109,9 @@ export const MainTabNavigator = () => {
         }
       },
       signOut: async () => {
-        await AsyncStorage.removeItem('authToken');
-        await AsyncStorage.removeItem('username');
-        dispatch({type: SET_USER_PROFILE, payload: null});
+        console.log('handle signing out from server here');
+        return 'signed out';
+        
       },
     }),
     [],
