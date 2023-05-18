@@ -74,17 +74,33 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   const [isPickingImage, setIsPickingImage] = useState<boolean>(false);
 
-  // copy context from redux to local state for editing
-  const [editingContext, setEditingContext] =
-    useState<SpatialContext>(selectedContext);
+  // copy mutable context data from redux to local state for editing
+  const [openingDate, setOpeningDate] = useState<string | null>(
+    selectedContext.opening_date,
+  );
+  const [closingDate, setClosingDate] = useState<string | null>(
+    selectedContext.closing_date,
+  );
+  const [contextType, setContextType] = useState<string>(selectedContext.type);
+  const [description, setDescription] = useState<string>(
+    selectedContext.description,
+  );
 
   const [loadingMessage, setLoadingMessage] =
     useState<LoadingMessage>('hidden');
-  const [types, setTypes] = useState<string[]>(defaultContextTypes);
+  const [contextTypes, setContextTypes] =
+    useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
 
   const tabNav = navigation.getParent();
+
+  function setMutableContext(spatialContext: SpatialContext) {
+    setOpeningDate(spatialContext.opening_date);
+    setClosingDate(spatialContext.closing_date);
+    setContextType(spatialContext.type);
+    setDescription(spatialContext.description);
+  }
 
   function refreshContext() {
     if (selectedContext === null) {
@@ -94,7 +110,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
     getContextDetail(selectedContext.id)
       .then((spatialContext) => {
         dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: spatialContext});
-        setEditingContext(spatialContext);
+        setMutableContext(spatialContext);
         setLoadingMessage('hidden');
       })
       .catch((error) => {
@@ -131,32 +147,36 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   useEffect(() => {
     // when editingContext changes, check if can submit
-    if (editingContext == null) {
+    if (selectedContext == null) {
       dispatch(setCanSubmitContext(false));
       return;
     }
-    const datesAreValid = validateDates(
-      editingContext.opening_date,
-      editingContext.closing_date,
-    );
+    const datesAreValid = validateDates(openingDate, closingDate);
 
     // compare the local editing context to the selected context from redux
     const contextDataChanged =
-      editingContext.description != selectedContext.description ||
-      editingContext.type != selectedContext.type ||
-      editingContext.opening_date != selectedContext.opening_date ||
-      editingContext.closing_date != selectedContext.closing_date;
+      description != selectedContext.description ||
+      contextType != selectedContext.type ||
+      openingDate != selectedContext.opening_date ||
+      closingDate != selectedContext.closing_date;
 
     const newCanSubmit = datesAreValid && contextDataChanged;
     dispatch(setCanSubmitContext(newCanSubmit));
-  }, [editingContext]);
+  }, [description, contextType, openingDate, closingDate, selectedContext]);
 
   function updateData() {
     setLoadingMessage('savingContext');
-    updateContext(editingContext)
+    const newContext = {
+      ...selectedContext,
+      description: description,
+      type: contextType,
+      opening_date: openingDate,
+      closing_date: closingDate,
+    };
+    updateContext(newContext)
       .then(() => {
         // after successful update, update redux
-        dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: editingContext});
+        dispatch({type: SET_SELECTED_SPATIAL_CONTEXT, payload: newContext});
         dispatch({type: SET_CAN_SUBMIT_CONTEXT, payload: false});
         setLoadingMessage('hidden');
       })
@@ -208,7 +228,7 @@ const ContextDetailScreen = ({navigation}: Props) => {
       {cancelable: false},
     );
   }
-  if (editingContext === null || selectedContext === null) {
+  if (selectedContext === null) {
     return (
       <ScrollView>
         <Text>No context selected</Text>
@@ -259,25 +279,22 @@ const ContextDetailScreen = ({navigation}: Props) => {
       </RowView>
 
       <ContextForm
-        openingDate={editingContext.opening_date}
-        onOpeningDateChange={(date) =>
-          setEditingContext({...editingContext, opening_date: date})
-        }
-        closingDate={editingContext.closing_date}
-        onClosingDateChange={(date) =>
-          setEditingContext({...editingContext, closing_date: date})
-        }
-        contextType={editingContext.type}
-        onContextTypeChange={(type) =>
-          setEditingContext({...editingContext, type: type})
-        }
-        contextTypes={types}
-        description={editingContext.description}
-        onDescriptionChange={(text) =>
-          setEditingContext({...editingContext, description: text})
-        }
-        onReset={() => setEditingContext(selectedContext)}
-        onSave={() => updateData()}
+        openingDate={openingDate}
+        onOpeningDateChange={(date) => setOpeningDate(date)}
+        closingDate={closingDate}
+        onClosingDateChange={(date) => setClosingDate(date)}
+        contextType={contextType}
+        onContextTypeChange={(cType) => setContextType(cType)}
+        contextTypes={contextTypes}
+        description={description}
+        onDescriptionChange={(text) => setDescription(text)}
+        onReset={() => {
+          setDescription(selectedContext.description);
+          setContextType(selectedContext.type);
+          setOpeningDate(selectedContext.opening_date);
+          setClosingDate(selectedContext.closing_date);
+        }}
+        onSave={updateData}
       />
       <Divider />
       <View style={{paddingHorizontal: 10}}>
@@ -293,13 +310,13 @@ const ContextDetailScreen = ({navigation}: Props) => {
         <RowView>
           <Text style={styles.labelStyle}>Total Context Photos</Text>
           <Text>
-            {editingContext.contextphoto_set == null
+            {selectedContext.contextphoto_set == null
               ? 0
-              : editingContext.contextphoto_set.length}
+              : selectedContext.contextphoto_set.length}
           </Text>
         </RowView>
         <PaddingComponent vertical="2%" />
-        <PhotoGrid photoList={editingContext.contextphoto_set} columns={3} />
+        <PhotoGrid photoList={selectedContext.contextphoto_set} columns={3} />
       </View>
     </ScrollView>
   );

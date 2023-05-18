@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -48,6 +54,7 @@ const ContextForm = ({
 
   const [openingVisible, setOpeningVisible] = useState(false);
   const [closingVisible, setClosingVisible] = useState(false);
+  const [localDescription, setLocalDescription] = useState<string>(description);
 
   return (
     <View style={styles.container}>
@@ -101,14 +108,24 @@ const ContextForm = ({
         <Text style={[styles.labelStyle, {paddingHorizontal: 10}]}>
           Description:
         </Text>
-        <TextInputComponent
+        <TextInput
+          value={description}
+          onChangeText={(text) => onDescriptionChange(text)}
+          // onEndEditing={(e) => {
+          //   onDescriptionChange(localDescription);
+          // }}
+          multiline={true}
+          style={{width: '100%', paddingHorizontal: 10}}
+          placeholder="Brief Description of Context"
+        />
+        {/* <TextInputComponent
           value={description}
           containerStyle={{width: '100%', paddingHorizontal: 10}}
           onChangeText={(text) => onDescriptionChange(text)}
           numeric={false}
           multiline={true}
           placeHolder="Brief Description of Context"
-        />
+        /> */}
       </View>
       {canSubmitGlobal && (
         <>
