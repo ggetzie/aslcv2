@@ -126,7 +126,6 @@ const ContextDetailScreen = ({navigation}: Props) => {
     // update context types on first load
     getContextTypes()
       .then((newContextTypes) => {
-        console.log('got new context types: ', newContextTypes);
         dispatch({type: 'SET_CONTEXT_TYPES', payload: newContextTypes});
       })
       .catch((error) => {

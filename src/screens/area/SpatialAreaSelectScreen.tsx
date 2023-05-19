@@ -9,7 +9,10 @@ import {
   UTM_Hemisphere,
 } from '../../constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 
-import {CLEAR_SPATIAL_AREA_AND_CONTEXT} from '../../../redux/reducerAction';
+import {
+  CLEAR_SPATIAL_AREA_AND_CONTEXT,
+  SET_USER_PROFILE,
+} from '../../../redux/reducerAction';
 import {UTMForm} from '../../components/UTMForm';
 import {getFilteredSpatialAreasList} from '../../constants/backend_api';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
@@ -102,8 +105,10 @@ const SpatialAreaSelectScreen = (props: Props) => {
         setLoading(false);
       })
       .catch((error) => {
-        console.log(error);
+        console.log(error.message);
+        setSpatialAreaList([]);
         setLoading(false);
+        dispatch({type: SET_USER_PROFILE, payload: null});
       });
   }, []);
 

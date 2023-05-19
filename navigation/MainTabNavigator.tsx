@@ -71,6 +71,10 @@ export const MainTabNavigator = () => {
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
+  const currentHost = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.host,
+  );
+
   // check if we have saved user profile in async storage
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -92,6 +96,10 @@ export const MainTabNavigator = () => {
       }
     };
     bootstrapAsync();
+
+    if (!axios.defaults.baseURL) {
+      axios.defaults.baseURL = currentHost;
+    }
   }, []);
 
   const authContext = React.useMemo(
