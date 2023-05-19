@@ -76,6 +76,14 @@ const ContextListScreen = ({navigation}: Props) => {
     });
   }, [navigation, spatialString]);
 
+  if (selectedArea == null) {
+    return (
+      <ScrollView style={styles.background}>
+        <Text>Select an area first</Text>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView style={styles.background}>
       <ButtonComponent

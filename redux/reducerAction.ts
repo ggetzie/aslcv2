@@ -22,6 +22,7 @@ export const SET_USER_PROFILE: string = 'SET_USER_PROFILE';
 export const CLEAR_SPATIAL_AREA_AND_CONTEXT: string =
   'CLEAR_SPATIAL_AREA_AND_CONTEXT';
 export const SET_HOST: string = 'SET_HOST';
+export const SET_CONTEXT_TYPES: string = 'SET_CONTEXT_TYPES';
 
 export function setCanSubmitContext(flag: boolean): ReducerAction<boolean> {
   return {

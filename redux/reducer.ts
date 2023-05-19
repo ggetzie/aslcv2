@@ -12,10 +12,11 @@ import {
   SET_USER_PROFILE_WITH_CREDENTIALS,
   SET_USER_PROFILE,
   SET_HOST,
+  SET_CONTEXT_TYPES,
 } from './reducerAction';
 import {SpatialArea} from '../src/constants/EnumsAndInterfaces/SpatialAreaInterfaces';
 import {SpatialContext} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
-
+import {defaultContextTypes} from '../src/constants/EnumsAndInterfaces/ContextInterfaces';
 export interface ReducerAction<T> {
   type: string;
   payload: T;
@@ -28,7 +29,7 @@ export const HOSTS = {
   },
   live: {
     baseURL: 'http://gpuserver.edu.hku.hk/asl',
-    mediaURL: 'http://gpuserver.edu.hku.hk/asl',
+    mediaURL: 'http://gpuserver.edu.hku.hk',
   },
 };
 
@@ -44,6 +45,7 @@ export interface AslReducerState {
   contextIdToContextMap: Map<string, SpatialContext>;
   userProfile: UserProfile | null;
   host: hostChoices;
+  contextTypes: string[];
 }
 
 const initialState: AslReducerState = {
@@ -56,6 +58,7 @@ const initialState: AslReducerState = {
   contextIdToContextMap: new Map(),
   userProfile: null,
   host: 'test',
+  contextTypes: defaultContextTypes,
 };
 
 export default function reducer(
@@ -133,6 +136,12 @@ export default function reducer(
       return {
         ...state,
         host: action.payload,
+      };
+
+    case SET_CONTEXT_TYPES:
+      return {
+        ...state,
+        contextTypes: action.payload,
       };
 
     default:

@@ -1,32 +1,30 @@
-import React, {useEffect, useState, createContext} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useSelector, useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import axios from 'axios';
+import React, {useEffect} from 'react';
+import {Image, StyleSheet, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {verticalScale} from '../src/constants/nativeFunctions';
-
-import LoginScreen from '../src/screens/login_signup/LoginScreen';
 import {nativeColors} from '../src/constants/colors';
 import {
   ContextBottomNav,
   FindBagPhotosBottomNav,
   HomeBottomNav,
-  SettingsBottomNav,
   LoginBottomNav,
+  SettingsBottomNav,
 } from '../src/constants/imageAssets';
+import LoginScreen from '../src/screens/login_signup/LoginScreen';
 
+import {AuthContext} from '.';
 import {AslReducerState} from '../redux/reducer';
-import SettingsNavigator from './SettingsNavigator';
-import AreaNavigator from './AreaNavigator';
-import ContextNavigator from './ContextNavigator';
-import FindsNavigator from './FindsNavigator';
-import {LoadingComponent} from '../src/components/general/LoadingComponent';
 import {SET_USER_PROFILE} from '../redux/reducerAction';
 import {LoginDetails} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
 import {API_ENDPOINTS} from '../src/constants/endpoints';
-import {AuthContext} from '.';
+import AreaNavigator from './AreaNavigator';
+import ContextNavigator from './ContextNavigator';
+import FindsNavigator from './FindsNavigator';
+import SettingsNavigator from './SettingsNavigator';
 
 const getTabOptions = ({route}) => ({
   tabBarIcon: ({focused, color, size}) => {
@@ -111,7 +109,6 @@ export const MainTabNavigator = () => {
       signOut: async () => {
         console.log('handle signing out from server here');
         return 'signed out';
-        
       },
     }),
     [],

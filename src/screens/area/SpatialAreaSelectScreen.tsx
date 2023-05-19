@@ -14,7 +14,6 @@ import {UTMForm} from '../../components/UTMForm';
 import {getFilteredSpatialAreasList} from '../../constants/backend_api';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
 import {AreaStackParamList} from '../../../navigation';
-import {AslReducerState} from '../../../redux/reducer';
 import LoadingBar from '../../components/LoadingBar';
 import SpatialAreaCell from '../../components/SpatialAreaCell';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
@@ -95,12 +94,17 @@ const SpatialAreaSelectScreen = (props: Props) => {
 
   useEffect(() => {
     setLoading(true);
-    updateSpatialAreas().then((newSpatialAreas) => {
-      setSpatialAreaList(newSpatialAreas);
-      setEastingList(getEastings(newSpatialAreas));
-      setNorthingList(getNorthings(newSpatialAreas));
-      setLoading(false);
-    });
+    updateSpatialAreas()
+      .then((newSpatialAreas) => {
+        setSpatialAreaList(newSpatialAreas);
+        setEastingList(getEastings(newSpatialAreas));
+        setNorthingList(getNorthings(newSpatialAreas));
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      });
   }, []);
 
   return (

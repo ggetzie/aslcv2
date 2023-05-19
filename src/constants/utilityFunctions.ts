@@ -205,9 +205,9 @@ export const validateDates = (
       alert('Warning: Opening date is more than a week in the future!');
     }
     if (closingDateISO) {
-      // if both opening and closing dates are defined, check that closing date is after opening date
+      // if both opening and closing dates are defined, check that closing date is on or after opening date
       const closingDate = new Date(closingDateISO);
-      const closingIsAfterOpening = closingDate > openingDate;
+      const closingIsAfterOpening = closingDate >= openingDate;
       if (!closingIsAfterOpening) {
         alert("Closing date can't be before opening date");
         return false;

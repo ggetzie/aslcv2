@@ -32,7 +32,6 @@ const ContextForm = ({
   onContextTypeChange,
   description,
   onDescriptionChange,
-  contextTypes,
   onReset,
   onSave,
 }: {
@@ -44,7 +43,6 @@ const ContextForm = ({
   onContextTypeChange: (type: string) => void;
   description: string;
   onDescriptionChange: (description: string) => void;
-  contextTypes: string[];
   onReset: () => void;
   onSave: () => void;
 }) => {
@@ -52,9 +50,12 @@ const ContextForm = ({
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
+  const contextTypes: string[] = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.contextTypes,
+  );
+
   const [openingVisible, setOpeningVisible] = useState(false);
   const [closingVisible, setClosingVisible] = useState(false);
-  const [localDescription, setLocalDescription] = useState<string>(description);
 
   return (
     <View style={styles.container}>

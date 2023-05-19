@@ -14,11 +14,15 @@ import LoadingModalComponent, {
   LoadingMessage,
 } from '../../components/general/LoadingModalComponent';
 import {RowView} from '../../components/general/RowView';
-import {SpatialContext} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 import {
+  SpatialContext,
+  defaultContextTypes,
+} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
+import {
+  getContextDetail,
+  getContextTypes,
   updateContext,
   uploadContextPhoto,
-  getContextDetail,
 } from '../../constants/backend_api';
 import {horizontalScale, verticalScale} from '../../constants/nativeFunctions';
 import {
@@ -40,7 +44,6 @@ import HeaderBack from '../../components/HeaderBack';
 import PhotoGrid from '../../components/PhotoGrid';
 import UploadProgressModal from '../../components/UploadProgressModal';
 import {ScreenColors} from '../../constants/EnumsAndInterfaces/AppState';
-import {defaultContextTypes} from '../../constants/EnumsAndInterfaces/ContextInterfaces';
 
 const imagePickerOptions: ImagePickerOptions = {
   title: 'Select Photo',
@@ -76,20 +79,20 @@ const ContextDetailScreen = ({navigation}: Props) => {
 
   // copy mutable context data from redux to local state for editing
   const [openingDate, setOpeningDate] = useState<string | null>(
-    selectedContext.opening_date,
+    selectedContext !== null ? selectedContext.opening_date : null,
   );
   const [closingDate, setClosingDate] = useState<string | null>(
-    selectedContext.closing_date,
+    selectedContext !== null ? selectedContext.closing_date : null,
   );
-  const [contextType, setContextType] = useState<string>(selectedContext.type);
+  const [contextType, setContextType] = useState<string>(
+    selectedContext !== null ? selectedContext.type : defaultContextTypes[0],
+  );
   const [description, setDescription] = useState<string>(
-    selectedContext.description,
+    selectedContext !== null ? selectedContext.description : '',
   );
 
   const [loadingMessage, setLoadingMessage] =
     useState<LoadingMessage>('hidden');
-  const [contextTypes, setContextTypes] =
-    useState<string[]>(defaultContextTypes);
   const [uploadedPct, setUploadedPct] = useState<number>(0);
   const [showUploadProgress, setShowUploadProgress] = useState<boolean>(false);
 
@@ -118,6 +121,18 @@ const ContextDetailScreen = ({navigation}: Props) => {
         setLoadingMessage('hidden');
       });
   }
+
+  useEffect(() => {
+    // update context types on first load
+    getContextTypes()
+      .then((newContextTypes) => {
+        console.log('got new context types: ', newContextTypes);
+        dispatch({type: 'SET_CONTEXT_TYPES', payload: newContextTypes});
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   useEffect(() => {
     if (selectedContext == null) {
@@ -285,7 +300,6 @@ const ContextDetailScreen = ({navigation}: Props) => {
         onClosingDateChange={(date) => setClosingDate(date)}
         contextType={contextType}
         onContextTypeChange={(cType) => setContextType(cType)}
-        contextTypes={contextTypes}
         description={description}
         onDescriptionChange={(text) => setDescription(text)}
         onReset={() => {
