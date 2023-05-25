@@ -82,7 +82,6 @@ export const MainTabNavigator = () => {
         username = await AsyncStorage.getItem('username');
         host = await AsyncStorage.getItem('host');
         if (host !== null) {
-          console.log('found host in async storage', host);
           dispatch({type: SET_HOST, payload: host});
           axios.defaults.baseURL = HOSTS[host].baseURL;
         }
