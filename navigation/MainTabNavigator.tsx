@@ -17,8 +17,8 @@ import {
 import LoginScreen from '../src/screens/login_signup/LoginScreen';
 
 import {AuthContext} from '.';
-import {AslReducerState} from '../redux/reducer';
-import {SET_USER_PROFILE} from '../redux/reducerAction';
+import {AslReducerState, HOSTS} from '../redux/reducer';
+import {SET_USER_PROFILE, SET_HOST} from '../redux/reducerAction';
 import {LoginDetails} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
 import {API_ENDPOINTS} from '../src/constants/endpoints';
 import AreaNavigator from './AreaNavigator';
@@ -71,18 +71,21 @@ export const MainTabNavigator = () => {
     ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
   );
 
-  const currentHost = useSelector(
-    ({reducer}: {reducer: AslReducerState}) => reducer.host,
-  );
-
-  // check if we have saved user profile in async storage
+  // check if we have saved user profile and host in async storage
   useEffect(() => {
     const bootstrapAsync = async () => {
       let authToken;
       let username;
+      let host;
       try {
         authToken = await AsyncStorage.getItem('authToken');
         username = await AsyncStorage.getItem('username');
+        host = await AsyncStorage.getItem('host');
+        if (host !== null) {
+          console.log('found host in async storage', host);
+          dispatch({type: SET_HOST, payload: host});
+          axios.defaults.baseURL = HOSTS[host].baseURL;
+        }
         if (authToken !== null && username !== null) {
           dispatch({
             type: SET_USER_PROFILE,
@@ -96,10 +99,6 @@ export const MainTabNavigator = () => {
       }
     };
     bootstrapAsync();
-
-    if (!axios.defaults.baseURL) {
-      axios.defaults.baseURL = currentHost;
-    }
   }, []);
 
   const authContext = React.useMemo(

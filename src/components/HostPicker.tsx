@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React from 'react';
 import axios from 'axios';
 import {View, StyleSheet, Text} from 'react-native';
@@ -20,9 +21,10 @@ const HostPicker = () => {
       <Picker
         style={{minWidth: 270}}
         selectedValue={currentHost}
-        onValueChange={(newHost) => {
+        onValueChange={async (newHost) => {
           axios.defaults.baseURL = HOSTS[newHost].baseURL;
           dispatch({type: SET_HOST, payload: newHost});
+          await AsyncStorage.setItem('host', newHost);
         }}>
         {Object.keys(HOSTS).map((host) => (
           <Picker.Item

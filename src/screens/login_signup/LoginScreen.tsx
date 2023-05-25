@@ -15,6 +15,7 @@ import {PaddingComponent} from '../../components/PaddingComponent';
 import {AuthContext} from '../../../navigation/';
 import {SET_USER_PROFILE} from '../../../redux/reducerAction';
 import HostPicker from '../../components/HostPicker';
+import {AslReducerState} from '../../../redux/reducer';
 
 type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
 

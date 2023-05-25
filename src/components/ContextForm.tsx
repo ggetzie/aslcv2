@@ -109,13 +109,18 @@ const ContextForm = ({
         <Text style={[styles.labelStyle, {paddingHorizontal: 10}]}>
           Description:
         </Text>
-        <TextInput
-          value={description}
-          onChangeText={(text) => onDescriptionChange(text)}
-          multiline={true}
-          style={{width: '100%', paddingHorizontal: 10}}
-          placeholder="Brief Description of Context"
-        />
+        <View style={styles.textContainer}>
+          <TextInput
+            value={description}
+            onChangeText={(text) => onDescriptionChange(text)}
+            multiline={true}
+            style={{
+              paddingHorizontal: 10,
+              width: '100%',
+            }}
+            placeholder="Brief Description of Context"
+          />
+        </View>
       </View>
       {canSubmitGlobal && (
         <>
@@ -178,11 +183,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     marginTop: 20,
+    width: '100%',
   },
   warning: {
     color: 'red',
     fontSize: verticalScale(12),
     textAlign: 'center',
+    width: '100%',
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     width: '100%',
   },
 });
