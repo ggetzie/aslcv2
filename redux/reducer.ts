@@ -28,8 +28,8 @@ export const HOSTS = {
     mediaURL: 'https://j20200007.kotsf.com',
   },
   live: {
-    baseURL: 'http://gpuserver.edu.hku.hk/asl',
-    mediaURL: 'http://gpuserver.edu.hku.hk',
+    baseURL: 'http://apsap.arts.hku.hk/asl',
+    mediaURL: 'http://apsap.arts.hku.hk',
   },
 };
 
