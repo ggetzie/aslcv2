@@ -81,7 +81,7 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+// apply from: "../../node_modules/react-native/build.gradle.kts"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -184,13 +184,13 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:0.62.3"  // From node_modules
+    implementation 'com.facebook.react:react-native:0.63.5'  // From node_modules
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     implementation 'com.android.support:multidex:1.0.3'
 
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.0'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.0.0'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
@@ -201,7 +201,7 @@ dependencies {
         exclude group:'com.squareup.okhttp3', module:'okhttp'
     }
 
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
+    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:0.182.0") {
         exclude group:'com.facebook.flipper'
     }
 

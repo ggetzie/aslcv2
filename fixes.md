@@ -16,3 +16,5 @@
 
 - AAPT: error: resource android:attr/lStar not found.
   Upgraded react native to 0.63.5 per [this issue](https://github.com/facebook/react-native/issues/35210)
+
+# Changes to start working again in 2024 on MacOS

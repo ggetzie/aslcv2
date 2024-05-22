@@ -3,16 +3,23 @@
 buildscript {
     ext {
         buildToolsVersion = "29.0.2"
-        minSdkVersion = 16
-        compileSdkVersion = 29
-        targetSdkVersion = 29
+        minSdkVersion = 21
+        compileSdkVersion = 30
+        targetSdkVersion = 30
+        // update per https://stackoverflow.com/questions/73501607/failed-to-transform-annotation-experimental-1-3-0-rc01-aar-react-native
+        // minSdkVersion = 16
+        // compileSdkVersion = 29
+        // targetSdkVersion = 29
     }
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:4.0.1')
+
+        // classpath('com.android.tools.build:gradle:4.0.1') // old
+        // update per https://stackoverflow.com/questions/73501607/failed-to-transform-annotation-experimental-1-3-0-rc01-aar-react-native
+        classpath('com.android.tools.build:gradle:4.1.3')
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -28,7 +35,7 @@ allprojects {
             // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
-
+        maven { url "https://maven.google.com" } // added per https://stackoverflow.com/questions/69535654/react-native-execution-failed-for-task-appcheckdebugaarmetadata
         google()
         jcenter()
         maven { url 'https://www.jitpack.io' }
