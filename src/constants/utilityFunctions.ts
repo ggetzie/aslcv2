@@ -1,6 +1,6 @@
 import {AxiosResponse} from 'axios';
 import moment from 'moment-timezone';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {StoredItems} from './StoredItem';
 import {

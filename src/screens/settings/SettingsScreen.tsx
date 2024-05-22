@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {Text, View} from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useSelector, useDispatch} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {RowView} from '../../components/general/RowView';
 import {verticalScale} from '../../constants/nativeFunctions';

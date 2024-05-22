@@ -1,3 +1,12 @@
+// from https://stackoverflow.com/questions/57688507/how-to-fix-plugin-was-not-found-in-any-of-the-following-sources#61605800
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'aslcv2'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)

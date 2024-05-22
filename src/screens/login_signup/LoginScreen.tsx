@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useState, useContext} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';

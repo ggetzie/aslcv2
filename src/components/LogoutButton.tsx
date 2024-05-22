@@ -1,6 +1,6 @@
 import React from 'react';
 import {ButtonComponent} from './general/ButtonComponent';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch} from 'react-redux';
 import {StoredItems} from '../constants/StoredItem';
 import {resetReducerData} from '../../redux/reducerAction';
