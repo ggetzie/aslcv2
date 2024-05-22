@@ -1,209 +1,187 @@
-import * as React from 'react';
-import {Image, StyleSheet} from 'react-native';
-import {createStackNavigator} from 'react-navigation-stack';
-import {createBottomTabNavigator} from 'react-navigation-tabs';
+import AsyncStorage from '@react-native-community/async-storage';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import axios from 'axios';
+import React, {useEffect} from 'react';
+import {Image, StyleSheet, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {verticalScale} from '../src/constants/nativeFunctions';
-import SignupScreen from '../src/screens/login_signup/SignupScreen';
-import DataLoadingComponent from '../src/components/DataLoadingComponent';
-import LoginScreen from '../src/screens/login_signup/LoginScreen';
-import SettingsScreen from '../src/screens/settings/SettingsScreen';
 import {nativeColors} from '../src/constants/colors';
 import {
   ContextBottomNav,
   FindBagPhotosBottomNav,
   HomeBottomNav,
+  LoginBottomNav,
   SettingsBottomNav,
 } from '../src/constants/imageAssets';
-import SpatialAreaSelectScreen from '../src/screens/area/SpatialAreaSelectScreen';
-import FindsBagPhotosScreen from '../src/screens/finds_bag_photos/FindsBagPhotosScreen';
-import SelectFromListScreen from '../src/screens/area/SelectFromListScreen';
-import ContextListScreen from '../src/screens/context/ContextListScreen';
-import ContextDetailScreen from '../src/screens/context/ContextDetailScreen';
-import {StateDependentTabIcon} from '../src/components/StateDependentTabIcon';
-import {
-  AppState,
-  getAppState,
-} from '../src/constants/EnumsAndInterfaces/AppState';
+import LoginScreen from '../src/screens/login_signup/LoginScreen';
 
-function defaultNavOptions({navigation}) {
-  return {
-    headerStyle: {
-      //   backgroundColor: getAppState(),
-      margin: 'auto',
-      elevation: 0,
-      shadowOpacity: 0,
-      borderBottomWidth: 0,
-    },
-    headerTitleStyle: {
-      fontWeight: 'bold',
-      color: 'black',
-      fontSize: verticalScale(18),
-    },
-  };
-}
+import {AuthContext} from '.';
+import {AslReducerState, HOSTS} from '../redux/reducer';
+import {SET_USER_PROFILE, SET_HOST} from '../redux/reducerAction';
+import {LoginDetails} from '../src/constants/EnumsAndInterfaces/UserDataInterfaces';
+import {API_ENDPOINTS} from '../src/constants/endpoints';
+import AreaNavigator from './AreaNavigator';
+import ContextNavigator from './ContextNavigator';
+import FindsNavigator from './FindsNavigator';
+import SettingsNavigator from './SettingsNavigator';
 
-const SettingsScreenStack = createStackNavigator(
-  {
-    SettingsScreen: SettingsScreen,
-    // Other screens go here
-  },
-  {
-    navigationOptions: {
-      tabBarIcon: ({focused}) =>
-        focused ? (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
-            resizeMode={'contain'}
-            source={SettingsBottomNav}
-          />
-        ) : (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
-            resizeMode={'contain'}
-            source={SettingsBottomNav}
-          />
-        ),
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  },
-);
+const getTabOptions = ({route}) => ({
+  tabBarIcon: ({focused, color, size}) => {
+    let icon;
+    if (route.name === 'Login') {
+      icon = LoginBottomNav;
+    } else if (route.name === 'AreaNavigator') {
+      icon = HomeBottomNav;
+    } else if (route.name === 'ContextNavigator') {
+      icon = ContextBottomNav;
+    } else if (route.name === 'FindsNavigator') {
+      icon = FindBagPhotosBottomNav;
+    } else if (route.name === 'SettingsNavigator') {
+      icon = SettingsBottomNav;
+    }
 
-const AreaScreenStack = createStackNavigator(
-  {
-    SpatialAreaSelectScreen: SpatialAreaSelectScreen,
-    SelectFromListScreen: SelectFromListScreen,
-    // Other screens go here
+    return (
+      <View style={[styles.tabIconContainer, focused ? styles.focused : {}]}>
+        <Image source={icon} resizeMode="contain" style={styles.tabIcon} />
+      </View>
+    );
   },
-  {
-    navigationOptions: {
-      tabBarIcon: ({focused}) =>
-        focused ? (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]}
-            resizeMode={'contain'}
-            source={HomeBottomNav}
-          />
-        ) : (
-          <Image
-            style={[styles.bottomImage, {tintColor: nativeColors.grey}]}
-            resizeMode={'contain'}
-            source={HomeBottomNav}
-          />
-        ),
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  },
-);
+  tabBarActiveTintColor: nativeColors.iconBrown,
+  tabBarInactiveTintColor: nativeColors.grey,
+  tabBarShowLabel: false,
+});
 
-const ContextScreenStack = createStackNavigator(
-  {
-    ContextListScreen: ContextListScreen,
-    ContextDetailScreen: ContextDetailScreen,
-    // Other screens go here
-  },
-  {
-    navigationOptions: {
-      tabBarIcon: ({focused}) => {
-        return (
-          <StateDependentTabIcon
-            focused={focused}
-            icon={ContextBottomNav}
-            showState={[AppState.SELECTING_CONTEXT, AppState.CONTEXT_SCREEN]}
-          />
-        );
-      },
-      tabBarOnPress: ({defaultHandler}) => {
-        if (
-          [AppState.SELECTING_CONTEXT, AppState.CONTEXT_SCREEN].includes(
-            getAppState(),
-          )
-        ) {
-          return defaultHandler();
+const MainTab = createBottomTabNavigator();
+
+export const MainTabNavigator = () => {
+  const dispatch = useDispatch();
+  const isSignedIn = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.userProfile !== null,
+  );
+  const areaSelected = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialArea !== null,
+  );
+  const contextSelected = useSelector(
+    ({reducer}: {reducer: AslReducerState}) =>
+      reducer.selectedSpatialContext !== null,
+  );
+  const canSubmitContext = useSelector(
+    ({reducer}: {reducer: AslReducerState}) => reducer.canSubmitContext,
+  );
+
+  // check if we have saved user profile and host in async storage
+  useEffect(() => {
+    const bootstrapAsync = async () => {
+      let authToken;
+      let username;
+      let host;
+      try {
+        authToken = await AsyncStorage.getItem('authToken');
+        username = await AsyncStorage.getItem('username');
+        host = await AsyncStorage.getItem('host');
+        if (host !== null) {
+          dispatch({type: SET_HOST, payload: host});
+          axios.defaults.baseURL = HOSTS[host].baseURL;
         }
-        return null;
-      },
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  },
-);
-
-const FindsBagPhotosScreenStack = createStackNavigator(
-  {
-    FindsBagPhotosScreen: FindsBagPhotosScreen,
-    // Other screens go here
-  },
-  {
-    navigationOptions: {
-      tabBarIcon: ({focused}) => (
-        <StateDependentTabIcon
-          focused={focused}
-          icon={FindBagPhotosBottomNav}
-          showState={[AppState.CONTEXT_SCREEN]}
-        />
-      ),
-      tabBarOnPress: ({defaultHandler}) => {
-        if (getAppState() == AppState.CONTEXT_SCREEN) {
-          return defaultHandler();
+        if (authToken !== null && username !== null) {
+          dispatch({
+            type: SET_USER_PROFILE,
+            payload: {authToken: authToken, username: username},
+          });
+        } else {
+          dispatch({type: SET_USER_PROFILE, payload: null});
         }
-        return null;
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    bootstrapAsync();
+  }, []);
+
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async (loginDetails: LoginDetails): Promise<string> => {
+        try {
+          let response = await axios.post(API_ENDPOINTS.Login, loginDetails);
+          const token = response.data.token;
+          return token;
+        } catch (error) {
+          console.log(error);
+          return '';
+        }
       },
-    },
-    defaultNavigationOptions: defaultNavOptions,
-  },
-);
-
-// const PhotogrammetryScreenStack = createStackNavigator({
-//     PhotogrammetryScreen: PhotogrammetryScreen,
-//     // Other screens go here
-// }, {
-//     navigationOptions: {
-//         tabBarIcon: ({focused}) =>
-//             (focused
-//                     ? <Image style={[styles.bottomImage, {tintColor: nativeColors.iconBrown}]} resizeMode={"contain"}
-//                              source={PhotogrammetryBottomNav}/>
-//                     : <Image style={[styles.bottomImage, {tintColor: nativeColors.grey}]} resizeMode={"contain"}
-//                              source={PhotogrammetryBottomNav}/>
-//             ),
-//     },
-//     defaultNavigationOptions:defaultNavOptions
-// });
-
-export const LoginScreenNavigator = createStackNavigator(
-  {
-    LoginScreen: LoginScreen,
-    SignupScreen: SignupScreen,
-    DataLoadingComponent: DataLoadingComponent,
-  },
-  {
-    headerMode: 'none',
-  },
-);
-
-export const MainTabNavigator = createBottomTabNavigator(
-  {
-    AreaScreenStack: AreaScreenStack,
-    ContextScreenStack: ContextScreenStack,
-    FindsBagPhotosScreen: FindsBagPhotosScreenStack,
-    SettingsScreenStack: SettingsScreenStack,
-    // PhotogrammetryScreenStack: PhotogrammetryScreenStack
-  },
-  {
-    initialRouteName: 'AreaScreenStack',
-    tabBarOptions: {
-      showLabel: false,
-      style: {
-        backgroundColor: 'white',
-        elevation: 0,
-        shadowOpacity: 0,
-        borderTopWidth: 0,
+      signOut: async () => {
+        console.log('handle signing out from server here');
+        return 'signed out';
       },
-    },
-  },
-);
+    }),
+    [],
+  );
+
+  return (
+    <AuthContext.Provider value={authContext}>
+      <MainTab.Navigator screenOptions={getTabOptions}>
+        {isSignedIn ? (
+          <>
+            {!canSubmitContext && (
+              <MainTab.Screen
+                name="AreaNavigator"
+                component={AreaNavigator}
+                options={{headerShown: false, tabBarHideOnKeyboard: true}}
+              />
+            )}
+            {areaSelected && (
+              <MainTab.Screen
+                name="ContextNavigator"
+                component={ContextNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+            {contextSelected && !canSubmitContext && (
+              <MainTab.Screen
+                name="FindsNavigator"
+                component={FindsNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+            {!canSubmitContext && (
+              <MainTab.Screen
+                name="SettingsNavigator"
+                component={SettingsNavigator}
+                options={{headerShown: false}}
+              />
+            )}
+          </>
+        ) : (
+          <MainTab.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{headerShown: false}}
+          />
+        )}
+      </MainTab.Navigator>
+    </AuthContext.Provider>
+  );
+};
 
 const styles = StyleSheet.create({
-  bottomImage: {
-    height: verticalScale(40),
-    width: verticalScale(40),
+  tabIcon: {
+    height: verticalScale(35),
+    width: verticalScale(35),
+  },
+  tabIconContainer: {
+    padding: 5,
+    borderRadius: 5,
+  },
+  tabBar: {
+    backgroundColor: 'white',
+    elevation: 0,
+    shadowOpacity: 0,
+    borderTopWidth: 0,
+  },
+  focused: {
+    backgroundColor: nativeColors.highlight,
   },
 });

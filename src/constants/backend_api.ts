@@ -1,126 +1,190 @@
 // For functions that make backend calls
 
-import axios from "axios";
-import {SpatialArea, SpatialAreaQuery} from "./EnumsAndInterfaces/SpatialAreaInterfaces";
-import {getFilteredSpatialAreasQuery, getHeaders} from "./utilityFunctions";
-import {Context} from "./EnumsAndInterfaces/ContextInterfaces";
+import axios from 'axios';
+import {
+  SpatialArea,
+  SpatialAreaQuery,
+} from './EnumsAndInterfaces/SpatialAreaInterfaces';
+import {getFilteredSpatialAreasQuery, getHeaders} from './utilityFunctions';
+import {SpatialContext} from './EnumsAndInterfaces/ContextInterfaces';
+import {API_ENDPOINTS} from './endpoints';
 
-
-export async function getFilteredSpatialAreasList(spacialAreaQuery: SpatialAreaQuery) {
-    const API = "api/area/" + getFilteredSpatialAreasQuery(spacialAreaQuery);
-    try {
-        const headers = await getHeaders();
-        const result = await axios.get(API, {
-            headers: {
-                ...headers
-            }
-        });
-        return Promise.resolve(result.data);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function getFilteredSpatialAreasList(
+  spatialAreaQuery: SpatialAreaQuery,
+) {
+  const API = 'api/area/' + getFilteredSpatialAreasQuery(spatialAreaQuery);
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(API, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
+}
+export async function getContextsForArea(area: SpatialArea) {
+  const url = API_ENDPOINTS.Context_ListHZEN(
+    area.utm_hemisphere,
+    area.utm_zone,
+    area.area_utm_easting_meters,
+    area.area_utm_northing_meters,
+  );
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function getSpatialArea(spacialAreaId: string): Promise<SpatialArea> {
-    const API = `api/area/${spacialAreaId}/`;
-    try {
-        const headers = await getHeaders();
-        const result = await axios.get(API, {
-            headers: {
-                ...headers
-            }
-        });
-        return Promise.resolve(result.data);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function getSpatialArea(
+  spatialAreaId: string,
+): Promise<SpatialArea> {
+  const url = API_ENDPOINTS.Area_DetailById(spatialAreaId);
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function createContext(spatial_area: string): Promise<Context> {
-    const API = "api/context/";
-    try {
-        const headers = await getHeaders();
-        const result = await axios.post(API, {spatial_area: spatial_area}, {
-            headers: {
-                ...headers
-            }
-        });
-        return Promise.resolve(result.data);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function createContext(
+  spatial_area: SpatialArea,
+): Promise<SpatialContext> {
+  const url = API_ENDPOINTS.Context_ListAll;
+  try {
+    const headers = await getHeaders();
+    const result = await axios.post(
+      url,
+      {
+        utm_hemisphere: spatial_area.utm_hemisphere,
+        utm_zone: spatial_area.utm_zone,
+        area_utm_easting_meters: spatial_area.area_utm_easting_meters,
+        area_utm_northing_meters: spatial_area.area_utm_northing_meters,
+      },
+      {
+        headers: {
+          ...headers,
+        },
+      },
+    );
+    // manually add photo set fields, since they are not returned by the API
+    // fix this on the server
+    return Promise.resolve({
+      ...result.data,
+      contextphoto_set: [],
+      bagphoto_set: [],
+    });
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
 export async function getContextTypes(): Promise<string[]> {
-    const API = `api/context/types/`;
-    try {
-        const headers = await getHeaders();
-        const result = await axios.get(API, {
-            headers: {
-                ...headers
-            }
-        });
-        return Promise.resolve(result.data.map((obj)=> obj.type));
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+  const url = API_ENDPOINTS.Context_ListTypes;
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data.map((obj) => obj.type));
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function updateContext(context: Context): Promise<Context> {
-    const API = `api/context/${context.id}/`;
-    try {
-        const headers = await getHeaders();
-        if (context.spatial_area != null) {
-            delete context.spatial_area;
-        }
-        const result = await axios.put(API, context, {
-            headers: {
-                ...headers
-            }
-        });
-        return Promise.resolve(result.data);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
+export async function updateContext(
+  context: SpatialContext,
+): Promise<SpatialContext> {
+  const url = API_ENDPOINTS.Context_DetailById(context.id);
+  try {
+    const headers = await getHeaders();
+    if (context.spatial_area != null) {
+      delete context.spatial_area;
     }
+    const result = await axios.put(url, context, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function uploadContextImage(contextImage: any, contextId: string): Promise<boolean> {
-    const API = `api/context/${contextId}/photo/`;
-    try {
-        const headers = await getHeaders();
-         await axios.put(API, contextImage, {headers: {...headers, 'Content-Type': 'multipart/form-data'}});
-        return Promise.resolve(true);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function getContextDetail(id: string): Promise<SpatialContext> {
+  const url = API_ENDPOINTS.Context_DetailById(id);
+  try {
+    const headers = await getHeaders();
+    const result = await axios.get(url, {
+      headers: {
+        ...headers,
+      },
+    });
+    return Promise.resolve(result.data);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function uploadContextBagPhotoImage(contextBagPhoto: any, contextId: string): Promise<boolean> {
-    const API = `api/context/${contextId}/bagphoto/`;
-    try {
-        const headers = await getHeaders();
-         await axios.put(API, contextBagPhoto, {headers: {...headers, 'Content-Type': 'multipart/form-data'}});
-        return Promise.resolve(true);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function uploadContextPhoto(
+  contextImage: any,
+  contextID: string,
+  onUploadProgress: ({loaded, total}: {loaded: number; total: number}) => void,
+): Promise<boolean> {
+  const url = API_ENDPOINTS.Context_PhotoUpload(contextID);
+  try {
+    const headers = await getHeaders();
+    await axios.put(url, contextImage, {
+      headers: {...headers, 'Content-Type': 'multipart/form-data'},
+      onUploadProgress: onUploadProgress,
+    });
+    return Promise.resolve(true);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }
 
-export async function uploadBagPhoto(contextImage: any, contextId: string, ): Promise<boolean> {
-    const API = `api/context/${contextId}/bagphoto/`;
-    try {
-        const headers = await getHeaders();
-         await axios.put(API, contextImage, {headers: {...headers, 'Content-Type': 'multipart/form-data'}});
-        return Promise.resolve(true);
-    } catch (e) {
-        console.log(e);
-        return Promise.reject();
-    }
+export async function uploadBagPhoto(
+  contextBagPhoto: any,
+  contextID: string,
+  onUploadProgress: ({loaded, total}: {loaded: number; total: number}) => void,
+): Promise<boolean> {
+  const url = API_ENDPOINTS.Context_BagPhotoUpload(contextID);
+  try {
+    const headers = await getHeaders();
+    await axios.put(url, contextBagPhoto, {
+      headers: {...headers, 'Content-Type': 'multipart/form-data'},
+      onUploadProgress: onUploadProgress,
+    });
+    return Promise.resolve(true);
+  } catch (e) {
+    console.log(e);
+    return Promise.reject();
+  }
 }

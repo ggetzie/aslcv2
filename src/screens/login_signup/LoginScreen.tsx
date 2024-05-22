@@ -1,61 +1,42 @@
-import * as React from 'react';
-import {useState} from 'react';
-import {NavigationScreenComponent} from 'react-navigation';
-import {useDispatch} from 'react-redux';
-import {LoginDetails} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
+import AsyncStorage from '@react-native-community/async-storage';
+import React, {useState, useContext} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {UserProfile} from '../../constants/EnumsAndInterfaces/UserDataInterfaces';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
-import {LoadingModalComponent} from '../../components/general/LoadingModalComponent';
+import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
+import {MainTabParamList} from '../../../navigation';
+import LoadingModalComponent, {
+  LoadingMessage,
+} from '../../components/general/LoadingModalComponent';
 import {ButtonComponent} from '../../components/general/ButtonComponent';
-import {loginUser} from '../../constants/backend_api_action';
-import DataLoadingComponent from '../../components/DataLoadingComponent';
 import {nativeColors} from '../../constants/colors';
 import {verticalScale} from '../../constants/nativeFunctions';
 import {PaddingComponent} from '../../components/PaddingComponent';
-import {mediaBaseURL} from '../../constants/Axios';
+import {AuthContext} from '../../../navigation/';
+import {SET_USER_PROFILE} from '../../../redux/reducerAction';
+import HostPicker from '../../components/HostPicker';
+import {AslReducerState} from '../../../redux/reducer';
 
-const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
+type Props = BottomTabScreenProps<MainTabParamList, 'Login'>;
+
+const LoginScreen = (_: Props) => {
   const dispatch = useDispatch();
-  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const host = mediaBaseURL.replace('https://', '');
+  const [loadingMessage, setLoadingMessage] =
+    useState<LoadingMessage>('hidden');
 
-  async function validateInputAndLogin() {
-    if (usernameOrEmail.trim().length === 0) {
-      alert('Username cannot be empty');
-      return;
-    } else if (password.trim().length === 0) {
-      alert('Password cannot be empty');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      let loginDetails: LoginDetails = {
-        email: undefined,
-        username: usernameOrEmail,
-        password: password,
-      };
-
-      await dispatch(loginUser(loginDetails));
-      setLoading(false);
-      props.navigation.navigate('DataLoadingComponent');
-    } catch (e) {
-      setLoading(false);
-      alert(e);
-    }
-  }
+  const {signIn} = useContext(AuthContext);
 
   return (
     <View>
-      <LoadingModalComponent showLoading={loading} />
-
+      <LoadingModalComponent message={loadingMessage} />
       <View style={styles.container}>
         <Text style={styles.headerText}>Login</Text>
         <TextInput
-          value={usernameOrEmail}
+          value={username}
           style={styles.textInputContainer}
-          onChangeText={(text) => setUsernameOrEmail(text)}
+          onChangeText={(text) => setUsername(text)}
           autoCapitalize={'none'}
           autoCorrect={false}
           placeholder="Username"
@@ -71,15 +52,30 @@ const LoginScreen: NavigationScreenComponent<any, any> = (props) => {
           placeholder="Password"
         />
       </View>
+      <HostPicker />
       <ButtonComponent
-        onPress={validateInputAndLogin}
+        onPress={async () => {
+          setLoadingMessage('loggingIn');
+          const token = await signIn({username, password});
+          if (token) {
+            const userProfile: UserProfile = {
+              username: username,
+              authToken: token,
+            };
+            await AsyncStorage.setItem('authToken', userProfile.authToken);
+            await AsyncStorage.setItem('username', userProfile.username);
+            setLoadingMessage('hidden');
+            dispatch({type: SET_USER_PROFILE, payload: userProfile});
+          } else {
+            setLoadingMessage('hidden');
+            alert('Invalid username or password');
+          }
+        }}
         text={'Log In'}
         rounded={true}
         buttonStyle={{width: '50%'}}
+        disabled={username === '' || password === ''}
       />
-      <View style={styles.infoContainer}>
-        <Text style={styles.info}>Host: {host}</Text>
-      </View>
     </View>
   );
 };
