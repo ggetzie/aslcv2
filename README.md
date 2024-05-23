@@ -1,4 +1,7 @@
-# Archaeological Survey Location Collector: Version 2
+# This project has been archived
+Refer to version 3 at [aslcv3](https://github.com/ggetzie/aslcv3)
+
+## Archaeological Survey Location Collector: Version 2
 
 This is React Native mobile app to upload Archaeological Survey data to a remote server via a REST API. The backend server portion is a Django app residing in the repository [here](https://github.com/ggetzie/aslcv2_be). 
 
